@@ -1,10 +1,14 @@
-/* --------------------------------
+/* ------------------------------------------
    Author:           Alex Koukoulas
    Date:             13/12/2015
    File name:        window.h
    
-   File description:
-   -------------------------------- */
+   File description: A class representing
+   a window adhering to the win32 api rules.
+   The class loads and extracts the initial 
+   data from the configuration file parameter
+   in the constructor
+   ------------------------------------------ */
 
 #ifndef _WINDOW_H
 #define _WINDOW_H
@@ -16,7 +20,7 @@ class Window
 {
 public:
 
-	Window(const cstring configPath,
+	Window(const char* configPath,
 		   const HINSTANCE& hInstance,
 		   const WNDPROC& windowProc);
    

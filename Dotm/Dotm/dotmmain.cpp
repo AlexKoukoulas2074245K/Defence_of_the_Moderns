@@ -10,6 +10,7 @@
 
 #include "window.h"
 #include "vld.h"
+#include "strings.h"
 
 /* -------------------
    Internal Signatures 

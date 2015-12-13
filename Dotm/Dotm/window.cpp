@@ -3,11 +3,8 @@
    Date:             13/12/2015
    File name:        window.cpp
    
-   File description: A class representing
-   a window adhering to the win32 api rules.
-   The class loads and extracts the initial 
-   data from the configuration file parameter
-   in the constructor
+   File description: Implementation of the
+   Window class.
    ------------------------------------------ */
 
 #include "window.h"
@@ -22,12 +19,12 @@ const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1000U;
    Internal Signatures 
    ------------------- */
 internal bool
-getBoolBuffer(const cstring buffer);
+getBoolBuffer(const char* buffer);
 
 /* --------------
    Public Methods
    -------------- */
-Window::Window(const cstring configPath,
+Window::Window(const char* configPath,
 			   const HINSTANCE& hInstance,
 			   const WNDPROC& windowProc):
 
@@ -186,7 +183,7 @@ Window::getHandle() const
    Internal Functions
    ------------------ */
 internal bool
-getBoolBuffer(const cstring buffer)
+getBoolBuffer(const char* buffer)
 {
 	return buffer[0] == 't' &&
 		   buffer[1] == 'r' &&
