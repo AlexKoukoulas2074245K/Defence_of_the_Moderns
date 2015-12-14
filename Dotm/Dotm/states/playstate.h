@@ -18,17 +18,17 @@ class PlayState: public AGameState
 {
 public:
 	
-	PlayState();
+    PlayState();
 
-	~PlayState();
+    ~PlayState();
 
-	PlayState(const PlayState& rhs);
+    PlayState(const PlayState& rhs) = delete;
+    
+    PlayState& 
+    operator= (const PlayState& rhs) = delete;
 
-	PlayState&
-    operator=(const PlayState& rhs);
-
-	void
-	update();
+    void
+    update();
 
 };
 
