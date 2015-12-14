@@ -10,7 +10,7 @@
 
 #include "window.h"
 #include "vld.h"
-#include "strings.h"
+#include "states/gsqueue.h"
 
 /* -------------------
    Internal Signatures 
@@ -33,8 +33,11 @@ WinMain(HINSTANCE hInstance,
 	Window window("config/winconfig.ini",
 				  hInstance,
 				  messageHandler);
-	
+
+
 	MSG message = {};
+	GameStateQueue gsq;
+
 	for (;;)
 	{
 		if (PeekMessage(&message, window.getHandle(), 0, 0, PM_REMOVE))
@@ -42,6 +45,11 @@ WinMain(HINSTANCE hInstance,
 			TranslateMessage(&message);
 			DispatchMessage(&message);
 			if (message.message == WM_QUIT) break;
+		}
+		else
+		{
+			gsq.update();
+			if (gsq.isDone()) break;
 		}
 	}
 

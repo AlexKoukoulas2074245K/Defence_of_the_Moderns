@@ -65,11 +65,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dotmmain.cpp" />
+    <ClCompile Include="states\agamestate.cpp" />
+    <ClCompile Include="states\gsqueue.cpp" />
+    <ClCompile Include="states\playstate.cpp" />
     <ClCompile Include="strings.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dotmdef.h" />
+    <ClInclude Include="states\agamestate.h" />
+    <ClInclude Include="states\gsqueue.h" />
+    <ClInclude Include="states\playstate.h" />
     <ClInclude Include="strings.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>

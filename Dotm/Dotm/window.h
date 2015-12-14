@@ -2,10 +2,10 @@
    Author:           Alex Koukoulas
    Date:             13/12/2015
    File name:        window.h
-   
+
    File description: A class representing
    a window adhering to the win32 api rules.
-   The class loads and extracts the initial 
+   The class loads and extracts the initial
    data from the configuration file parameter
    in the constructor
    ------------------------------------------ */
@@ -15,60 +15,65 @@
 
 #include <Windows.h>
 #include "dotmdef.h"
+#include "strings.h"
 
 class Window
 {
 public:
 
-	Window(const char* configPath,
-		   const HINSTANCE& hInstance,
-		   const WNDPROC& windowProc);
-   
-   ~Window();
-	
+    Window(const char* configPath,
+           const HINSTANCE& hInstance,
+           const WNDPROC& windowProc);
+
+    ~Window();
+
     Window(const Window& rhs) = delete;
-	
-	Window&
-	operator= (const Window& rhs) = delete;
 
-	bool
-	isReady() const;
+    Window&
+    operator= (const Window& rhs) = delete;
 
-	bool
-	getFullscreen() const;
+    bool
+    isReady() const;
 
-	bool 
-	getVsync() const;
+    bool
+    getFullscreen() const;
 
-	uint32
+    bool
+    getVsync() const;
+
+    uint32
     getWidth() const;
 
-	uint32
-	getHeight() const;
+    uint32
+    getHeight() const;
 
-	real32
-	getAspect() const;
+    real32
+    getAspect() const;
 
-	const HWND&
-	getHandle() const;
-	
+    cstring
+    getAppName() const;
+
+    const HWND&
+    getHandle() const;
+
 private:
 
-	classfield const uint32 WINDOW_DEFAULT_WD_WIDTH;
+    classfield const uint32 WINDOW_DEFAULT_WD_WIDTH;
 
 private:
 
-	bool ready;
-	bool fullscreen;
-	bool vsync;
+    bool m_ready;
+    bool m_fullscreen;
+    bool m_vsync;
 
-	HWND handle;
-	
-	uint32 windowWidth;
-	uint32 windowHeight;
-	uint32 screenWidth;
-	uint32 screenHeight;
-	real32 aspectRatio;
+    HWND m_handle;
+    stringID m_appName;
+
+    uint32 m_windowWidth;
+    uint32 m_windowHeight;
+    uint32 m_screenWidth;
+    uint32 m_screenHeight;
+    real32 m_aspectRatio;
 };
 
 #endif
