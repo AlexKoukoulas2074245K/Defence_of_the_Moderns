@@ -41,6 +41,8 @@ WinMain(HINSTANCE hInstance,
 				  hInstance,
 				  messageHandler);
 
+    // Assert window is ready
+    if (!window.isReady()) return 1;
     g_window = &window;
 
 	MSG message = {};

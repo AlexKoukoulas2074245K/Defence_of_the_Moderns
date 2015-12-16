@@ -18,6 +18,7 @@
 #include <dxerr.h>
 
 // Linking to external libs
+#pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dx10.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxerr.lib")

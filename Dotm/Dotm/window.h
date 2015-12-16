@@ -35,10 +35,7 @@ public:
     isReady() const;
 
     bool
-    getFullscreen() const;
-
-    bool
-    getVsync() const;
+    isFullscreen() const;
 
     uint32
     getWidth() const;
@@ -63,7 +60,6 @@ private:
 
     bool m_ready;
     bool m_fullscreen;
-    bool m_vsync;
 
     HWND m_handle;
     stringID m_appName;

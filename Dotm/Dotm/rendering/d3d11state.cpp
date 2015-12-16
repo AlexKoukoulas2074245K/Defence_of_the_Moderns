@@ -9,6 +9,7 @@
 
 #include "d3d11state.h"
 #include "../window.h"
+#include "../config/configparser.h"
 
 /* --------------
    External Vars
@@ -26,7 +27,8 @@ D3D11State::D3D11State():
     m_device(nullptr),
     m_swapChain(nullptr)
 {
-    init();
+    initConfig();
+    initD3D();
 }
 
 D3D11State::~D3D11State()
@@ -34,11 +36,35 @@ D3D11State::~D3D11State()
 
 }
 
+bool
+D3D11State::isVsyncEnabled() const
+{
+    return m_vsync;
+}
+
+bool
+D3D11State::isMultisamplingEnabled() const
+{
+    return m_multisampling;
+}
+
 /* ---------------
    Private Methods
    --------------- */
 void
-D3D11State::init()
+D3D11State::initConfig()
+{
+    // Assert that the rendering config file exists
+    if (!initConfigFile("config/rendconfig.ini")) return;
+
+    // Extract the rendering config variables from the config file
+    extractConfigBool("rendconfig", "vsync", &m_vsync);
+    extractConfigBool("rendconfig", "multisampling", &m_multisampling);
+    extractConfigUint("rendconfig", "anisotropic", &m_anisotropic);
+}
+
+void
+D3D11State::initD3D()
 {
     // DXGI Factory Creation
     comptr<IDXGIFactory> factory;
@@ -66,14 +92,15 @@ D3D11State::init()
                                          &numModes,
                                          displayModes));
 
-    uint32 refRateNum, refRateDenum;
+    uint32 refRateNum   = 0U;
+    uint32 refRateDenum = 0U;
 
     // Find the appropriate display mode for the current window
     // resolution
     for (size_t i = 0; i < numModes; ++i)
     {
-        if (displayModes[i].Width  == static_cast<uint32>(g_window->getWidth()) &&
-            displayModes[i].Height == static_cast<uint32>(g_window->getHeight()))
+        if (displayModes[i].Width  == (uint32) g_window->getWidth() &&
+            displayModes[i].Height == (uint32) g_window->getHeight())
         {
             refRateNum   = displayModes[i].RefreshRate.Numerator;
             refRateDenum = displayModes[i].RefreshRate.Denominator;
@@ -89,11 +116,172 @@ D3D11State::init()
 
     // Store Video Card and System Details
     m_videoCardName   = internString(adapterDesc.Description);
-    m_videoCardMemory = static_cast<uint32>(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+    m_videoCardMemory = (uint32) (adapterDesc.DedicatedVideoMemory / 1024 / 1024);
     stringID cardMem  = internString((void*) m_videoCardMemory);
 
+    // Print out the video card details
     OutputDebugString(retrieveString(m_videoCardName));
     OutputDebugString("\n");
     OutputDebugString(retrieveString(cardMem));
     OutputDebugString("\n");
+
+    // Fill out the Swap Chain Description
+    DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+    swapChainDesc.BufferDesc.Width                   = g_window->getWidth();
+	swapChainDesc.BufferDesc.Height                  = g_window->getHeight();
+    swapChainDesc.BufferDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.RefreshRate.Numerator   = m_vsync ? refRateNum : 0;
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = m_multisampling ? refRateDenum : 1;
+	swapChainDesc.BufferDesc.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapChainDesc.BufferDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
+    
+    if  (m_multisampling) swapChainDesc.SampleDesc = {4, 0};
+    if (!m_multisampling) swapChainDesc.SampleDesc = {1, 0};
+
+    swapChainDesc.BufferCount   = 1;
+    swapChainDesc.BufferUsage   = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.OutputWindow  = g_window->getHandle();
+    swapChainDesc.Windowed      = !g_window->isFullscreen();
+    swapChainDesc.SwapEffect    = DXGI_SWAP_EFFECT_DISCARD;
+    D3D_FEATURE_LEVEL featLevel = D3D_FEATURE_LEVEL_11_0;
+
+    // Create Device, Device context and Swap Chain
+    HR(D3D11CreateDeviceAndSwapChain(NULL,
+                                    D3D_DRIVER_TYPE_HARDWARE,
+                                    NULL,
+                                    0,
+                                    &featLevel,
+                                    1,
+                                    D3D11_SDK_VERSION,
+                                    &swapChainDesc,
+                                    &m_swapChain,
+                                    &m_device,
+                                    NULL,
+                                    &m_devcon));
+
+    // Create the render target view
+    comptr<ID3D11Texture2D> backBuffer;
+    HR(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*) &backBuffer));
+    HR(m_device->CreateRenderTargetView(backBuffer.Get(), NULL, &m_backBuffer));
+    
+    // Create Depth Buffer
+    D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+    depthBufferDesc.Width     = g_window->getWidth();
+    depthBufferDesc.Height    = g_window->getHeight();
+    depthBufferDesc.MipLevels = 1;
+    depthBufferDesc.ArraySize = 1;
+    depthBufferDesc.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
+ 
+    if  (m_multisampling) depthBufferDesc.SampleDesc = {4, 0};
+    if (!m_multisampling) depthBufferDesc.SampleDesc = {1, 0};
+
+    depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+    // Create the depth buffer
+    HR(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthBuffer));
+
+    // Create custom depth stencil states
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+    depthStencilDesc.DepthEnable      = true;
+    depthStencilDesc.DepthWriteMask   = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthStencilDesc.DepthFunc        = D3D11_COMPARISON_LESS;
+    depthStencilDesc.StencilEnable    = true;
+    depthStencilDesc.StencilReadMask  = 0xFF;
+    depthStencilDesc.StencilWriteMask = 0xFF;
+
+    depthStencilDesc.FrontFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+    depthStencilDesc.FrontFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.FrontFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
+    depthStencilDesc.BackFace.StencilFailOp       = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.BackFace.StencilDepthFailOp  = D3D11_STENCIL_OP_DECR;
+    depthStencilDesc.BackFace.StencilPassOp       = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.BackFace.StencilFunc         = D3D11_COMPARISON_ALWAYS;
+
+    // Create the two depth stencil states
+    HR(m_device->CreateDepthStencilState(&depthStencilDesc, &m_enabledDepth));
+    depthStencilDesc.DepthEnable = false;
+    HR(m_device->CreateDepthStencilState(&depthStencilDesc, &m_disabledDepth));
+
+    // Create the depth stencil view
+    D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+    depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    
+    if  (m_multisampling) depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+    if (!m_multisampling) depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+
+    HR(m_device->CreateDepthStencilView(m_depthBuffer.Get(), &depthStencilViewDesc, &m_depthStencilView));
+
+    // Set render target and depth stencil view
+    m_devcon->OMSetRenderTargets(1, m_backBuffer.GetAddressOf(), m_depthStencilView.Get());
+
+    // Create the blend description
+    D3D11_BLEND_DESC blendDesc = {};
+    blendDesc.RenderTarget[0].BlendEnable           = TRUE;
+    blendDesc.RenderTarget[0].BlendOp               = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlend              = D3D11_BLEND_SRC_ALPHA;
+    blendDesc.RenderTarget[0].DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
+    blendDesc.RenderTarget[0].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlendAlpha        = D3D11_BLEND_ZERO;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    
+    blendDesc.IndependentBlendEnable = FALSE;
+    blendDesc.AlphaToCoverageEnable  = TRUE;
+
+    // Create and set the blend state
+    HR(m_device->CreateBlendState(&blendDesc, &m_blendState));
+    m_devcon->OMSetBlendState(m_blendState.Get(), 0, 0xFFFFFFFF);
+
+    // Create the sampler description
+    D3D11_SAMPLER_DESC samplerDesc = {};
+    samplerDesc.Filter         = D3D11_FILTER_ANISOTROPIC;
+    samplerDesc.MaxAnisotropy  = m_anisotropic;
+    samplerDesc.AddressU       = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressV       = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressW       = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.BorderColor[0] = 0.0f;
+    samplerDesc.BorderColor[1] = 0.0f;
+    samplerDesc.BorderColor[2] = 0.0f;
+    samplerDesc.BorderColor[3] = 0.0f;
+    samplerDesc.MinLOD         = 0.0f;
+    samplerDesc.MaxLOD         = FLT_MAX;
+    samplerDesc.MipLODBias     = 0.0f;
+
+    // Create and set the sampler
+    HR(m_device->CreateSamplerState(&samplerDesc, &m_samplerState));
+    m_devcon->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+
+    // Create the custom rasterizer description
+    D3D11_RASTERIZER_DESC rastDesc = {};
+    rastDesc.FillMode              = D3D11_FILL_SOLID;
+    rastDesc.CullMode              = D3D11_CULL_BACK;
+    rastDesc.FrontCounterClockwise = FALSE;
+    rastDesc.DepthClipEnable       = TRUE;
+    rastDesc.ScissorEnable         = FALSE;
+    rastDesc.AntialiasedLineEnable = TRUE;
+    rastDesc.MultisampleEnable     = TRUE;
+    rastDesc.DepthBias             = 0;
+    rastDesc.DepthBiasClamp        = 0.0f;
+    rastDesc.SlopeScaledDepthBias  = 0.0f;
+
+    // Create the two rasterizer states
+    HR(m_device->CreateRasterizerState(&rastDesc, &m_solidRastState));
+    rastDesc.FillMode = D3D11_FILL_WIREFRAME;
+    HR(m_device->CreateRasterizerState(&rastDesc, &m_wireFrameRastState));
+    
+    // Set the solid rasterizer state as the initial 
+    m_devcon->RSSetState(m_solidRastState.Get());
+
+    // Create viewport description
+    D3D11_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.Width    = (real32) g_window->getWidth();
+    viewport.Height   = (real32) g_window->getHeight();
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    
+    // Set the viewport
+    m_devcon->RSSetViewports(1, &viewport);
 }

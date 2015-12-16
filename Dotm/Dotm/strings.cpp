@@ -8,6 +8,7 @@
    ------------------------------------------- */
 
 #include "strings.h"
+#include "dotmdef.h"
 #include <map>
 #include <functional>
 #include <string>
@@ -41,7 +42,7 @@ internString(cwstring str)
 stringID
 internString(void* number)
 {
-    std::string str(std::to_string((unsigned int)number));
+    std::string str(std::to_string((uint32)number));
     return internString(str.c_str());
 }
 

@@ -8,25 +8,19 @@
    ------------------------------------------ */
 
 #include "window.h"
+#include "config/configparser.h"
 
 /* -----------------
    Const Definitions
    ----------------- */
 const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1000U;
 
-
-/* -------------------
-   Internal Signatures
-   ------------------- */
-static bool
-getBoolBuffer(const char* buffer);
-
 /* --------------
    Public Methods
    -------------- */
 Window::Window(const char* configPath,
-    const HINSTANCE& hInstance,
-    const WNDPROC& windowProc):
+               const HINSTANCE& hInstance,
+               const WNDPROC& windowProc):
 
     m_ready(false),
     m_fullscreen(false),
@@ -38,42 +32,17 @@ Window::Window(const char* configPath,
     // Exctract screen size
     m_screenWidth  = GetSystemMetrics(SM_CXSCREEN);
     m_screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-    m_aspectRatio  = static_cast<float>(m_screenWidth) /
-                     static_cast<float>(m_screenHeight);
+    m_aspectRatio  = (real32) m_screenWidth /
+                     (real32) m_screenHeight;
+    
+    // assert config file exists
+    if(!initConfigFile(configPath)) return;
 
     // Extract the app name from the winconfig file
-    char appNameBuffer[32];
-    GetPrivateProfileString("winconfig",
-                            "app_name",
-                            "",
-                            appNameBuffer,
-                            ARRAYSIZE(appNameBuffer),
-                            configPath);
-
-    m_appName = internString(appNameBuffer);
-
+    extractConfigString("winconfig", "app_name", &m_appName);
+    
     // Extract the fuillscreen boolean from the winconfig file
-    char fullscreenBuffer[8];
-    GetPrivateProfileString("winconfig",
-                            "fullscreen",
-                            "",
-                            fullscreenBuffer,
-                            ARRAYSIZE(fullscreenBuffer),
-                            configPath);
-
-    m_fullscreen = getBoolBuffer(fullscreenBuffer);
-
-    // Extract the vsync boolean from the winconfig file
-    char vsyncBuffer[8];
-    GetPrivateProfileString("winconfig",
-                            "vsync",
-                            "",
-                            vsyncBuffer,
-                            ARRAYSIZE(vsyncBuffer),
-                            configPath);
-
-    m_vsync = getBoolBuffer(vsyncBuffer);
+    extractConfigBool("winconfig", "fullscreen", &m_fullscreen);
 
     // Fill out the window description struct
     WNDCLASSEX windowDesc    = {};
@@ -83,7 +52,7 @@ Window::Window(const char* configPath,
     windowDesc.hInstance     = hInstance;
     windowDesc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     windowDesc.hbrBackground = (HBRUSH) COLOR_WINDOW;
-    windowDesc.lpszClassName = appNameBuffer;
+    windowDesc.lpszClassName = retrieveString(m_appName);
 
     RegisterClassEx(&windowDesc);
 
@@ -98,8 +67,8 @@ Window::Window(const char* configPath,
         // Display device info
         DEVMODE	dmScreen      = {};
         dmScreen.dmSize       = sizeof(dmScreen);
-        dmScreen.dmPelsWidth  = static_cast<ulong64>(m_windowWidth);
-        dmScreen.dmPelsHeight = static_cast<ulong64>(m_windowHeight);
+        dmScreen.dmPelsWidth  = (ulong64) m_windowWidth;
+        dmScreen.dmPelsHeight = (ulong64) m_windowHeight;
         dmScreen.dmBitsPerPel = 32;
         dmScreen.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
@@ -108,8 +77,8 @@ Window::Window(const char* configPath,
     else
     {
         m_windowWidth  = WINDOW_DEFAULT_WD_WIDTH;
-        m_windowHeight = static_cast<uint32>(WINDOW_DEFAULT_WD_WIDTH /
-                                             m_aspectRatio);
+        m_windowHeight = (uint32) (WINDOW_DEFAULT_WD_WIDTH / m_aspectRatio);
+
         // Center window
         windowPosX = (GetSystemMetrics(SM_CXSCREEN) - m_windowWidth) / 2;
         windowPosY = (GetSystemMetrics(SM_CYSCREEN) - m_windowHeight) / 2;
@@ -117,8 +86,8 @@ Window::Window(const char* configPath,
 
     // Window Creation
     m_handle = CreateWindowEx(NULL,
-                              appNameBuffer,
-                              appNameBuffer,
+                              retrieveString(m_appName),
+                              retrieveString(m_appName),
                               WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
                               windowPosX,
                               windowPosY,
@@ -146,15 +115,9 @@ Window::isReady() const
 }
 
 bool
-Window::getFullscreen() const
+Window::isFullscreen() const
 {
     return m_fullscreen;
-}
-
-bool
-Window::getVsync() const
-{
-    return m_vsync;
 }
 
 uint32
@@ -185,16 +148,4 @@ const HWND&
 Window::getHandle() const
 {
     return m_handle;
-}
-
-/* ------------------
-   Internal Functions
-   ------------------ */
-static bool
-getBoolBuffer(const char* buffer)
-{
-    return buffer[0] == 't' &&
-           buffer[1] == 'r' &&
-           buffer[2] == 'u' &&
-           buffer[3] == 'e';
 }
