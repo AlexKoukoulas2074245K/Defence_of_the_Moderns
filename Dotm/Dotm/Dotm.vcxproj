@@ -82,8 +82,8 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dotmdef.h" />
     <ClInclude Include="config\configparser.h" />
+    <ClInclude Include="dotmdef.h" />
     <ClInclude Include="rendering\d3d11common.h" />
     <ClInclude Include="rendering\d3d11state.h" />
     <ClInclude Include="rendering\renderer.h" />

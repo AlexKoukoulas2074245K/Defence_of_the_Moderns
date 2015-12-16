@@ -47,12 +47,6 @@
     <ClInclude Include="window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dotmdef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="strings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="states\gsqueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,6 +66,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendering\renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="strings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dotmdef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
