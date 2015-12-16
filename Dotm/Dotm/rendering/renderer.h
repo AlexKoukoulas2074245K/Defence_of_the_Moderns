@@ -1,13 +1,13 @@
 /* ------------------------------------------------
-Author:           Alex Koukoulas
-Date:             15/12/2015
-File name:        renderer.h
+   Author:           Alex Koukoulas
+   Date:             15/12/2015
+   File name:        renderer.h
 
-File description: A singleton class in charge of
-the core rendering of meshes and default
-geometry, along with controlling the
-pause for each frame (when vsync is enabled).
------------------------------------------------- */
+   File description: A singleton class in charge of
+   the core rendering of meshes and default
+   geometry, along with controlling the 
+   pause for each frame (when vsync is enabled).
+   ------------------------------------------------ */
 
 #pragma once
 
@@ -20,7 +20,7 @@ class Renderer
 public:
 
     static Renderer&
-        get();
+    get();
 
     ~Renderer();
 
@@ -31,7 +31,7 @@ private:
     Renderer(const Renderer& rhs) = delete;
 
     Renderer&
-        operator = (const Renderer& rhs) = delete;
+    operator = (const Renderer& rhs) = delete;
 
 private:
 

@@ -1,13 +1,13 @@
 /* ------------------------------------
-Author:           Alex Koukoulas
-Date:             13/12/2015
-File name:        strings.h
+   Author:           Alex Koukoulas
+   Date:             13/12/2015
+   File name:        strings.h
 
-File description: Custom string
-intern system. String IDs are
-used instead of concrete strings
-or char arrays throughout the system
------------------------------------- */
+   File description: Custom string
+   intern system. String IDs are
+   used instead of concrete strings
+   or char arrays throughout the system
+   ------------------------------------ */
 
 #pragma once
 

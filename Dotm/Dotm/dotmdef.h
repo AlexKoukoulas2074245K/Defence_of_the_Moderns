@@ -1,11 +1,11 @@
 /* ---------------------------------
-Author:           Alex Koukoulas
-Date:             13/12/2015
-File name:        dotmdef.h
+   Author:           Alex Koukoulas
+   Date:             13/12/2015
+   File name:        dotmdef.h
 
-File description: Common typedefs
-used throughout the project
---------------------------------- */
+   File description: Common typedefs
+   used throughout the project
+   --------------------------------- */
 
 #pragma once
 
