@@ -62,9 +62,6 @@
     <ClInclude Include="states\playstate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rendering\d3d11state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config\configparser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
