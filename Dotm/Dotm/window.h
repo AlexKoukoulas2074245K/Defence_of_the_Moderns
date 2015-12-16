@@ -10,8 +10,7 @@
    in the constructor
    ------------------------------------------ */
 
-#ifndef _WINDOW_H
-#define _WINDOW_H
+#pragma once
 
 #include <Windows.h>
 #include "dotmdef.h"
@@ -30,7 +29,7 @@ public:
     Window(const Window& rhs) = delete;
 
     Window&
-    operator= (const Window& rhs) = delete;
+    operator = (const Window& rhs) = delete;
 
     bool
     isReady() const;
@@ -58,7 +57,7 @@ public:
 
 private:
 
-    classfield const uint32 WINDOW_DEFAULT_WD_WIDTH;
+    static const uint32 WINDOW_DEFAULT_WD_WIDTH;
 
 private:
 
@@ -75,5 +74,3 @@ private:
     uint32 m_screenHeight;
     real32 m_aspectRatio;
 };
-
-#endif

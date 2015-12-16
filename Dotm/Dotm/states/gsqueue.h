@@ -7,10 +7,10 @@
    creating, updating and deleting game states
    ------------------------------------------- */
 
-#ifndef _GSQUEUE_H
-#define _GSQUEUE_H
+#pragma once
 
 #include <queue>
+#include <memory>
 
 class AGameState;
 class GameStateQueue
@@ -24,7 +24,7 @@ public:
     GameStateQueue(const GameStateQueue& rhs) = delete;
 
     GameStateQueue&
-    operator=(const GameStateQueue& rhs) = delete;
+    operator =(const GameStateQueue& rhs) = delete;
 
     void
     update();
@@ -40,8 +40,6 @@ private:
 
 private:
 
-    std::queue<AGameState*> m_states;
+    std::queue<std::unique_ptr<AGameState>> m_states;
     bool m_done;
 };
-
-#endif

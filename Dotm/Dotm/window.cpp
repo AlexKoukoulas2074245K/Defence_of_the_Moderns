@@ -18,7 +18,7 @@ const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1000U;
 /* -------------------
    Internal Signatures
    ------------------- */
-internal bool
+static bool
 getBoolBuffer(const char* buffer);
 
 /* --------------
@@ -190,7 +190,7 @@ Window::getHandle() const
 /* ------------------
    Internal Functions
    ------------------ */
-internal bool
+static bool
 getBoolBuffer(const char* buffer)
 {
     return buffer[0] == 't' &&

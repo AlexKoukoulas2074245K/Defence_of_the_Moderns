@@ -10,8 +10,15 @@
 
 #include "window.h"
 #include "vld.h"
-#include "states/gsqueue.h"
+#include "states\gsqueue.h"
+#include "rendering\renderer.h"
 
+
+/* -------
+   Globals
+   ------- */
+Window* g_window;
+   
 /* -------------------
    Internal Signatures 
    ------------------- */
@@ -34,9 +41,13 @@ WinMain(HINSTANCE hInstance,
 				  hInstance,
 				  messageHandler);
 
+    g_window = &window;
 
 	MSG message = {};
 	GameStateQueue gsq;
+
+    // Initialize Singletons
+    Renderer::get();
 
 	for (;;)
 	{

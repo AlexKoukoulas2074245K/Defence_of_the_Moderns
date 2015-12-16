@@ -30,6 +30,21 @@ internString(cstring str)
     return id;
 }
 
+stringID
+internString(cwstring str)
+{
+    std::wstring wstr(str);
+    std::string  s(wstr.begin(), wstr.end());
+    return internString(s.c_str());
+}
+
+stringID
+internString(void* number)
+{
+    std::string str(std::to_string((unsigned int)number));
+    return internString(str.c_str());
+}
+
 cstring
 retrieveString(const stringID id)
 {

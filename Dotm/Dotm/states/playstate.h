@@ -9,8 +9,7 @@
    AGameState declared in agamestate.h.
    ------------------------------------------ */
 
-#ifndef _PLAYSTATE_H
-#define _PLAYSTATE_H
+#pragma once
 
 #include "agamestate.h"
 
@@ -25,11 +24,9 @@ public:
     PlayState(const PlayState& rhs) = delete;
     
     PlayState& 
-    operator= (const PlayState& rhs) = delete;
+    operator = (const PlayState& rhs) = delete;
 
     void
     update();
 
 };
-
-#endif

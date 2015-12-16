@@ -7,8 +7,7 @@
    representing the possible game states
    ------------------------------------------ */
 
-#ifndef _AGAMESTATE_H
-#define _AGAMESTATE_H
+#pragma once
 
 class AGameState
 {
@@ -22,7 +21,7 @@ public:
     AGameState(const AGameState& rhs) = delete;
 
     AGameState&
-    operator=(const AGameState& rhs) = delete;
+    operator = (const AGameState& rhs) = delete;
 
     virtual void
     update() = 0;
@@ -35,5 +34,3 @@ protected:
     bool m_finished;
 
 };
-
-#endif

@@ -17,7 +17,7 @@ GameStateQueue::GameStateQueue():
 	
 	m_done(false)
 {
-	m_states.push(new PlayState);
+	m_states.push(std::unique_ptr<PlayState>(new PlayState));
 }
 
 GameStateQueue::~GameStateQueue()
@@ -38,7 +38,6 @@ GameStateQueue::update()
 void
 GameStateQueue::discardState()
 {
-	delete(m_states.front());
 	m_states.pop();
 }
 
