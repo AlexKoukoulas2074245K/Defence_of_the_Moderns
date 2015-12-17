@@ -23,7 +23,7 @@ AGameState::AGameState():
 AGameState::~AGameState(){}
 
 bool
-AGameState::isFinished() const
+AGameState::isFinished() logical_const
 {
     return m_finished;
 }

@@ -32,25 +32,25 @@ public:
     operator = (const Window& rhs) = delete;
 
     bool
-    isReady() const;
+    isReady() logical_const;
 
     bool
-    isFullscreen() const;
+    isFullscreen() logical_const;
 
     uint32
-    getWidth() const;
+    getWidth() logical_const;
 
     uint32
-    getHeight() const;
+    getHeight() logical_const;
 
     real32
-    getAspect() const;
+    getAspect() logical_const;
 
     cstring
-    getAppName() const;
+    getAppName() logical_const;
 
     const HWND&
-    getHandle() const;
+    getHandle() logical_const;
 
 private:
 

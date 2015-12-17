@@ -29,10 +29,10 @@ public:
     operator = (const D3D11State& rhs) = delete;
 
     bool
-    isVsyncEnabled() const;
+    isVsyncEnabled() logical_const;
 
     bool
-    isMultisamplingEnabled() const;
+    isMultisamplingEnabled() logical_const;
 
 private:
 

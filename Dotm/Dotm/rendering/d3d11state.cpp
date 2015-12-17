@@ -39,13 +39,13 @@ D3D11State::~D3D11State()
 }
 
 bool
-D3D11State::isVsyncEnabled() const
+D3D11State::isVsyncEnabled() logical_const
 {
     return m_vsync;
 }
 
 bool
-D3D11State::isMultisamplingEnabled() const
+D3D11State::isMultisamplingEnabled() logical_const
 {
     return m_multisampling;
 }

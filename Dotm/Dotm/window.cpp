@@ -109,43 +109,43 @@ Window::~Window()
 }
 
 bool
-Window::isReady() const
+Window::isReady() logical_const
 {
     return m_ready;
 }
 
 bool
-Window::isFullscreen() const
+Window::isFullscreen() logical_const
 {
     return m_fullscreen;
 }
 
 uint32
-Window::getWidth() const
+Window::getWidth() logical_const
 {
     return m_windowWidth;
 }
 
 uint32
-Window::getHeight() const
+Window::getHeight() logical_const
 {
     return m_windowHeight;
 }
 
 real32
-Window::getAspect() const
+Window::getAspect() logical_const
 {
     return m_aspectRatio;
 }
 
 cstring
-Window::getAppName() const
+Window::getAppName() logical_const
 {
     return retrieveString(m_appName);
 }
 
 const HWND&
-Window::getHandle() const
+Window::getHandle() logical_const
 {
     return m_handle;
 }

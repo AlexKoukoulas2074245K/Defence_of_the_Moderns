@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "../dotmdef.h"
+
 class AGameState
 {
 public:
@@ -27,7 +29,7 @@ public:
     update() = 0;
 
     bool
-    isFinished() const;
+    isFinished() logical_const;
 
 protected:
 

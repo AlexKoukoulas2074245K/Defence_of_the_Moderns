@@ -9,6 +9,9 @@
 
 #pragma once
 
+#define bitwise_const const
+#define logical_const const
+
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned int uint32;

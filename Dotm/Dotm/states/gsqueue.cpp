@@ -45,7 +45,7 @@ GameStateQueue::discardState()
    Private Methods
    --------------- */
 bool
-GameStateQueue::isDone() const
+GameStateQueue::isDone() logical_const
 {
     return m_done;
 }

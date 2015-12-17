@@ -11,6 +11,7 @@
 
 #include <queue>
 #include <memory>
+#include "../dotmdef.h"
 
 class AGameState;
 class GameStateQueue
@@ -30,7 +31,7 @@ public:
     update();
 
     bool
-    isDone() const;
+    isDone() logical_const;
 
 
 private:
