@@ -10,6 +10,7 @@
 #include "d3d11state.h"
 #include "../window.h"
 #include "../config/configparser.h"
+#include "shader.h"
 
 /* --------------
    External Vars
@@ -29,6 +30,7 @@ D3D11State::D3D11State():
 {
     initConfig();
     initD3D();
+    Shader sh(m_device, "std");
 }
 
 D3D11State::~D3D11State()

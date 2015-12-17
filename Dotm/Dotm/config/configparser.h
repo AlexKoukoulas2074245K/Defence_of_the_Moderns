@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "../strings.h"
+#include "../util/strings.h"
 
 bool
 initConfigFile(cstring configFileName);

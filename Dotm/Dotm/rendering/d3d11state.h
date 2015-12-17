@@ -12,7 +12,7 @@
 #pragma once
 
 #include "d3d11common.h"
-#include "../strings.h"
+#include "../util/strings.h"
 #include "../dotmdef.h"
 
 class D3D11State

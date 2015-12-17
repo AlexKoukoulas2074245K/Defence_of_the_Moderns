@@ -8,7 +8,7 @@
    ------------------------------------------- */
 
 #include "strings.h"
-#include "dotmdef.h"
+#include "../dotmdef.h"
 #include <map>
 #include <functional>
 #include <string>
