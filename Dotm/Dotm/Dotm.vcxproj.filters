@@ -77,17 +77,17 @@
     <ClInclude Include="util\strings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="util\math.h">
+    <ClInclude Include="rendering\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\shader.h">
+    <ClInclude Include="util\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="config\rendconfig.ini" />
     <None Include="config\winconfig.ini" />
-    <None Include="shaders\std.ps" />
     <None Include="shaders\std.vs" />
+    <None Include="shaders\std.ps" />
   </ItemGroup>
 </Project>
