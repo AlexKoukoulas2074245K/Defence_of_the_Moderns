@@ -25,7 +25,7 @@ public:
 
     D3D11State(const D3D11State& rhs) = delete;
 
-    D3D11State&
+    D3D11State& 
     operator = (const D3D11State& rhs) = delete;
 
     bool

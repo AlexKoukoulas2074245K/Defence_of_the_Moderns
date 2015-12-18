@@ -1,3 +1,11 @@
+cbuffer VSCBuffer
+{
+	float4x4 rotationMatrix;
+    float4x4 worldMatrix;
+    float4x4 mvpMatrix;
+    float4   eyePosition;
+};
+
 struct VSInput
 {
 	float4 position: POSITION;

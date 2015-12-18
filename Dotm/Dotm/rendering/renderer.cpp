@@ -13,8 +13,7 @@
 /* --------------
    Public Methods
    -------------- */
-Renderer&
-Renderer::get()
+Renderer& Renderer::get()
 {
     static Renderer instance;
     return instance;
@@ -32,5 +31,6 @@ Renderer::Renderer():
 
 Renderer::~Renderer()
 {
-    
+    if(m_d3dState) delete m_d3dState;
+
 }

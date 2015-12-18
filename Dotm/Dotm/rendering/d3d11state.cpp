@@ -85,7 +85,7 @@ D3D11State::initD3D()
     HR(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM,
                                          DXGI_ENUM_MODES_INTERLACED,
                                          &numModes,
-                                         NULL));
+                                         nullptr));
 
     // Fill Display Modes
     DXGI_MODE_DESC* displayModes = new DXGI_MODE_DESC[numModes];
@@ -148,9 +148,9 @@ D3D11State::initD3D()
     D3D_FEATURE_LEVEL featLevel = D3D_FEATURE_LEVEL_11_0;
 
     // Create Device, Device context and Swap Chain
-    HR(D3D11CreateDeviceAndSwapChain(NULL,
+    HR(D3D11CreateDeviceAndSwapChain(nullptr,
                                     D3D_DRIVER_TYPE_HARDWARE,
-                                    NULL,
+                                    nullptr,
                                     0,
                                     &featLevel,
                                     1,
@@ -158,13 +158,13 @@ D3D11State::initD3D()
                                     &swapChainDesc,
                                     &m_swapChain,
                                     &m_device,
-                                    NULL,
+                                    nullptr,
                                     &m_devcon));
 
     // Create the render target view
     comptr<ID3D11Texture2D> backBuffer;
     HR(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*) &backBuffer));
-    HR(m_device->CreateRenderTargetView(backBuffer.Get(), NULL, &m_backBuffer));
+    HR(m_device->CreateRenderTargetView(backBuffer.Get(), nullptr, &m_backBuffer));
     
     // Create Depth Buffer
     D3D11_TEXTURE2D_DESC depthBufferDesc = {};
@@ -180,7 +180,7 @@ D3D11State::initD3D()
     depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
     // Create the depth buffer
-    HR(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthBuffer));
+    HR(m_device->CreateTexture2D(&depthBufferDesc, nullptr, &m_depthBuffer));
 
     // Create custom depth stencil states
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};

@@ -23,7 +23,7 @@ public:
 
     PlayState(const PlayState& rhs) = delete;
     
-    PlayState& 
+    PlayState&
     operator = (const PlayState& rhs) = delete;
 
     void

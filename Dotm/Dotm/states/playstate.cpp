@@ -8,13 +8,14 @@
    ----------------------------------------------- */
 
 #include "playstate.h"
+#include "../rendering/mesh.h"
 
 /* --------------
    Public Methods
    -------------- */
 PlayState::PlayState()
 {
-	
+    Mesh mesh("abc", false);
 }
 
 PlayState::~PlayState()
@@ -22,7 +23,7 @@ PlayState::~PlayState()
 	
 }
 
-void 
+void
 PlayState::update()
 {
 	

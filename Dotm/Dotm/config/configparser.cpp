@@ -38,7 +38,7 @@ initConfigFile(cstring configFileName)
         std::string message("The ");
         message += configFileName;
         message += " config file could not be found. Press OK to exit the application";
-        MessageBox(NULL, message.c_str(), "Config file not Found", MB_ICONERROR);
+        MessageBox(nullptr, message.c_str(), "Config file not Found", MB_ICONERROR);
         return false;
     }
 
@@ -78,7 +78,7 @@ extractConfigBool(cstring section,
     *outBool = getBoolBuffer(buffer);
 }
 
-void
+void 
 extractConfigUint(cstring section,
                   cstring varname,
                   uint32* outUint)

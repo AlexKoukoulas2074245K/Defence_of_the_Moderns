@@ -74,6 +74,8 @@
     <ClCompile Include="config\configparser.cpp" />
     <ClCompile Include="dotmmain.cpp" />
     <ClCompile Include="rendering\d3d11state.cpp" />
+    <ClCompile Include="rendering\mesh.cpp" />
+    <ClCompile Include="rendering\meshregistry.cpp" />
     <ClCompile Include="rendering\renderer.cpp" />
     <ClCompile Include="rendering\shader.cpp" />
     <ClCompile Include="states\agamestate.cpp" />
@@ -87,6 +89,8 @@
     <ClInclude Include="dotmdef.h" />
     <ClInclude Include="rendering\d3d11common.h" />
     <ClInclude Include="rendering\d3d11state.h" />
+    <ClInclude Include="rendering\mesh.h" />
+    <ClInclude Include="rendering\meshregistry.h" />
     <ClInclude Include="rendering\renderer.h" />
     <ClInclude Include="rendering\shader.h" />
     <ClInclude Include="states\agamestate.h" />

@@ -9,20 +9,20 @@
 
 #include "strings.h"
 #include "../dotmdef.h"
-#include <map>
+#include <unordered_map>
 #include <functional>
 #include <string>
 
 /* -------------
    Global Vars
    ------------- */
-std::map<stringID, std::string> stringTable;
-std::hash<std::string> hashFunc;
+static std::unordered_map<stringID, std::string> stringTable;
+static std::hash<std::string> hashFunc;
 
-/* --------------
-   Public Methods
-   -------------- */
-stringID
+/* ----------------
+   Public Functions
+   ---------------- */
+stringID 
 internString(cstring str)
 {
     std::string internalString = std::string(str);
@@ -31,7 +31,7 @@ internString(cstring str)
     return id;
 }
 
-stringID
+stringID 
 internString(cwstring str)
 {
     std::wstring wstr(str);
@@ -39,16 +39,16 @@ internString(cwstring str)
     return internString(s.c_str());
 }
 
-stringID
+stringID 
 internString(void* number)
 {
     std::string str(std::to_string((uint32)number));
     return internString(str.c_str());
 }
 
-cstring
+cstring 
 retrieveString(const stringID id)
 {
     if (stringTable.count(id)) return stringTable[id].c_str();
-    return NULL;
+    return nullptr;
 }

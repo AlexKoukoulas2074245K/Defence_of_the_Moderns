@@ -93,10 +93,10 @@ Window::Window(const char* configPath,
                               windowPosY,
                               m_windowWidth,
                               m_windowHeight,
-                              NULL,
-                              NULL,
+                              nullptr,
+                              nullptr,
                               hInstance,
-                              NULL);
+                              nullptr);
 
     ShowWindow(m_handle, SW_SHOW);
     ShowCursor(true);
@@ -108,37 +108,37 @@ Window::~Window()
 
 }
 
-bool
+bool 
 Window::isReady() logical_const
 {
     return m_ready;
 }
 
-bool
+bool 
 Window::isFullscreen() logical_const
 {
     return m_fullscreen;
 }
 
-uint32
+uint32 
 Window::getWidth() logical_const
 {
     return m_windowWidth;
 }
 
-uint32
+uint32 
 Window::getHeight() logical_const
 {
     return m_windowHeight;
 }
 
-real32
+real32 
 Window::getAspect() logical_const
 {
     return m_aspectRatio;
 }
 
-cstring
+cstring 
 Window::getAppName() logical_const
 {
     return retrieveString(m_appName);

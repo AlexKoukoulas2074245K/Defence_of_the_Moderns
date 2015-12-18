@@ -12,7 +12,6 @@
 #pragma once
 
 #include "../dotmdef.h"
-#include <memory>
 
 class D3D11State;
 class Renderer
@@ -30,11 +29,11 @@ private:
 
     Renderer(const Renderer& rhs) = delete;
 
-    Renderer&
+    Renderer& 
     operator = (const Renderer& rhs) = delete;
 
 private:
 
-    std::shared_ptr<D3D11State> m_d3dState;
+    D3D11State* m_d3dState;
 
 };

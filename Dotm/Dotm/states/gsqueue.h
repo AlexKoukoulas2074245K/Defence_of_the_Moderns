@@ -10,7 +10,6 @@
 #pragma once
 
 #include <queue>
-#include <memory>
 #include "../dotmdef.h"
 
 class AGameState;
@@ -33,7 +32,6 @@ public:
     bool
     isDone() logical_const;
 
-
 private:
 
     void
@@ -41,6 +39,6 @@ private:
 
 private:
 
-    std::queue<std::unique_ptr<AGameState>> m_states;
+    std::queue<AGameState*> m_states;
     bool m_done;
 };

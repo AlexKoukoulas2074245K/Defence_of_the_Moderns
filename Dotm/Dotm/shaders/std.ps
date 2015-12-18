@@ -1,6 +1,14 @@
 Texture2D resource;
 SamplerState ss;
 
+cbuffer PSCBuffer
+{
+    float _padding;
+    float _padding1;
+    float _padding2;
+    float _padding3;
+};
+
 struct PSInput
 {
 	float4 position: SV_POSITION;

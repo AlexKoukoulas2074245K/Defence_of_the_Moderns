@@ -15,13 +15,13 @@ typedef size_t stringID;
 typedef const char* cstring;
 typedef const wchar_t* cwstring;
 
-stringID
+stringID 
 internString(cstring str);
 
-stringID
+stringID 
 internString(cwstring str);
 
-stringID
+stringID 
 internString(void* number);
 
 cstring

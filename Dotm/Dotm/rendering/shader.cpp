@@ -86,7 +86,7 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
     // Shader Compilation
     HRESULT result; 
     result = D3DCompileFromFile(wideVertexPath.c_str(),
-                                NULL,
+                                nullptr,
                                 D3D_COMPILE_STANDARD_FILE_INCLUDE,
                                 "main",
                                 "vs_5_0",
@@ -101,14 +101,14 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
         if (errorMessage)
         {            
             cstring errorDesc = (cstring) errorMessage->GetBufferPointer();
-            MessageBox(NULL, errorDesc, "Failed to compile shader", MB_ICONERROR);
+            MessageBox(nullptr, errorDesc, "Failed to compile shader", MB_ICONERROR);
             return false;
         }
         // File not found
         else
         {
             std::string missingFile = "Missing shader file: " + vertexPath;
-            MessageBox(NULL, missingFile.c_str(), "Failed to find shader", MB_ICONERROR);
+            MessageBox(nullptr, missingFile.c_str(), "Failed to find shader", MB_ICONERROR);
             return false;
         }
     }
@@ -116,7 +116,7 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
     // Vertex shader creation
     device->CreateVertexShader(m_vsbuffer->GetBufferPointer(),
                                m_vsbuffer->GetBufferSize(),
-                               NULL,
+                               nullptr,
                                &m_vertexShader);
 
     // Form the wide pixel shader path
@@ -126,7 +126,7 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
 
     // Shader Compilation
     result = D3DCompileFromFile(widePixelPath.c_str(),
-                                NULL,
+                                nullptr,
                                 D3D_COMPILE_STANDARD_FILE_INCLUDE,
                                 "main",
                                 "ps_5_0",
@@ -141,14 +141,14 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
         if (errorMessage)
         {
             cstring errorDesc = (cstring) errorMessage->GetBufferPointer();
-            MessageBox(NULL, errorDesc, "Failed to compile shader", MB_ICONERROR);
+            MessageBox(nullptr, errorDesc, "Failed to compile shader", MB_ICONERROR);
             return false;
         }
         // File not found
         else
         {
             std::string missingFile = "Missing shader file: " + pixelPath;
-            MessageBox(NULL, missingFile.c_str(), "Failed to find shader", MB_ICONERROR);
+            MessageBox(nullptr, missingFile.c_str(), "Failed to find shader", MB_ICONERROR);
             return false;
         }
     }
@@ -156,7 +156,7 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
     // Pixel shader creation
     device->CreatePixelShader(m_psbuffer->GetBufferPointer(),
                               m_psbuffer->GetBufferSize(),
-                              NULL,
+                              nullptr,
                               &m_pixelShader);
     return true;
 }
@@ -171,7 +171,7 @@ Shader::createConstantBuffers(comptr<ID3D11Device> device)
     vsCBufferDesc.ByteWidth         = sizeof(VSCBuffer);
     
     // Vertex Shader Constant Buffer creation
-    HR(device->CreateBuffer(&vsCBufferDesc, NULL, &m_vertexShaderCBuffer));
+    HR(device->CreateBuffer(&vsCBufferDesc, nullptr, &m_vertexShaderCBuffer));
 
     // Pixel Shader Constant Buffer description
     D3D11_BUFFER_DESC psCBufferDesc = {};
@@ -180,7 +180,7 @@ Shader::createConstantBuffers(comptr<ID3D11Device> device)
     psCBufferDesc.ByteWidth         = sizeof(PSCBuffer);
 
     // Pixel Shader Constant Buffer creation
-    HR(device->CreateBuffer(&psCBufferDesc, NULL, &m_pixelShaderCBuffer));
+    HR(device->CreateBuffer(&psCBufferDesc, nullptr, &m_pixelShaderCBuffer));
 
     return true;
 }

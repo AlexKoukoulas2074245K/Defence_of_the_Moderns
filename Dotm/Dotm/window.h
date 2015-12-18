@@ -31,7 +31,7 @@ public:
     Window&
     operator = (const Window& rhs) = delete;
 
-    bool
+    bool 
     isReady() logical_const;
 
     bool
@@ -46,7 +46,7 @@ public:
     real32
     getAspect() logical_const;
 
-    cstring
+    cstring 
     getAppName() logical_const;
 
     const HWND&

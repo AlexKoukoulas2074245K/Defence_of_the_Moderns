@@ -22,7 +22,7 @@ Window* g_window;
 /* -------------------
    Internal Signatures 
    ------------------- */
-LRESULT CALLBACK 
+LRESULT CALLBACK
 messageHandler(HWND windowHandle,
 			   UINT message,
 			   WPARAM wparam,
@@ -31,7 +31,7 @@ messageHandler(HWND windowHandle,
 /* ----------------
    Main Entry Point
    ---------------- */
-int CALLBACK 
+int CALLBACK
 WinMain(HINSTANCE hInstance,
 		HINSTANCE hPrevInstance,
 		LPSTR lpCmdLine,

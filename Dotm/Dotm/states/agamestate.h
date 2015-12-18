@@ -17,8 +17,7 @@ public:
 
     AGameState();
 
-    virtual
-    ~AGameState() = 0;
+    virtual ~AGameState() = 0;
 
     AGameState(const AGameState& rhs) = delete;
 

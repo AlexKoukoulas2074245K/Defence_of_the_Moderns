@@ -70,7 +70,7 @@ private:
     createVertexPixelShaders(comptr<ID3D11Device> device,
                              cstring shaderName);
 
-    bool
+    bool 
     createConstantBuffers(comptr<ID3D11Device> device);
 
     bool
