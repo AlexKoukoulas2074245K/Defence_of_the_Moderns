@@ -10,7 +10,11 @@
 #include "d3d11state.h"
 #include "../window.h"
 #include "../config/configparser.h"
-#include "shader.h"
+
+/* ----------------------
+   Preprocessor Constants
+   ---------------------- */
+#define FLOAT_MAX 3.402823466e+38F
 
 /* --------------
    External Vars
@@ -29,25 +33,12 @@ D3D11State::D3D11State():
     m_swapChain(nullptr)
 {
     initConfig();
-    initD3D();
-    Shader sh(m_device, "std");
+    initD3D();    
 }
 
 D3D11State::~D3D11State()
 {
 
-}
-
-bool
-D3D11State::isVsyncEnabled() logical_const
-{
-    return m_vsync;
-}
-
-bool
-D3D11State::isMultisamplingEnabled() logical_const
-{
-    return m_multisampling;
 }
 
 /* ---------------
@@ -137,8 +128,8 @@ D3D11State::initD3D()
 	swapChainDesc.BufferDesc.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChainDesc.BufferDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
     
-    if  (m_multisampling) swapChainDesc.SampleDesc = {4, 0};
-    if (!m_multisampling) swapChainDesc.SampleDesc = {1, 0};
+    uint32 msValue = m_multisampling ? 4U : 1U;
+    swapChainDesc.SampleDesc = {msValue, 0};
 
     swapChainDesc.BufferCount   = 1;
     swapChainDesc.BufferUsage   = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -168,16 +159,13 @@ D3D11State::initD3D()
     
     // Create Depth Buffer
     D3D11_TEXTURE2D_DESC depthBufferDesc = {};
-    depthBufferDesc.Width     = g_window->getWidth();
-    depthBufferDesc.Height    = g_window->getHeight();
-    depthBufferDesc.MipLevels = 1;
-    depthBufferDesc.ArraySize = 1;
-    depthBufferDesc.Format    = DXGI_FORMAT_D24_UNORM_S8_UINT;
- 
-    if  (m_multisampling) depthBufferDesc.SampleDesc = {4, 0};
-    if (!m_multisampling) depthBufferDesc.SampleDesc = {1, 0};
-
-    depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    depthBufferDesc.Width      = g_window->getWidth();
+    depthBufferDesc.Height     = g_window->getHeight();
+    depthBufferDesc.MipLevels  = 1;
+    depthBufferDesc.ArraySize  = 1;
+    depthBufferDesc.Format     = DXGI_FORMAT_D24_UNORM_S8_UINT;    
+    depthBufferDesc.SampleDesc = {msValue, 0};
+    depthBufferDesc.BindFlags  = D3D11_BIND_DEPTH_STENCIL;
 
     // Create the depth buffer
     HR(m_device->CreateTexture2D(&depthBufferDesc, nullptr, &m_depthBuffer));
@@ -205,6 +193,9 @@ D3D11State::initD3D()
     depthStencilDesc.DepthEnable = false;
     HR(m_device->CreateDepthStencilState(&depthStencilDesc, &m_disabledDepth));
 
+    // Set the depth stencil state to have depth enabled initially
+    m_devcon->OMSetDepthStencilState(m_enabledDepth.Get(), 1);
+
     // Create the depth stencil view
     D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
     depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -213,7 +204,7 @@ D3D11State::initD3D()
     if (!m_multisampling) depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
     HR(m_device->CreateDepthStencilView(m_depthBuffer.Get(), &depthStencilViewDesc, &m_depthStencilView));
-
+    
     // Set render target and depth stencil view
     m_devcon->OMSetRenderTargets(1, m_backBuffer.GetAddressOf(), m_depthStencilView.Get());
 
@@ -247,17 +238,18 @@ D3D11State::initD3D()
     samplerDesc.BorderColor[2] = 0.0f;
     samplerDesc.BorderColor[3] = 0.0f;
     samplerDesc.MinLOD         = 0.0f;
-    samplerDesc.MaxLOD         = FLT_MAX;
+    samplerDesc.MaxLOD         = FLOAT_MAX;
     samplerDesc.MipLODBias     = 0.0f;
 
     // Create and set the sampler
-    HR(m_device->CreateSamplerState(&samplerDesc, &m_samplerState));
+    HR(m_device->CreateSamplerState(&samplerDesc, &m_samplerState));    
+
     m_devcon->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
     // Create the custom rasterizer description
     D3D11_RASTERIZER_DESC rastDesc = {};
     rastDesc.FillMode              = D3D11_FILL_SOLID;
-    rastDesc.CullMode              = D3D11_CULL_BACK;
+    rastDesc.CullMode              = D3D11_CULL_NONE;
     rastDesc.FrontCounterClockwise = FALSE;
     rastDesc.DepthClipEnable       = TRUE;
     rastDesc.ScissorEnable         = FALSE;

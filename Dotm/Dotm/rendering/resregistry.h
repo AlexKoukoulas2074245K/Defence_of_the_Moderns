@@ -14,14 +14,17 @@
 
 class Mesh;
 
-void
-mr_registerMesh(const stringID meshName, const Mesh* mesh);
+namespace resource
+{
+    void
+    registerMesh(const stringID meshName, const Mesh* mesh);
 
-bool 
-mr_entryExists(const stringID meshName);
+    bool 
+    meshExists(const stringID meshName);
 
-const Mesh*
-mr_retrieveMesh(const stringID meshName);
+    const Mesh*
+    retrieveMesh(const stringID meshName);
 
-void 
-mr_deleteEntry(const stringID meshName);
+    void 
+    deleteMesh(const stringID meshName);
+}

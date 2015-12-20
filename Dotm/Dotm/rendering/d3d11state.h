@@ -28,12 +28,6 @@ public:
     D3D11State& 
     operator = (const D3D11State& rhs) = delete;
 
-    bool
-    isVsyncEnabled() logical_const;
-
-    bool
-    isMultisamplingEnabled() logical_const;
-
 private:
 
     void
@@ -42,7 +36,7 @@ private:
     void
     initD3D();
 
-private:
+public:
 
     comptr<ID3D11Device>            m_device;
     comptr<ID3D11DeviceContext>     m_devcon;

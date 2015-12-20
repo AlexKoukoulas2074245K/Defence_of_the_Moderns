@@ -36,8 +36,7 @@ public:
 
 public:
 
-    Shader(comptr<ID3D11Device> device,
-           cstring shaderName);
+    Shader(cstring shaderName);
 
     ~Shader();
 
@@ -67,14 +66,13 @@ public:
 private:
 
     bool
-    createVertexPixelShaders(comptr<ID3D11Device> device,
-                             cstring shaderName);
+    createVertexPixelShaders(cstring shaderName);
 
     bool 
-    createConstantBuffers(comptr<ID3D11Device> device);
+    createConstantBuffers();
 
     bool
-    createShaderLayout(comptr<ID3D11Device> device);
+    createShaderLayout();
 
 protected:
 

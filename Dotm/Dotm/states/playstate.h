@@ -12,7 +12,9 @@
 #pragma once
 
 #include "agamestate.h"
+#include "../util/strings.h"
 
+class Mesh;
 class PlayState: public AGameState
 {
 public:
@@ -29,4 +31,10 @@ public:
     void
     update();
 
+    void
+    render();
+
+private:
+    stringID meshID;
+    Mesh* mesh;    
 };

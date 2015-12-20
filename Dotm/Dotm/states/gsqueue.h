@@ -29,6 +29,9 @@ public:
     void
     update();
 
+    void
+    render();
+
     bool
     isDone() logical_const;
 

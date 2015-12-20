@@ -36,6 +36,12 @@ GameStateQueue::update()
 }
 
 void
+GameStateQueue::render()
+{
+	m_states.front()->render();
+}
+
+void
 GameStateQueue::discardState()
 {
     delete m_states.front();

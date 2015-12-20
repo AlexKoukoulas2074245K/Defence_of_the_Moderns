@@ -63,6 +63,7 @@ WinMain(HINSTANCE hInstance,
 		{
 			gsq.update();
 			if (gsq.isDone()) break;
+            gsq.render();
 		}
 	}
 

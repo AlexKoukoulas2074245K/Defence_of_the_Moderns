@@ -12,8 +12,11 @@
 #pragma once
 
 #include "../dotmdef.h"
+#include "../util/strings.h"
+#include "d3d11state.h"
 
 class D3D11State;
+class Shader;
 class Renderer
 {
 public:
@@ -22,6 +25,21 @@ public:
     get();
 
     ~Renderer();
+
+    void
+    beginFrame();
+    
+    void
+    endFrame();
+
+    void
+    renderMesh(const stringID meshName);
+
+    comptr<ID3D11Device>
+    getDeviceHandle() bitwise_const;
+
+    comptr<ID3D11DeviceContext>
+    getDevconHandle() bitwise_const;
 
 private:
 
@@ -35,5 +53,6 @@ private:
 private:
 
     D3D11State* m_d3dState;
+    Shader* m_stdShader;
 
 };

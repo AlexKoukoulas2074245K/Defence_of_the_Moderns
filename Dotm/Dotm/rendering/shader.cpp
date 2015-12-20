@@ -8,6 +8,8 @@
    ------------------------------------------------ */
 
 #include "shader.h"
+#include "renderer.h"
+#include "../util/stringutils.h"
 #include <string>
 #include <d3dcompiler.h>
 
@@ -16,14 +18,13 @@
 /* --------------
    Public Methods
    -------------- */
-Shader::Shader(comptr<ID3D11Device> device,
-               cstring shaderName):
+Shader::Shader(cstring shaderName):
 
     ready(false)
 {
-    if (!createVertexPixelShaders(device, shaderName) ||
-        !createConstantBuffers(device) ||
-        !createShaderLayout(device)) return;
+    if (!createVertexPixelShaders(shaderName) ||
+        !createConstantBuffers() ||
+        !createShaderLayout()) return;
 
     ready = true;
 }
@@ -73,19 +74,17 @@ Shader::getPSCBuffer() bitwise_const
    Private Methods
    --------------- */
 bool
-Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
-                                 cstring shaderName)
+Shader::createVertexPixelShaders(cstring shaderName)
 {
      comptr<ID3D10Blob> errorMessage;
     
     // Form the wide vertex shader path
     std::string vertexPath(shaderName);
     vertexPath = "shaders/" + vertexPath + ".vs";
-    std::wstring wideVertexPath(vertexPath.begin(), vertexPath.end());
 
     // Shader Compilation
     HRESULT result; 
-    result = D3DCompileFromFile(wideVertexPath.c_str(),
+    result = D3DCompileFromFile(string_utils::getwstring(vertexPath).c_str(),
                                 nullptr,
                                 D3D_COMPILE_STANDARD_FILE_INCLUDE,
                                 "main",
@@ -114,18 +113,17 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
     }
 
     // Vertex shader creation
-    device->CreateVertexShader(m_vsbuffer->GetBufferPointer(),
-                               m_vsbuffer->GetBufferSize(),
-                               nullptr,
-                               &m_vertexShader);
+    Renderer::get().getDeviceHandle()->CreateVertexShader(m_vsbuffer->GetBufferPointer(),
+                                                          m_vsbuffer->GetBufferSize(),
+                                                          nullptr,
+                                                          &m_vertexShader);
 
     // Form the wide pixel shader path
     std::string pixelPath(shaderName);
     pixelPath = "shaders/" + pixelPath + ".ps";
-    std::wstring widePixelPath(pixelPath.begin(), pixelPath.end());
-
+    
     // Shader Compilation
-    result = D3DCompileFromFile(widePixelPath.c_str(),
+    result = D3DCompileFromFile(string_utils::getwstring(pixelPath).c_str(),
                                 nullptr,
                                 D3D_COMPILE_STANDARD_FILE_INCLUDE,
                                 "main",
@@ -154,15 +152,15 @@ Shader::createVertexPixelShaders(comptr<ID3D11Device> device,
     }
 
     // Pixel shader creation
-    device->CreatePixelShader(m_psbuffer->GetBufferPointer(),
-                              m_psbuffer->GetBufferSize(),
-                              nullptr,
-                              &m_pixelShader);
+    Renderer::get().getDeviceHandle()->CreatePixelShader(m_psbuffer->GetBufferPointer(),
+                                                         m_psbuffer->GetBufferSize(),
+                                                         nullptr,
+                                                         &m_pixelShader);
     return true;
 }
 
 bool
-Shader::createConstantBuffers(comptr<ID3D11Device> device)
+Shader::createConstantBuffers()
 {
     // Vertex Shader Constant Buffer description
     D3D11_BUFFER_DESC vsCBufferDesc = {};
@@ -171,7 +169,9 @@ Shader::createConstantBuffers(comptr<ID3D11Device> device)
     vsCBufferDesc.ByteWidth         = sizeof(VSCBuffer);
     
     // Vertex Shader Constant Buffer creation
-    HR(device->CreateBuffer(&vsCBufferDesc, nullptr, &m_vertexShaderCBuffer));
+    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&vsCBufferDesc,
+                                                       nullptr,
+                                                       &m_vertexShaderCBuffer));
 
     // Pixel Shader Constant Buffer description
     D3D11_BUFFER_DESC psCBufferDesc = {};
@@ -180,13 +180,15 @@ Shader::createConstantBuffers(comptr<ID3D11Device> device)
     psCBufferDesc.ByteWidth         = sizeof(PSCBuffer);
 
     // Pixel Shader Constant Buffer creation
-    HR(device->CreateBuffer(&psCBufferDesc, nullptr, &m_pixelShaderCBuffer));
+    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&psCBufferDesc, 
+                                                       nullptr,
+                                                       &m_pixelShaderCBuffer));
 
     return true;
 }
 
 bool
-Shader::createShaderLayout(comptr<ID3D11Device> device)
+Shader::createShaderLayout()
 {
     // Position Input Layout description
     D3D11_INPUT_ELEMENT_DESC inputPositionDesc = {};    
@@ -214,10 +216,14 @@ Shader::createShaderLayout(comptr<ID3D11Device> device)
                                                   inputTexcoordDesc,
                                                   inputNormalDesc};
     // Create Shader Input Layout
-    HR(device->CreateInputLayout(combinedLayout,
-                                 ARRAYSIZE(combinedLayout),
-                                 m_vsbuffer->GetBufferPointer(),
-                                 m_vsbuffer->GetBufferSize(),
-                                 &m_shaderInputLayout));
+    HR(Renderer::get().getDeviceHandle()->CreateInputLayout(combinedLayout,
+                                                            ARRAYSIZE(combinedLayout),
+                                                            m_vsbuffer->GetBufferPointer(),
+                                                            m_vsbuffer->GetBufferSize(),
+                                                            &m_shaderInputLayout));
+    
+    // Set the global input layout
+    Renderer::get().getDevconHandle()->IASetInputLayout(m_shaderInputLayout.Get());
+
     return true;
 }

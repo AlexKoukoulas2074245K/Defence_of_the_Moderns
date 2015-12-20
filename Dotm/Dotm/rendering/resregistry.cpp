@@ -8,7 +8,7 @@
    declared in meshregistry.h
    ------------------------------------------ */
 
-#include "meshregistry.h"
+#include "resregistry.h"
 #include <unordered_map>
 
 /* -------------
@@ -20,26 +20,26 @@ static std::unordered_map<stringID, const Mesh*> registry;
    Public Functions
    ---------------- */
 void
-mr_registerMesh(const stringID meshName, const Mesh* mesh)
+resource::registerMesh(const stringID meshName, const Mesh* mesh)
 {
     registry[meshName] = mesh;
 }
 
 bool 
-mr_entryExists(const stringID meshName)
+resource::meshExists(const stringID meshName)
 {
     return registry.count(meshName) != 0;
 }
 
 const Mesh*
-mr_retrieveMesh(const stringID meshName)
+resource::retrieveMesh(const stringID meshName)
 {
-    if (!mr_entryExists(meshName)) return nullptr;
+    if (!meshExists(meshName)) return nullptr;
     return registry[meshName];
 }
 
 void
-mr_deleteEntry(const stringID meshName)
+resource::deleteMesh(const stringID meshName)
 {
     registry.erase(meshName);
 }

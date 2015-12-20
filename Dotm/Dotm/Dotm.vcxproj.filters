@@ -45,10 +45,16 @@
     <ClCompile Include="rendering\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\meshregistry.cpp">
+    <ClCompile Include="rendering\mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\mesh.cpp">
+    <ClCompile Include="util\stringutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\ddsloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\resregistry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,10 +95,19 @@
     <ClInclude Include="util\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\meshregistry.h">
+    <ClInclude Include="rendering\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\mesh.h">
+    <ClInclude Include="util\stringutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\ddshelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\ddsloader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\resregistry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

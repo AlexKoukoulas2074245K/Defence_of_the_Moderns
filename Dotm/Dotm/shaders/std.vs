@@ -23,9 +23,10 @@ struct PSInput
 PSInput main(VSInput input)
 {
 	PSInput output;
-	output.position = input.position;
+	output.position = mul(mvpMatrix, input.position);
 	output.texcoord = input.texcoord;
-	output.normal   = input.normal;
+	output.normal   = mul(rotationMatrix, input.normal);
+	output.normal   = normalize(output.normal);
 
 	return output;
 }
