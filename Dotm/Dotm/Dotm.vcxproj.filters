@@ -113,8 +113,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config\rendconfig.ini" />
-    <None Include="config\winconfig.ini" />
     <None Include="shaders\std.vs" />
     <None Include="shaders\std.ps" />
+    <None Include="config\winconfig.ini" />
   </ItemGroup>
 </Project>
