@@ -136,7 +136,7 @@ bool
 Mesh::loadMesh()
 {
     std::string meshName = retrieveString(m_name);
-    std::ifstream file("models/" + meshName + ".obj");
+    std::ifstream file("assets/models/" + meshName + ".obj");
 
     if (!file.is_open())
     {
@@ -271,7 +271,7 @@ Mesh::loadMesh()
 bool
 Mesh::loadTexture()
 {
-    std::wstring widePath = L"textures/" + 
+    std::wstring widePath = L"assets/textures/" + 
                             string_utils::getwstring(retrieveString(m_name)) +
                             L".png";
 

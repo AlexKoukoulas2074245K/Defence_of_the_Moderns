@@ -80,7 +80,7 @@ Shader::createVertexPixelShaders(cstring shaderName)
     
     // Form the wide vertex shader path
     std::string vertexPath(shaderName);
-    vertexPath = "shaders/" + vertexPath + ".vs";
+    vertexPath = "assets/shaders/" + vertexPath + ".vs";
 
     // Shader Compilation
     HRESULT result; 
@@ -120,7 +120,7 @@ Shader::createVertexPixelShaders(cstring shaderName)
 
     // Form the wide pixel shader path
     std::string pixelPath(shaderName);
-    pixelPath = "shaders/" + pixelPath + ".ps";
+    pixelPath = "assets/shaders/" + pixelPath + ".ps";
     
     // Shader Compilation
     result = D3DCompileFromFile(string_utils::getwstring(pixelPath).c_str(),
