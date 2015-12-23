@@ -11,12 +11,15 @@
 
 #pragma once
 
+
+#include "d3d11state.h"
 #include "../dotmdef.h"
 #include "../util/strings.h"
-#include "d3d11state.h"
 
 class D3D11State;
+class Mesh;
 class Shader;
+class Camera;
 class Renderer
 {
 public:
@@ -33,7 +36,13 @@ public:
     endFrame();
 
     void
-    renderMesh(const stringID meshName);
+    renderMesh(const cstring meshName);
+
+    void
+    renderMesh(const Mesh* mesh);
+
+    void
+    setCamera(const Camera* camera);
 
     comptr<ID3D11Device>
     getDeviceHandle() bitwise_const;
@@ -54,5 +63,5 @@ private:
 
     D3D11State* m_d3dState;
     Shader* m_stdShader;
-
+    const Camera* m_currentCam;
 };

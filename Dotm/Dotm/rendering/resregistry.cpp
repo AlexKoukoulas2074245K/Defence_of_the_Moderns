@@ -32,10 +32,23 @@ resource::meshExists(const stringID meshName)
 }
 
 const Mesh*
-resource::retrieveMesh(const stringID meshName)
+resource::retrieveMesh(const stringID meshID)
 {
-    if (!meshExists(meshName)) return nullptr;
-    return registry[meshName];
+    if (!meshExists(meshID)) return nullptr;
+    return registry[meshID];
+}
+
+const Mesh*
+resource::retrieveMesh(cstring meshName)
+{    
+    for (auto citer = registry.cbegin();
+        citer != registry.cend();
+        ++citer)
+    {
+        if (!strcmp(meshName, retrieveString(citer->first))) 
+            return citer->second;
+    }
+    return nullptr;
 }
 
 void

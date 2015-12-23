@@ -18,26 +18,16 @@
 /* --------------
    Public Methods
    -------------- */
-Shader::Shader(cstring shaderName):
-
-    ready(false)
+Shader::Shader(cstring shaderName)
 {
-    if (!createVertexPixelShaders(shaderName) ||
-        !createConstantBuffers() ||
-        !createShaderLayout()) return;
-
-    ready = true;
+    createVertexPixelShaders(shaderName);
+    createConstantBuffers();
+    createShaderLayout();
 }
 
 Shader::~Shader()
 {
 
-}
-
-bool
-Shader::isReady() logical_const
-{
-    return ready;
 }
 
 comptr<ID3D11InputLayout>
@@ -73,7 +63,7 @@ Shader::getPSCBuffer() bitwise_const
 /* ---------------
    Private Methods
    --------------- */
-bool
+void
 Shader::createVertexPixelShaders(cstring shaderName)
 {
      comptr<ID3D10Blob> errorMessage;
@@ -101,14 +91,14 @@ Shader::createVertexPixelShaders(cstring shaderName)
         {            
             cstring errorDesc = (cstring) errorMessage->GetBufferPointer();
             MessageBox(nullptr, errorDesc, "Failed to compile shader", MB_ICONERROR);
-            return false;
+            return;
         }
         // File not found
         else
         {
             std::string missingFile = "Missing shader file: " + vertexPath;
             MessageBox(nullptr, missingFile.c_str(), "Failed to find shader", MB_ICONERROR);
-            return false;
+            return;
         }
     }
 
@@ -140,14 +130,14 @@ Shader::createVertexPixelShaders(cstring shaderName)
         {
             cstring errorDesc = (cstring) errorMessage->GetBufferPointer();
             MessageBox(nullptr, errorDesc, "Failed to compile shader", MB_ICONERROR);
-            return false;
+            return;
         }
         // File not found
         else
         {
             std::string missingFile = "Missing shader file: " + pixelPath;
             MessageBox(nullptr, missingFile.c_str(), "Failed to find shader", MB_ICONERROR);
-            return false;
+            return;
         }
     }
 
@@ -155,11 +145,10 @@ Shader::createVertexPixelShaders(cstring shaderName)
     Renderer::get().getDeviceHandle()->CreatePixelShader(m_psbuffer->GetBufferPointer(),
                                                          m_psbuffer->GetBufferSize(),
                                                          nullptr,
-                                                         &m_pixelShader);
-    return true;
+                                                         &m_pixelShader);    
 }
 
-bool
+void
 Shader::createConstantBuffers()
 {
     // Vertex Shader Constant Buffer description
@@ -182,12 +171,10 @@ Shader::createConstantBuffers()
     // Pixel Shader Constant Buffer creation
     HR(Renderer::get().getDeviceHandle()->CreateBuffer(&psCBufferDesc, 
                                                        nullptr,
-                                                       &m_pixelShaderCBuffer));
-
-    return true;
+                                                       &m_pixelShaderCBuffer));    
 }
 
-bool
+void
 Shader::createShaderLayout()
 {
     // Position Input Layout description
@@ -224,6 +211,4 @@ Shader::createShaderLayout()
     
     // Set the global input layout
     Renderer::get().getDevconHandle()->IASetInputLayout(m_shaderInputLayout.Get());
-
-    return true;
 }

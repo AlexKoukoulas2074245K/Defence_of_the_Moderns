@@ -31,7 +31,7 @@ Mesh::Mesh(cstring meshName, bool isHUDElement):
 
     // otherwise if the mesh loading is successful 
     // register this mesh with its name
-    else if(loadMesh() & loadTexture()) resource::registerMesh(m_name, this);
+    else if(loadMesh() && loadTexture()) resource::registerMesh(m_name, this);
 }
 
 Mesh::~Mesh()
@@ -54,9 +54,15 @@ Mesh::init(const Mesh* rhs)
 }
 
 stringID
-Mesh::getName() logical_const
+Mesh::getNameID() logical_const
 {
     return m_name;
+}
+
+cstring
+Mesh::getName() logical_const
+{
+    return retrieveString(m_name);
 }
 
 bool

@@ -152,6 +152,15 @@ D3D11State::initD3D()
                                     nullptr,
                                     &m_devcon));
 
+    // Disable alt-enter
+    IDXGIFactory1 *pFactory = NULL;
+
+    if (SUCCEEDED(m_swapChain->GetParent(__uuidof (IDXGIFactory1), (void **) &pFactory)))
+    {
+        pFactory->MakeWindowAssociation(g_window->getHandle(), DXGI_MWA_NO_ALT_ENTER);
+        pFactory->Release();
+    }
+
     // Create the render target view
     comptr<ID3D11Texture2D> backBuffer;
     HR(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*) &backBuffer));

@@ -17,5 +17,11 @@
 #include <d3dx10.h>
 
 typedef D3DXMATRIX  mat4x4;
-typedef D3DXVECTOR3 vec3;
-typedef D3DXVECTOR4 vec4;
+typedef D3DXVECTOR3 vec3f;
+typedef D3DXVECTOR4 vec4f;
+
+inline FLOAT
+toRadians(const FLOAT deg) { return (FLOAT) D3DXToRadian(deg); }
+
+inline FLOAT
+toDegrees(const FLOAT rad) { return (FLOAT) D3DXToDegree(rad); }

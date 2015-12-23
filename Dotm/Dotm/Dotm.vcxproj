@@ -73,6 +73,8 @@
   <ItemGroup>
     <ClCompile Include="config\configparser.cpp" />
     <ClCompile Include="dotmmain.cpp" />
+    <ClCompile Include="game\camera.cpp" />
+    <ClCompile Include="handlers\inputhandler.cpp" />
     <ClCompile Include="rendering\d3d11state.cpp" />
     <ClCompile Include="rendering\ddsloader.cpp" />
     <ClCompile Include="rendering\mesh.cpp" />
@@ -89,6 +91,8 @@
   <ItemGroup>
     <ClInclude Include="config\configparser.h" />
     <ClInclude Include="dotmdef.h" />
+    <ClInclude Include="game\camera.h" />
+    <ClInclude Include="handlers\inputhandler.h" />
     <ClInclude Include="rendering\d3d11common.h" />
     <ClInclude Include="rendering\d3d11state.h" />
     <ClInclude Include="rendering\ddshelpers.h" />
@@ -100,6 +104,7 @@
     <ClInclude Include="states\agamestate.h" />
     <ClInclude Include="states\gsqueue.h" />
     <ClInclude Include="states\playstate.h" />
+    <ClInclude Include="util\logging.h" />
     <ClInclude Include="util\math.h" />
     <ClInclude Include="util\strings.h" />
     <ClInclude Include="util\stringutils.h" />

@@ -15,6 +15,7 @@
 #include "../util/strings.h"
 
 class Mesh;
+class Camera;
 class PlayState: public AGameState
 {
 public:
@@ -34,7 +35,7 @@ public:
     void
     render();
 
-private:
-    stringID meshID;
-    Mesh* mesh;    
+private:    
+    Mesh* m_mesh;    
+    Camera* m_camera;
 };

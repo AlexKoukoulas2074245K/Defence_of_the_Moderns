@@ -8,11 +8,12 @@
    --------------------------------------------- */
 
 #include "renderer.h"
-#include "shader.h"
 #include "resregistry.h"
 #include "mesh.h"
+#include "shader.h"
+#include "../game/camera.h"
 #include "../window.h"
-
+#include "../util/logging.h"
 /* -------------
    External Vars
    ------------- */
@@ -54,25 +55,36 @@ Renderer::endFrame()
 }
 
 void
-Renderer::renderMesh(const stringID meshName)
-{
+Renderer::renderMesh(const cstring meshName)
+{   
     const Mesh* mesh = resource::retrieveMesh(meshName);
+    if (!mesh)
+    {
+        logstring("Could not find mesh: ");
+        logline(meshName);        
+    }
+    renderMesh(resource::retrieveMesh(meshName));
+}
+
+void
+Renderer::renderMesh(const Mesh* mesh)
+{
+    if (!mesh) return;
+    if (!m_currentCam)
+    {
+        logline("Camera has not been set");
+        return;
+    }
 
     uint32 stride = sizeof(Mesh::Vertex);
     uint32 offset = 0U;
 
-    D3DXMATRIX projMatrix;
-    D3DXMatrixPerspectiveFovLH(&projMatrix, (real32)D3DXToRadian(45.0f), g_window->getAspect(), 0.001f, 100.0f);
-    
-    D3DXVECTOR3 eye(0.0f, 0.0f, 10.0f);
-    D3DXVECTOR3 tar(0.0f, 0.0f, 0.0f);
-    D3DXVECTOR3 upv(0.0f, 1.0f, 0.0f);
-    D3DXMATRIX viewMatrix;
-    D3DXMatrixLookAtLH(&viewMatrix, &eye, &tar, &upv);
+    mat4x4 projMatrix = m_currentCam->calculateProjectionMatrix();
+    mat4x4 viewMatrix = m_currentCam->calculateViewMatrix();    
 
-    D3DXMATRIX worldMat = mesh->getWorldMatrix();
-    D3DXMATRIX finalMat = worldMat * viewMatrix * projMatrix;
-    D3DXMATRIX rotMat   = mesh->getRotationMatrix();
+    mat4x4 worldMat = mesh->getWorldMatrix();
+    mat4x4 finalMat = worldMat * viewMatrix * projMatrix;
+    mat4x4 rotMat   = mesh->getRotationMatrix();
 
     Shader::VSCBuffer vcbuffer = {};
     vcbuffer.eyePosition    = D3DXVECTOR4();
@@ -99,6 +111,12 @@ Renderer::renderMesh(const stringID meshName)
     m_d3dState->m_devcon->DrawIndexed(mesh->getIndexCount(), 0, 0);    
 }
 
+void
+Renderer::setCamera(const Camera* camera)
+{
+    m_currentCam = camera;
+}
+
 comptr<ID3D11Device>
 Renderer::getDeviceHandle() bitwise_const
 {
@@ -121,3 +139,4 @@ Renderer::Renderer():
 {
   
 }
+

@@ -41,6 +41,9 @@ public:
     init(const Mesh* rhs);
 
     stringID
+    getNameID() logical_const;
+
+    cstring
     getName() logical_const;
 
     bool 

@@ -23,7 +23,10 @@ namespace resource
     meshExists(const stringID meshName);
 
     const Mesh*
-    retrieveMesh(const stringID meshName);
+    retrieveMesh(const stringID meshID);
+    
+    const Mesh*
+    retrieveMesh(cstring meshName);
 
     void 
     deleteMesh(const stringID meshName);

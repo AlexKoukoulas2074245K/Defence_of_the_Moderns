@@ -23,7 +23,7 @@ public:
         mat4x4 rotationMatrix;
         mat4x4 worldMatrix;
         mat4x4 mvpMatrix;
-        vec4   eyePosition;
+        vec4f  eyePosition;
     };
 
     struct PSCBuffer
@@ -45,9 +45,6 @@ public:
     Shader&
     operator = (const Shader& rhs) = delete;
 
-    bool
-    isReady() logical_const;
-
     comptr<ID3D11InputLayout>
     getShaderLayout() bitwise_const;
 
@@ -65,13 +62,13 @@ public:
 
 private:
 
-    bool
+    void
     createVertexPixelShaders(cstring shaderName);
 
-    bool 
+    void 
     createConstantBuffers();
 
-    bool
+    void
     createShaderLayout();
 
 protected:
@@ -84,5 +81,4 @@ protected:
     comptr<ID3D11Buffer>       m_vertexShaderCBuffer;
     comptr<ID3D11Buffer>       m_pixelShaderCBuffer;
 
-    bool ready;
 };

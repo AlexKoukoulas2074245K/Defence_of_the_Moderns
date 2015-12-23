@@ -10,9 +10,9 @@
 
 #include "window.h"
 #include "vld.h"
-#include "states\gsqueue.h"
-#include "rendering\renderer.h"
-
+#include "states/gsqueue.h"
+#include "rendering/renderer.h"
+#include "handlers/inputhandler.h"
 
 /* -------
    Globals
@@ -50,6 +50,7 @@ WinMain(HINSTANCE hInstance,
 
     // Initialize Singletons
     Renderer::get();
+    InputHandler::get();
 
 	for (;;)
 	{
@@ -64,6 +65,7 @@ WinMain(HINSTANCE hInstance,
 			gsq.update();
 			if (gsq.isDone()) break;
             gsq.render();
+            InputHandler::get().endFrame();
 		}
 	}
 
@@ -87,15 +89,18 @@ messageHandler(HWND windowHandle,
 			return 0;
 		} break;
 
+        case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
 			if (wparam == VK_ESCAPE)
 			{
 				PostQuitMessage(0);
 				return 0;
-			}
+			}            
 		} break;
 	}
+
+    InputHandler::get().handleInput(message, wparam, lparam);
 
 	return DefWindowProc(windowHandle, message, wparam, lparam);
 }
