@@ -51,6 +51,9 @@ Mesh::init(const Mesh* rhs)
 
     m_vertexBuffer = rhs->getVertexBuffer();
     m_indexBuffer  = rhs->getIndexBuffer();
+    m_texture      = rhs->getTexture();
+
+    m_indexCount = rhs->getIndexCount();
 }
 
 stringID

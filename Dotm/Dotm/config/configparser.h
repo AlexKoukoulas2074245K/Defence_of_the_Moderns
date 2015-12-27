@@ -11,21 +11,31 @@
 
 #include "../util/strings.h"
 
-bool
-initConfigFile(cstring configFileName);
+namespace config
+{
+    bool
+    initConfigFile(cstring configName);
 
-void
-extractConfigString(cstring section,
-                    cstring varname,
-                    stringID* outStringID);
+    void
+    extractConfigString(cstring section,
+                        cstring varname,
+                        stringID* outStringID);
 
-void
-extractConfigBool(cstring section,
-                  cstring varname,
-                  bool* outBool);
+    void
+    extractConfigBool(cstring section,
+                      cstring varname,
+                      bool* outBool);
 
-void
-extractConfigUint(cstring section,
-                  cstring varname,
-                  unsigned int* outUint);
+    void
+    extractConfigUint(cstring section,
+                      cstring varname,
+                      unsigned int* outUint);
+
+    void
+    extractConfigFloat(cstring section,
+                       cstring varname,
+                       float* outFloat);
+}
+
+
 

@@ -15,7 +15,7 @@
 /* -------
    Globals
    ------- */
-static cstring i_configFileName;
+static std::string i_configFileName;
 
 /* -------------------
    Internal Signatures
@@ -26,30 +26,36 @@ getBoolBuffer(cstring buffer);
 static int
 getBufferInt(cstring charBuffer);
 
+static float
+getBufferFloat(cstring charBuffer);
+
 /* --------------
    Public Methods
    -------------- */
 bool
-initConfigFile(cstring configFileName)
+config::initConfigFile(cstring configName)
 {
+    std::string fullPath(configName);
+    fullPath = "config/" + fullPath + ".ini";
+
     struct stat buffer;
-    if (stat(configFileName, &buffer))
+    if (stat(fullPath.c_str(), &buffer))
     {
         std::string message("The ");
-        message += configFileName;
+        message += configName;
         message += " config file could not be found. Press OK to exit the application";
         MessageBox(nullptr, message.c_str(), "Config file not Found", MB_ICONERROR);
         return false;
     }
 
-    i_configFileName = configFileName;
+    i_configFileName = fullPath;
     return true;
 }
 
 void
-extractConfigString(cstring section,
-                    cstring varname,
-                    stringID* outStringID)
+config::extractConfigString(cstring section,
+                            cstring varname,
+                            stringID* outStringID)
 {
     char buffer[32];
     GetPrivateProfileString(section,
@@ -57,15 +63,15 @@ extractConfigString(cstring section,
                             "",
                             buffer,
                             ARRAYSIZE(buffer),
-                            i_configFileName);
+                            i_configFileName.c_str());
 
     *outStringID = internString(buffer);
 }
 
 void
-extractConfigBool(cstring section,
-                  cstring varname,
-                  bool* outBool)
+config::extractConfigBool(cstring section,
+                          cstring varname,
+                          bool* outBool)
 {
     char buffer[8];
     GetPrivateProfileString(section,
@@ -73,15 +79,15 @@ extractConfigBool(cstring section,
                             "",
                             buffer,
                             ARRAYSIZE(buffer),
-                            i_configFileName);
+                            i_configFileName.c_str());
 
     *outBool = getBoolBuffer(buffer);
 }
 
 void 
-extractConfigUint(cstring section,
-                  cstring varname,
-                  uint32* outUint)
+config::extractConfigUint(cstring section,
+                          cstring varname,
+                          uint32* outUint)
 {
     char buffer[16];
     GetPrivateProfileString(section,
@@ -89,9 +95,25 @@ extractConfigUint(cstring section,
 		                    "",
 		                    buffer,
 		                    ARRAYSIZE(buffer),
-                    		i_configFileName);
+                    		i_configFileName.c_str());
 
     *outUint = getBufferInt(buffer);
+}
+
+void
+config::extractConfigFloat(cstring section,
+                           cstring varname,
+                           float* outFloat)
+{
+    char buffer[16];
+    GetPrivateProfileString(section,
+		                    varname,
+		                    "",
+		                    buffer,
+		                    ARRAYSIZE(buffer),
+                    		i_configFileName.c_str());
+
+    *outFloat = getBufferFloat(buffer);
 }
 
 /* ------------------
@@ -110,4 +132,10 @@ int
 getBufferInt(cstring charBuffer)
 {
     return atoi(charBuffer);
+}
+
+float
+getBufferFloat(cstring charBuffer)
+{
+    return (float) atof(charBuffer);
 }

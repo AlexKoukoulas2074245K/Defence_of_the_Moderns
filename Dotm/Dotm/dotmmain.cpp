@@ -8,8 +8,11 @@
    the main game loop
    -------------------------------- */
 
-#include "window.h"
+#if defined(DEBUG) || defined(_DEBUG)
 #include "vld.h"
+#endif
+
+#include "window.h"
 #include "states/gsqueue.h"
 #include "rendering/renderer.h"
 #include "handlers/inputhandler.h"
@@ -37,7 +40,7 @@ WinMain(HINSTANCE hInstance,
 		LPSTR lpCmdLine,
 		int nCmdShow)
 {
-	Window window("config/winconfig.ini",
+	Window window("winconfig",
 				  hInstance,
 				  messageHandler);
 

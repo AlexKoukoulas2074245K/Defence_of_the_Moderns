@@ -26,3 +26,10 @@ typedef signed long long llong64;
 
 typedef float real32;
 typedef float real64;
+
+enum direction
+{
+    DIR_FORWARD, DIR_BACKWARD,
+    DIR_LEFT,    DIR_RIGHT,
+    DIR_UP,      DIR_DOWN
+};

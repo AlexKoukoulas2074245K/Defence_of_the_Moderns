@@ -36,13 +36,10 @@ Window::Window(const char* configPath,
                      (real32) m_screenHeight;
     
     // assert config file exists
-    if(!initConfigFile(configPath)) return;
-
-    // Extract the app name from the winconfig file
-    extractConfigString("winconfig", "app_name", &m_appName);
+    if(!config::initConfigFile(configPath)) return;
     
-    // Extract the fuillscreen boolean from the winconfig file
-    extractConfigBool("winconfig", "fullscreen", &m_fullscreen);
+    config::extractConfigString("winconfig", "app_name", &m_appName);    
+    config::extractConfigBool("winconfig", "fullscreen", &m_fullscreen);
 
     // Fill out the window description struct
     WNDCLASSEX windowDesc    = {};

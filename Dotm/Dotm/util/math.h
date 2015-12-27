@@ -16,7 +16,10 @@
 // d3dx10 header inclusion
 #include <d3dx10.h>
 
+#define PI_FL ((float) D3DX_PI)
+
 typedef D3DXMATRIX  mat4x4;
+typedef D3DXVECTOR2 vec2f;
 typedef D3DXVECTOR3 vec3f;
 typedef D3DXVECTOR4 vec4f;
 

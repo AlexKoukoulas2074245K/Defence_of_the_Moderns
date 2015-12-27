@@ -111,6 +111,7 @@
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config\camconfig.ini" />
     <None Include="config\rendconfig.ini" />
     <None Include="config\winconfig.ini" />
     <None Include="shaders\std.ps" />

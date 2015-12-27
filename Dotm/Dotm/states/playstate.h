@@ -36,6 +36,7 @@ public:
     render();
 
 private:    
-    Mesh* m_mesh;    
+    //Mesh* m_mesh;
+    Mesh** m_meshes;
     Camera* m_camera;
 };

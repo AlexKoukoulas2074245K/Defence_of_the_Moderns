@@ -5,9 +5,7 @@
    
    File description: The interface of a class 
    representing a virtual camera in the game
-   world. All calculations are made with degrees
-   and only during the matrix calculations they
-   are transformed to radians.
+   world along with its children.
    ----------------------------------------------- */
 
 #pragma once
@@ -15,21 +13,32 @@
 #include "../util/math.h"
 #include "../dotmdef.h"
 
+/* =============
+   Class: Camera
+   ============= */
 class Camera
 {
 public:
 
     Camera();
 
+    virtual
     ~Camera();
 
-    Camera(const Camera& rhs);
-
-    Camera& 
-    operator = (const Camera& rhs);
+    virtual void
+    update();
 
     void
-    update();
+    moveCamera(const direction dir,
+               const real32 amount);
+
+    void
+    rotateCamera(const direction dir,
+                 const real32 amount);
+
+    void
+    panCamera(const direction dir,
+              const real32 amount);
 
     mat4x4
     calculateViewMatrix() logical_const;
@@ -37,73 +46,16 @@ public:
     mat4x4
     calculateProjectionMatrix() logical_const;
 
-    const vec3f&
-    getPosition() logical_const;
-
-    const vec3f&
-    getForward() logical_const;
-
-    const vec3f&
-    getRight() logical_const;
-
-    const vec3f&
-    getUp() logical_const;
-
-    const real32&
-    getPitch() logical_const;
-
-    const real32&
-    getYaw() logical_const;
-
-    const real32&
-    getRoll() logical_const;
-
-    const real32&
-    getFOV() logical_const;
-
-    void
-    setPosition(const vec3f& position);
-
-    void
-    setForward(const vec3f& forward);
-
-    void
-    setRight(const vec3f& right);
-
-    void
-    setUp(const vec3f& up);
-
-    void
-    setPitch(const real32 pitch);
-
-    void
-    setYaw(const real32 yaw);
+protected:
     
-    void
-    setRoll(const real32 roll);
-
-    void
-    setFOV(const real32 fov);
-
-private:
-
-    void
-    init(const Camera& rhs);
-
-private:
-
-    static const real32 CAM_DEFAULT_FOV;
     static const vec3f  CAM_DEFAULT_FORWARD;
     static const vec3f  CAM_DEFAULT_RIGHT;
     static const vec3f  CAM_DEFAULT_UP;
 
     static const real32 CAM_ZNEAR;
-    static const real32 CAM_ZFAR;
-    
-    static const real32 CAM_MAX_ZOOM;
-    static const real32 CAM_MIN_ZOOM;
+    static const real32 CAM_ZFAR;       
 
-private:
+protected:
     
     vec3f  m_position;
     vec3f  m_forward;
@@ -113,5 +65,42 @@ private:
     real32 m_yaw;
     real32 m_roll;
     real32 m_fov;
+
+    real32 m_leftDragArea;
+    real32 m_rightDragArea;
+    real32 m_topDragArea;
+    real32 m_bottomDragArea;
+    real32 m_xDragSpeed;
+    real32 m_yDragSpeed;     
+    
+    real32 m_minZoom;
+    real32 m_maxZoom;
+    real32 m_zoomSpeed;
+
+    real32 m_moveSpeed;
+    real32 m_lookSpeed;
+};
+
+/* ==========================
+   Class: WorldViewCamera
+   ========================== */
+
+class WorldViewCamera: public Camera
+{
+public:
+
+    WorldViewCamera();
+    
+    ~WorldViewCamera();
+
+    void
+    update();
+
+private:
+
+    void
+    screenEdgeTest();
+
+  
 
 };

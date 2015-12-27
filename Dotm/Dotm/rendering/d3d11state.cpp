@@ -48,12 +48,12 @@ void
 D3D11State::initConfig()
 {
     // Assert that the rendering config file exists
-    if (!initConfigFile("config/rendconfig.ini")) return;
+    if (!config::initConfigFile("rendconfig")) return;
 
     // Extract the rendering config variables from the config file
-    extractConfigBool("rendconfig", "vsync", &m_vsync);
-    extractConfigBool("rendconfig", "multisampling", &m_multisampling);
-    extractConfigUint("rendconfig", "anisotropic", &m_anisotropic);
+    config::extractConfigBool("rendconfig", "vsync", &m_vsync);
+    config::extractConfigBool("rendconfig", "multisampling", &m_multisampling);
+    config::extractConfigUint("rendconfig", "anisotropic", &m_anisotropic);
 }
 
 void

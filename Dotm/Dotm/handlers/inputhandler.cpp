@@ -8,6 +8,12 @@
    ------------------------------------------------ */
 
 #include "inputhandler.h"
+#include "../window.h"
+
+/* -------------
+   External Vars
+   ------------- */
+extern Window* g_window;
 
 /* --------------
    Public Methods
@@ -47,6 +53,17 @@ InputHandler::handleInput(const uint32 msg,
             {
                 m_currState ^= m_recognizedInput[wparam];
             }
+        } break;
+
+        // Mouse Move event
+        case WM_MOUSEMOVE:
+        {
+            POINT mousePos = {};
+            GetCursorPos(&mousePos);
+            ScreenToClient(g_window->getHandle(), &mousePos);
+            
+            m_mousePos.x = (float) mousePos.x;
+            m_mousePos.y = (float) mousePos.y;
         } break;
 
         // Mouse wheel rotatation event
@@ -95,13 +112,21 @@ InputHandler::getWheelDelta() logical_const
     return m_wheelDelta;
 }
 
+const vec2f&
+InputHandler::getMousePos() logical_const
+{
+    return m_mousePos;
+}
+
 /* ---------------
    Private Methods
    --------------- */
 InputHandler::InputHandler():
 
     m_currState(0U),
-    m_prevState(0U)    
+    m_prevState(0U),
+    m_wheelDelta(0U),
+    m_mousePos()    
 {
     m_recognizedInput[VK_SPACE] = KEY_SPACE;
     m_recognizedInput[VK_LEFT]  = KEY_LEFT;
@@ -112,4 +137,6 @@ InputHandler::InputHandler():
     m_recognizedInput[0x57]     = KEY_W;
     m_recognizedInput[0x44]     = KEY_D;
     m_recognizedInput[0x53]     = KEY_S;
+    m_recognizedInput[0x45]     = KEY_E;
+    m_recognizedInput[0x51]     = KEY_Q;
 }

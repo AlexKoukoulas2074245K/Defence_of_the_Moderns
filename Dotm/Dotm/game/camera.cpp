@@ -4,14 +4,17 @@
    File name:        camera.cpp
    
    File description: Implementation of the
-   virtual camera class declared in camera.h
+   virtual camera class and its children 
+   declared in camera.h
    ----------------------------------------------- */
 
 #include "camera.h"
 #include "../window.h"
 #include "../handlers/inputhandler.h"
 #include "../util/logging.h"
+#include "../config/configparser.h"
 #include <string>
+#include <cmath>
 
 /* ---------------
    Class Constants
@@ -19,17 +22,18 @@
 const vec3f  Camera::CAM_DEFAULT_FORWARD(0.0f, 0.0f, -1.0f);
 const vec3f  Camera::CAM_DEFAULT_RIGHT(1.0f, 0.0f, 0.0f);
 const vec3f  Camera::CAM_DEFAULT_UP(0.0f, 1.0f, 0.0f);
-const real32 Camera::CAM_DEFAULT_FOV(45.0f);
 const real32 Camera::CAM_ZNEAR(0.01f);
 const real32 Camera::CAM_ZFAR(1000.0f);
-const real32 Camera::CAM_MAX_ZOOM(10);
-const real32 Camera::CAM_MIN_ZOOM(1000.0f);
+
 
 /* -------------
    External Vars
    ------------- */
 extern Window* g_window;
 
+/* =============
+   Class: Camera
+   ============= */
 
 /* --------------
    Public Methods
@@ -42,10 +46,25 @@ Camera::Camera():
     m_right(CAM_DEFAULT_RIGHT),
     m_pitch(0.0f),
     m_yaw(0.0f),
-    m_roll(0.0f),
-    m_fov(CAM_DEFAULT_FOV)
+    m_roll(0.0f)    
 {
+    float horDragSpace, verDragSpace;
+    config::initConfigFile("camconfig");
+    config::extractConfigFloat("camconfig", "fov", &m_fov);
+    config::extractConfigFloat("camconfig", "hor_drag_area_perc", &horDragSpace);
+    config::extractConfigFloat("camconfig", "ver_drag_area_perc", &verDragSpace);
+    config::extractConfigFloat("camconfig", "x_drag_speed", &m_xDragSpeed);
+    config::extractConfigFloat("camconfig", "y_drag_speed", &m_yDragSpeed);
+    config::extractConfigFloat("camconfig", "min_zoom", &m_minZoom);
+    config::extractConfigFloat("camconfig", "max_zoom", &m_maxZoom);
+    config::extractConfigFloat("camconfig", "zoom_speed", &m_zoomSpeed);
+    config::extractConfigFloat("camconfig", "move_speed", &m_moveSpeed);
+    config::extractConfigFloat("camconfig", "look_speed", &m_lookSpeed);    
 
+    m_leftDragArea   = g_window->getWidth() / horDragSpace;
+    m_rightDragArea  = (real32) (g_window->getWidth() - m_leftDragArea);
+    m_topDragArea    = g_window->getHeight() / verDragSpace;
+    m_bottomDragArea = (real32) (g_window->getHeight() - m_topDragArea);
 }
 
 Camera::~Camera()
@@ -53,33 +72,134 @@ Camera::~Camera()
 
 }
 
-Camera::Camera(const Camera& rhs)
-{
-    init(rhs);
-}
+void
+Camera::update()
+{        
+    // Manual Zoom
+    int32 wheelDelta = InputHandler::get().getWheelDelta();
+    if (wheelDelta > 0 && m_fov > m_minZoom) m_fov -= m_zoomSpeed;
+    if (wheelDelta < 0 && m_fov < m_maxZoom) m_fov += m_zoomSpeed;      
 
-Camera&
-Camera::operator = (const Camera& rhs)
-{
-    init(rhs);
-    return *this;
+    // Manual movement control
+    if (InputHandler::get().isPressed(InputHandler::KEY_W)) moveCamera(DIR_FORWARD, m_moveSpeed);
+    if (InputHandler::get().isPressed(InputHandler::KEY_S)) moveCamera(DIR_BACKWARD, m_moveSpeed);
+    if (InputHandler::get().isPressed(InputHandler::KEY_A)) moveCamera(DIR_LEFT, m_moveSpeed);
+    if (InputHandler::get().isPressed(InputHandler::KEY_D)) moveCamera(DIR_RIGHT, m_moveSpeed);
+
+    // Manual look control
+    if (InputHandler::get().isPressed(InputHandler::KEY_UP))    rotateCamera(DIR_UP, m_lookSpeed);
+    if (InputHandler::get().isPressed(InputHandler::KEY_DOWN))  rotateCamera(DIR_DOWN, m_lookSpeed);
+    if (InputHandler::get().isPressed(InputHandler::KEY_LEFT))  rotateCamera(DIR_LEFT, m_lookSpeed);
+    if (InputHandler::get().isPressed(InputHandler::KEY_RIGHT)) rotateCamera(DIR_RIGHT, m_lookSpeed);
 }
 
 void
-Camera::update()
+Camera::moveCamera(const direction dir,
+                   const real32 amount)
+{ 
+    switch (dir)
+    {
+        case DIR_FORWARD:
+        {
+            m_position.x -= std::sinf(m_yaw)   * amount;
+            m_position.y += std::sinf(m_pitch) * amount;
+            m_position.z -= std::cosf(m_yaw)   * amount;
+        }break;
+
+        case DIR_BACKWARD:
+        {
+            m_position.x += std::sinf(m_yaw)   * amount;
+            m_position.y -= std::sinf(m_pitch) * amount;
+            m_position.z += std::cosf(m_yaw)   * amount;
+        }break;        
+        
+        case DIR_UP:
+        {            
+            m_position.y += amount;
+        }break;
+
+        case DIR_DOWN:
+        {            
+            m_position.y -= amount;
+        }break;
+
+        case DIR_LEFT:
+        {            
+            m_position.x -= std::sinf(m_yaw + PI_FL / 2) * amount;            
+            m_position.z -= std::cosf(m_yaw + PI_FL / 2) * amount;
+        }break;
+
+        case DIR_RIGHT:
+        {
+            m_position.x += std::sinf(m_yaw + PI_FL / 2) * amount;            
+            m_position.z += std::cosf(m_yaw + PI_FL / 2) * amount;            
+        }break;
+    }
+}
+
+void
+Camera::rotateCamera(const direction dir,
+                     const real32 amount)
 {
-    int32 wheelDelta = InputHandler::get().getWheelDelta();
-    if (wheelDelta > 0 && m_fov > CAM_MAX_ZOOM) m_fov -= 3.0f;
-    if (wheelDelta < 0 && m_fov < CAM_MIN_ZOOM) m_fov += 3.0f;
-    
+    switch (dir)
+    {
+        case DIR_FORWARD:  m_roll  += amount; break;
+        case DIR_BACKWARD: m_roll  -= amount; break;
+        case DIR_UP:       m_pitch += amount; break;
+        case DIR_DOWN:     m_pitch -= amount; break;
+        case DIR_LEFT:     m_yaw   += amount; break;
+        case DIR_RIGHT:    m_yaw   -= amount; break;        
+    }
+}
+
+void
+Camera::panCamera(const direction dir,
+                  const real32 amount)
+{
+    switch (dir)
+    {
+        case DIR_FORWARD:
+        {
+            m_position.x -= std::sinf(m_yaw) * amount;
+            m_position.z -= std::cosf(m_yaw) * amount;
+        }break;
+
+        case DIR_BACKWARD:
+        {
+            m_position.x += std::sinf(m_yaw) * amount;
+            m_position.z += std::cosf(m_yaw) * amount;
+        }break;
+
+        case DIR_UP:
+        {
+            m_position.y -= std::sinf(m_pitch) * amount;
+        }break;
+
+        case DIR_DOWN:
+        {
+            m_position.y += std::sinf(m_pitch) * amount;
+        }break;
+
+        case DIR_LEFT:
+        {
+            m_position.x -= std::sinf(m_yaw + PI_FL / 2) * amount;
+            m_position.z -= std::cosf(m_yaw + PI_FL / 2) * amount;
+        }break;
+
+        case DIR_RIGHT:
+        {
+            m_position.x += std::sinf(m_yaw + PI_FL / 2) * amount;
+            m_position.z += std::cosf(m_yaw + PI_FL / 2) * amount;
+        }break;
+    }
 }
 
 mat4x4
 Camera::calculateViewMatrix() logical_const
 {
-    vec3f      up(CAM_DEFAULT_UP);
+    vec3f up(CAM_DEFAULT_UP);
     vec3f forward(CAM_DEFAULT_FORWARD);
-    vec3f   right(CAM_DEFAULT_RIGHT);
+    vec3f right(CAM_DEFAULT_RIGHT);
 
     mat4x4 yawMatrix;
     D3DXMatrixRotationAxis(&yawMatrix, &up, m_yaw);
@@ -130,114 +250,49 @@ Camera::calculateProjectionMatrix() logical_const
     return matres;
 }
 
-const vec3f&
-Camera::getPosition() logical_const
+
+/* ==========================
+   Class: WorldViewCamera
+   ========================== */
+
+/* --------------
+   Public Methods
+   -------------- */
+WorldViewCamera::WorldViewCamera():
+
+    Camera()
 {
-    return m_position;
+    m_position.x = -11.0f;
+    m_position.y = 92.0f;
+    m_position.z = -112.0f;
+    m_pitch      = -0.7f;
+    m_yaw        = PI_FL;
+    m_roll       = 0.0f;
 }
 
-const vec3f&
-Camera::getForward() logical_const
+WorldViewCamera::~WorldViewCamera()
 {
-    return m_forward;
-}
 
-const vec3f&
-Camera::getRight() logical_const
-{
-    return m_right;
-}
-
-const vec3f&
-Camera::getUp() logical_const
-{
-    return m_up;
-}
-
-const real32&
-Camera::getPitch() logical_const
-{
-    return m_pitch;
-}
-
-const real32&
-Camera::getYaw() logical_const
-{
-    return m_yaw;
-}
-
-const real32&
-Camera::getRoll() logical_const
-{
-    return m_roll;
-}
-
-const real32&
-Camera::getFOV() logical_const
-{
-    return m_fov;
 }
 
 void
-Camera::setPosition(const vec3f& position)
+WorldViewCamera::update()
 {
-    m_position = position;
-}
-
-void
-Camera::setForward(const vec3f& forward)
-{
-    m_forward = forward;
-}
-
-void
-Camera::setRight(const vec3f& right)
-{
-    m_right = right;
-}
-
-void
-Camera::setUp(const vec3f& up)
-{
-    m_up = up;
-}
-
-void
-Camera::setPitch(const real32 pitch)
-{
-    m_pitch = pitch;
-}
-
-void
-Camera::setYaw(const real32 yaw)
-{
-    m_yaw = yaw;
-}
-
-void
-Camera::setRoll(const real32 roll)
-{
-    m_roll = roll;
-}
-
-void
-Camera::setFOV(const real32 fov)
-{
-    m_fov = fov;
+    screenEdgeTest();
+    Camera::update();
 }
 
 /* --------------- 
    Private Methods
    --------------- */
 void
-Camera::init(const Camera& rhs)
+WorldViewCamera::screenEdgeTest()
 {
-    m_position = rhs.getPosition();
-    m_forward = rhs.getForward();
-    m_right = rhs.getRight();
-    m_up = rhs.getUp();
-    m_pitch = rhs.getPitch();
-    m_yaw = rhs.getYaw();
-    m_roll = rhs.getRoll();
-    m_fov = rhs.getFOV();
+    vec2f mousePos = InputHandler::get().getMousePos();
+
+    if (mousePos.x < m_leftDragArea)   panCamera(DIR_LEFT,     m_xDragSpeed);
+    if (mousePos.x > m_rightDragArea)  panCamera(DIR_RIGHT,    m_xDragSpeed);
+    if (mousePos.y < m_topDragArea)    panCamera(DIR_FORWARD,  m_yDragSpeed);
+    if (mousePos.y > m_bottomDragArea) panCamera(DIR_BACKWARD, m_yDragSpeed);    
 }
+
