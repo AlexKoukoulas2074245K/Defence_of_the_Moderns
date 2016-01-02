@@ -28,3 +28,15 @@ toRadians(const FLOAT deg) { return (FLOAT) D3DXToRadian(deg); }
 
 inline FLOAT
 toDegrees(const FLOAT rad) { return (FLOAT) D3DXToDegree(rad); }
+
+inline FLOAT
+max2f(const FLOAT a, const FLOAT b) { return a > b ? a : b; }
+
+inline FLOAT
+max3f(const FLOAT a, const FLOAT b, const FLOAT c) { return max2f(a, max2f(b, c)); }
+
+inline FLOAT
+min2f(const FLOAT a, const FLOAT b) { return a < b ? a : b; }
+
+inline FLOAT
+min3f(const FLOAT a, const FLOAT b, const FLOAT c) { return min2f(a, min2f(b, c)); }

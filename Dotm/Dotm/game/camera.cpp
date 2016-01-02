@@ -11,9 +11,8 @@
 #include "camera.h"
 #include "../window.h"
 #include "../handlers/inputhandler.h"
-#include "../util/logging.h"
 #include "../config/configparser.h"
-#include <string>
+#include "../util/logging.h"
 #include <cmath>
 
 /* ---------------
@@ -91,6 +90,7 @@ Camera::update()
     if (InputHandler::get().isPressed(InputHandler::KEY_DOWN))  rotateCamera(DIR_DOWN, m_lookSpeed);
     if (InputHandler::get().isPressed(InputHandler::KEY_LEFT))  rotateCamera(DIR_LEFT, m_lookSpeed);
     if (InputHandler::get().isPressed(InputHandler::KEY_RIGHT)) rotateCamera(DIR_RIGHT, m_lookSpeed);
+
 }
 
 void
@@ -250,6 +250,11 @@ Camera::calculateProjectionMatrix() logical_const
     return matres;
 }
 
+const vec3f&
+Camera::getPosition() logical_const
+{
+    return m_position;
+}
 
 /* ==========================
    Class: WorldViewCamera
@@ -262,12 +267,12 @@ WorldViewCamera::WorldViewCamera():
 
     Camera()
 {
-    m_position.x = -11.0f;
-    m_position.y = 92.0f;
-    m_position.z = -112.0f;
-    m_pitch      = -0.7f;
-    m_yaw        = PI_FL;
-    m_roll       = 0.0f;
+    m_position.x = -2.77f;
+    m_position.y =  20.15f;
+    m_position.z = -39.53f;
+    m_pitch      = -0.30f;
+    m_yaw        =  15.79f;
+    m_roll       =  0.0f;
 }
 
 WorldViewCamera::~WorldViewCamera()
@@ -279,7 +284,7 @@ void
 WorldViewCamera::update()
 {
     screenEdgeTest();
-    Camera::update();
+    Camera::update();    
 }
 
 /* --------------- 

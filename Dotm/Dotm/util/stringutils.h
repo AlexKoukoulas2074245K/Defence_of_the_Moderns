@@ -19,7 +19,7 @@ namespace string_utils
 
     std::string
     getstring(const std::wstring& wstr);
-   
+
     void
     split(const std::string& s,
           char delim,

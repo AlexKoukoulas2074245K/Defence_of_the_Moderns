@@ -13,19 +13,20 @@
 #include "../util/strings.h"
 
 class Mesh;
-
+class Texture;
 namespace resource
 {
+    // Mesh interface
     void
-    registerMesh(const stringID meshName, const Mesh* mesh);
+    registerMesh(const stringID meshName, Mesh* mesh);
 
     bool 
     meshExists(const stringID meshName);
 
-    const Mesh*
+    Mesh*
     retrieveMesh(const stringID meshID);
     
-    const Mesh*
+    Mesh*
     retrieveMesh(cstring meshName);
 
     void 

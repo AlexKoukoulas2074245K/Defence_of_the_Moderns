@@ -31,6 +31,12 @@ inline void
 logline(const int32 arg) { logline(std::to_string(arg).c_str()); }
 
 inline void
+logline(const int64 arg) { logline(std::to_string(arg).c_str()); }
+
+inline void
+logline(const uint64 arg) { logline(std::to_string(arg).c_str()); }
+
+inline void
 logline(const bool arg) { if (arg) logline("true"); else logline("false"); }
 
 inline void
@@ -41,6 +47,12 @@ logvar(const uint32 arg) { logstring(std::to_string(arg).c_str()); }
 
 inline void
 logvar(const int32 arg) { logstring(std::to_string(arg).c_str()); }
+
+inline void
+logvar(const uint64 arg) { logstring(std::to_string(arg).c_str()); }
+
+inline void
+logvar(const int64 arg) { logstring(std::to_string(arg).c_str()); }
 
 inline void
 logvar(const bool arg) { if (arg) logstring("true"); else logstring("false"); }
@@ -66,6 +78,12 @@ inline void
 logline(const int32 arg) {}
 
 inline void
+logline(const int64 arg) {}
+
+inline void
+logline(const uint64 arg) {}
+
+inline void
 logline(const bool arg) {}
 
 inline void
@@ -76,6 +94,12 @@ logvar(const uint32 arg) {}
 
 inline void
 logvar(const int32 arg) {}
+
+inline void
+logvar(const uint64 arg) {}
+
+inline void
+logvar(const int64 arg) {}
 
 inline void
 logvar(const bool arg) {}

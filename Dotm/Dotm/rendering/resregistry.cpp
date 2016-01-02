@@ -14,35 +14,35 @@
 /* -------------
    Internal Vars
    ------------- */
-static std::unordered_map<stringID, const Mesh*> registry;
+static std::unordered_map<stringID, Mesh*> meshRegistry;
 
 /* ----------------
    Public Functions
    ---------------- */
 void
-resource::registerMesh(const stringID meshName, const Mesh* mesh)
+resource::registerMesh(const stringID meshName, Mesh* mesh)
 {
-    registry[meshName] = mesh;
+    meshRegistry[meshName] = mesh;
 }
 
 bool 
 resource::meshExists(const stringID meshName)
 {
-    return registry.count(meshName) != 0;
+    return meshRegistry.count(meshName) != 0;
 }
 
-const Mesh*
+Mesh*
 resource::retrieveMesh(const stringID meshID)
 {
     if (!meshExists(meshID)) return nullptr;
-    return registry[meshID];
+    return meshRegistry[meshID];
 }
 
-const Mesh*
+Mesh*
 resource::retrieveMesh(cstring meshName)
 {    
-    for (auto citer = registry.cbegin();
-        citer != registry.cend();
+    for (auto citer = meshRegistry.cbegin();
+        citer != meshRegistry.cend();
         ++citer)
     {
         if (!strcmp(meshName, retrieveString(citer->first))) 
@@ -54,5 +54,5 @@ resource::retrieveMesh(cstring meshName)
 void
 resource::deleteMesh(const stringID meshName)
 {
-    registry.erase(meshName);
+    meshRegistry.erase(meshName);
 }

@@ -64,8 +64,8 @@ Window::Window(const char* configPath,
         // Display device info
         DEVMODE	dmScreen      = {};
         dmScreen.dmSize       = sizeof(dmScreen);
-        dmScreen.dmPelsWidth  = (ulong64) m_windowWidth;
-        dmScreen.dmPelsHeight = (ulong64) m_windowHeight;
+        dmScreen.dmPelsWidth  = (uint64) m_windowWidth;
+        dmScreen.dmPelsHeight = (uint64) m_windowHeight;
         dmScreen.dmBitsPerPel = 32;
         dmScreen.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 

@@ -61,7 +61,7 @@ private:
     bool m_ready;
     bool m_fullscreen;
 
-    HWND m_handle;
+    HWND     m_handle;
     stringID m_appName;
 
     uint32 m_windowWidth;

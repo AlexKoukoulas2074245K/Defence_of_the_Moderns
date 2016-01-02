@@ -46,6 +46,9 @@ public:
     mat4x4
     calculateProjectionMatrix() logical_const;
 
+    const vec3f&
+    getPosition() logical_const;
+
 protected:
     
     static const vec3f  CAM_DEFAULT_FORWARD;
@@ -79,6 +82,7 @@ protected:
 
     real32 m_moveSpeed;
     real32 m_lookSpeed;
+
 };
 
 /* ==========================
@@ -100,7 +104,5 @@ private:
 
     void
     screenEdgeTest();
-
-  
 
 };

@@ -10,33 +10,85 @@
 #include "mesh.h"
 #include "resregistry.h"
 #include "renderer.h"
-#include "ddsloader.h"
+#include "texture.h"
 #include "../util/stringutils.h"
+#include "../window.h"
 #include <fstream>
+
+/* -------------
+   External Vars
+   ------------- */
+extern Window* g_window;
+
+/* ----------------
+   Internal Structs
+   ---------------- */
+struct VertexPos { real32 x, y, z;    };
+struct VertexTex { real32 tu, tv;     };
+struct VertexNor { real32 nx, ny, nz; };
+struct ObjIndex  { uint32 vertexIndex, texIndex, normIndex;  };
+   
+/* -------------------
+   Internal Signatures
+   ------------------- */
+static bool
+loadMesh(std::ifstream&             file,
+         std::vector<VertexPos>&    disorgPos,
+         std::vector<VertexTex>&    disorgTexcoords,
+         std::vector<VertexNor>&    disorgNormals,
+         std::vector<ObjIndex>&     objIndices,
+         std::vector<Mesh::Vertex>& finalVertices,
+         std::vector<uint32>&       finalIndices);
 
 /* --------------
    Public Methods
    -------------- */
-Mesh::Mesh(cstring meshName, bool isHUDElement):
+Mesh::Mesh(cstring meshName,
+           uint32  meshCreationFlags,
+           Vertex* optExternalVertexData /* nullptr */,
+           uint32* optExternalIndexData  /* nullptr */,
+           uint32  optExternalNVertices  /* 0U */,
+           uint32  optExternalNIndices   /* 0U */):
 
     m_name(internString(meshName)),
-    m_hudElement(isHUDElement),
+    m_hudElement((meshCreationFlags & MESH_TYPE_HUD) != 0),
+    m_hasTexture((meshCreationFlags & MESH_LOAD_SAME_TEXTURE) != 0),
     x(0.0f), y(0.0f), z(0.0f),
     rotX(0.0f), rotY(0.0f), rotZ(0.0f),
-    scaleX(1.0f), scaleY(1.0f), scaleZ(1.0f)
+    scaleX(1.0f), scaleY(1.0f), scaleZ(1.0f),
+    m_dimensions()
 {
     // If there is a mesh registered with this name initialize
     // this mesh from the registered mesh
     if (resource::meshExists(m_name)) init(resource::retrieveMesh(m_name));
 
-    // otherwise if the mesh loading is successful 
-    // register this mesh with its name
-    else if(loadMesh() && loadTexture()) resource::registerMesh(m_name, this);
+    // otherwise initialize this mesh and its texture (if the same texture flag is set)
+    // normally.
+    else
+    {  
+        // Same texture flag is set
+        if (m_hasTexture) m_texture.reset(new Texture(meshName));            
+        
+        // Load mesh and if succesful register it
+        if ((meshCreationFlags & MESH_EXTERNAL_DATA) != 0)
+        {
+            createMesh(optExternalVertexData,
+                       optExternalIndexData,
+                       optExternalNVertices,
+                       optExternalNIndices);
+            // No register here as it is a mesh with specific data
+        }
+        else
+        {
+            if (createMesh(nullptr, nullptr, 0U, 0U)) 
+                resource::registerMesh(m_name, this);
+        }        
+    }
 }
 
 Mesh::~Mesh()
 {
-
+    
 }
 
 void
@@ -47,13 +99,20 @@ Mesh::init(const Mesh* rhs)
     rotX   = rhs->rotX;     rotY = rhs->rotY;     rotZ = rhs->rotZ;
     scaleX = rhs->scaleX; scaleY = rhs->scaleY; scaleZ = rhs->scaleZ;
 
-    m_hudElement = rhs->isHUDElement();
-
+    m_hudElement   = rhs->isHUDElement();
+    m_hasTexture   = rhs->hasTexture();
     m_vertexBuffer = rhs->getVertexBuffer();
     m_indexBuffer  = rhs->getIndexBuffer();
     m_texture      = rhs->getTexture();
+    m_dimensions   = rhs->getDimensions();
+    m_indexCount   = rhs->getIndexCount();
+}
 
-    m_indexCount = rhs->getIndexCount();
+void
+Mesh::loadNewTexture(const cstring textureName)
+{
+    m_texture.reset(new Texture(textureName));
+    m_hasTexture = true;
 }
 
 stringID
@@ -72,6 +131,12 @@ bool
 Mesh::isHUDElement() logical_const
 {
     return m_hudElement;
+}
+
+bool
+Mesh::hasTexture() logical_const
+{
+    return m_hasTexture;
 }
 
 mat4x4 
@@ -104,7 +169,7 @@ mat4x4
 Mesh::getScaleMatrix() logical_const
 {
     D3DXMATRIX scaMatrix;
-    D3DXMatrixScaling(&scaMatrix, scaleX, scaleY, scaleZ);
+    D3DXMatrixScaling(&scaMatrix, m_hudElement ? scaleX / g_window->getAspect() : scaleX, scaleY, scaleZ);
     return scaMatrix;
 }
 
@@ -126,48 +191,153 @@ Mesh::getIndexBuffer() bitwise_const
     return m_indexBuffer;
 }
 
-comptr<ID3D11ShaderResourceView>
+vec3f
+Mesh::getDimensions() logical_const
+{
+    return vec3f(m_dimensions.x * scaleX,
+                 m_dimensions.y * scaleY,
+                 m_dimensions.z * scaleZ);
+}
+
+vec3f
+Mesh::getPosition() logical_const
+{
+    return vec3f(x, y, z);
+}
+
+std::shared_ptr<Texture>
 Mesh::getTexture() bitwise_const
 {
     return m_texture;
+}
+
+void
+Mesh::setTexture(std::shared_ptr<Texture> texture)
+{
+    m_texture = texture;
 }
 
 /* ---------------
    Private Methods
    --------------- */
 
-struct VertexPos { real32 x, y, z;    };
-struct VertexTex { real32 tu, tv;     };
-struct VertexNor { real32 nx, ny, nz; };
-struct ObjIndex  { uint32 vertexIndex, texIndex, normIndex;  };
-
 bool
-Mesh::loadMesh()
+Mesh::createMesh(Vertex* optVertices,
+                 uint32* optIndices,
+                 uint32  optNVertices,
+                 uint32  optNIndices)
 {
-    std::string meshName = retrieveString(m_name);
-    std::ifstream file("assets/models/" + meshName + ".obj");
-
-    if (!file.is_open())
-    {
-        MessageBox(NULL,
-                   ("Missing mesh file: " + meshName).c_str(),
-                   "Mesh Missing!",
-                   MB_ICONEXCLAMATION);
-        return false;
-    }
-
     // Disorganized data containers
     std::vector<VertexPos> disorgPos;
     std::vector<VertexTex> disorgTexcoords;
     std::vector<VertexNor> disorgNormals;
     std::vector<ObjIndex> objIndices;
 
+    // Organized data containers
+    std::vector<Vertex> finalVertices;
+    std::vector<uint32> finalIndices;
+
+    // Check if external vertex and index data are provided
+    if (optVertices)
+    {
+        while (finalVertices.size() < optNVertices)
+        {
+            finalVertices.push_back(*optVertices++);            
+        }
+        while (finalIndices.size() < optNIndices)
+        {
+            finalIndices.push_back(*optIndices++);            
+        }       
+    }
+    
+    // Otherwise begin manual mesh loading
+    else
+    {
+        std::string meshName = retrieveString(m_name);
+        std::ifstream file("assets/models/" + meshName + ".obj");
+
+        if (!file.is_open())
+        {
+            MessageBox(NULL,
+                       ("Missing mesh file: " + meshName).c_str(),
+                       "Mesh Missing!",
+                       MB_ICONEXCLAMATION);
+            return false;
+        }
+
+        if (!loadMesh(file,
+                      disorgPos,
+                      disorgTexcoords, 
+                      disorgNormals, 
+                      objIndices, 
+                      finalVertices,
+                      finalIndices)) return false;
+    }
+    
+    real32 minWidth  = 0.0f, maxWidth  = 0.0f;
+    real32 minDepth  = 0.0f, maxDepth  = 0.0f;
+    real32 minHeight = 0.0f, maxHeight = 0.0f;
+
+    // Update Dimensions
+    for (auto citer = finalVertices.cbegin();
+         citer != finalVertices.cend();
+         ++citer)
+    {
+        if (citer->x < minWidth)  minWidth  = citer->x;
+        if (citer->x > maxWidth)  maxWidth  = citer->x;
+        if (citer->y < minHeight) minHeight = citer->y;
+        if (citer->y > maxHeight) maxHeight = citer->y;
+        if (citer->z < minDepth)  minDepth  = citer->z;
+        if (citer->z > maxDepth)  maxDepth  = citer->z;
+    }
+    m_dimensions.x = std::abs(minWidth)  + std::abs(maxWidth);
+    m_dimensions.y = std::abs(minHeight) + std::abs(maxHeight);
+    m_dimensions.z = std::abs(minDepth)  + std::abs(maxDepth);
+
+    m_indexCount = finalIndices.size();
+    
+    // Vertex Buffer Creation
+    D3D11_BUFFER_DESC vertexBufferDesc = {};
+    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertexBufferDesc.ByteWidth = sizeof(Vertex) * finalVertices.size();
+
+    D3D11_SUBRESOURCE_DATA vertexData = {};
+    vertexData.pSysMem = &finalVertices[0];
+
+    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&vertexBufferDesc,
+                                                       &vertexData,
+                                                       &m_vertexBuffer));
+
+    // Index Buffer creation
+    D3D11_BUFFER_DESC indexBufferDesc = {};
+    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    indexBufferDesc.ByteWidth = sizeof(uint32) * finalIndices.size();
+
+    D3D11_SUBRESOURCE_DATA indexData = {};
+    indexData.pSysMem = &finalIndices[0];
+
+    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&indexBufferDesc,
+                                                       &indexData,
+                                                       &m_indexBuffer));
+
+    return true;
+}
+
+static bool
+loadMesh(std::ifstream&             file,
+         std::vector<VertexPos>&    disorgPos,
+         std::vector<VertexTex>&    disorgTexcoords,
+         std::vector<VertexNor>&    disorgNormals,
+         std::vector<ObjIndex>&     objIndices,
+         std::vector<Mesh::Vertex>& finalVertices,
+         std::vector<uint32>&       finalIndices)
+{
     std::string line;
     for (; std::getline(file, line);)
     {
         if (line.size() < 2 ||
             (line[0] != 'v' && line[0] != 'f')) continue;
-        
+
         std::vector<std::string> vecComps;
         string_utils::split(line, ' ', vecComps);
         std::string attribute = vecComps[0];
@@ -213,8 +383,8 @@ Mesh::loadMesh()
                 string_utils::split(vecComps[i], '/', splitIndices);
 
                 if (splitIndices[0].size() != 0) objIndex.vertexIndex = std::stoi(splitIndices[0]) - 1;
-                if (splitIndices[1].size() != 0) objIndex.texIndex    = std::stoi(splitIndices[1]) - 1;
-                if (splitIndices[2].size() != 0) objIndex.normIndex   = std::stoi(splitIndices[2]) - 1;
+                if (splitIndices[1].size() != 0) objIndex.texIndex = std::stoi(splitIndices[1]) - 1;
+                if (splitIndices[2].size() != 0) objIndex.normIndex = std::stoi(splitIndices[2]) - 1;
 
                 objIndices.push_back(objIndex);
             }
@@ -222,90 +392,27 @@ Mesh::loadMesh()
     }
     file.close();
 
-    // Organized data containers
-    std::vector<Vertex> finalVertices;
-    std::vector<uint32> finalIndices;
-
+    // Calculate the final data
     for (size_t i = 0; i < objIndices.size(); ++i)
     {
-        Vertex finalVertex = {};
-        
+        Mesh::Vertex finalVertex = {};
+
         // Position Extraction        
         finalVertex.x = disorgPos[objIndices[i].vertexIndex].x;
         finalVertex.y = disorgPos[objIndices[i].vertexIndex].y;
-        finalVertex.z = disorgPos[objIndices[i].vertexIndex].z;        
-    
+        finalVertex.z = disorgPos[objIndices[i].vertexIndex].z;
+
         // Tex Coord Extraction
         finalVertex.tu = disorgTexcoords[objIndices[i].texIndex].tu;
         finalVertex.tv = disorgTexcoords[objIndices[i].texIndex].tv;
-                        
+
         // Normal Extraction        
         finalVertex.nx = disorgNormals[objIndices[i].normIndex].nx;
         finalVertex.ny = disorgNormals[objIndices[i].normIndex].ny;
         finalVertex.nz = disorgNormals[objIndices[i].normIndex].nz;
-              
+
         finalVertices.push_back(finalVertex);
         finalIndices.push_back(i);
-    }
-    
-    m_indexCount = finalIndices.size();
-
-    // Vertex Buffer Creation
-    D3D11_BUFFER_DESC vertexBufferDesc = {};
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.ByteWidth = sizeof(Vertex) * finalVertices.size();
-
-    D3D11_SUBRESOURCE_DATA vertexData = {};
-    vertexData.pSysMem = &finalVertices[0];
-
-    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&vertexBufferDesc,
-                                                       &vertexData,
-                                                       &m_vertexBuffer));
-
-    // Index Buffer creation
-    D3D11_BUFFER_DESC indexBufferDesc = {};
-    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    indexBufferDesc.ByteWidth = sizeof(uint32) * finalIndices.size();
-
-    D3D11_SUBRESOURCE_DATA indexData = {};
-    indexData.pSysMem = &finalIndices[0];
-
-    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&indexBufferDesc,
-                                                       &indexData,
-                                                       &m_indexBuffer));
-
-    return true;
-}
-
-bool
-Mesh::loadTexture()
-{
-    std::wstring widePath = L"assets/textures/" + 
-                            string_utils::getwstring(retrieveString(m_name)) +
-                            L".png";
-
-    HRESULT result = DirectX::CreateWICTextureFromFile(
-        Renderer::get().getDeviceHandle().Get(),
-        Renderer::get().getDevconHandle().Get(),
-        widePath.c_str(),
-        NULL,
-        &m_texture,
-        0);
-    
-    if (FAILED(result))
-    {        
-        DirectX::CreateWICTextureFromFile(
-            Renderer::get().getDeviceHandle().Get(),
-            Renderer::get().getDevconHandle().Get(),
-            L"textures/missing.png",
-            NULL,
-            &m_texture,
-            0);
-        
-        MessageBoxW(NULL,
-                    (L"Missing texture: " + widePath).c_str(),
-                    L"Missing Texture!",
-                    MB_ICONEXCLAMATION);
     }
 
     return true;

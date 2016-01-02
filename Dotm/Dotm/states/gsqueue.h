@@ -43,5 +43,5 @@ private:
 private:
 
     std::queue<AGameState*> m_states;
-    bool m_done;
+    bool                    m_done;
 };

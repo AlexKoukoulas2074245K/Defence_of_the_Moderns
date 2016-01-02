@@ -13,8 +13,9 @@
 #include "../util/math.h"
 #include "../dotmdef.h"
 #include "../util/strings.h"
+#include <memory>
 
-
+class Texture;
 class Mesh
 {
 public:
@@ -28,7 +29,21 @@ public:
 
 public:
 
-    Mesh(cstring meshName, bool isHUDElement);
+    static const uint32 MESH_TYPE_NORMAL       = 0x01;
+    static const uint32 MESH_TYPE_HUD          = 0x02;
+    static const uint32 MESH_LOAD_SAME_TEXTURE = 0x04;
+    static const uint32 MESH_EXTERNAL_DATA     = 0x08;
+
+public:
+
+    // If the MESH_EXTERNAL_TEXCOORDS flag is set,
+    // the method expects a valid array of vec2f and its size
+    Mesh(cstring meshName,
+         uint32  meshCreationFlags,
+         Vertex* optExternalVertexData = nullptr,
+         uint32* optExternalIndexData  = nullptr,
+         uint32  optExternalNVertices  = 0U,
+         uint32  optExternalNIndices   = 0U);
 
     ~Mesh();
 
@@ -40,6 +55,9 @@ public:
     void 
     init(const Mesh* rhs);
 
+    void
+    loadNewTexture(cstring textureName);
+
     stringID
     getNameID() logical_const;
 
@@ -48,6 +66,9 @@ public:
 
     bool 
     isHUDElement() logical_const;
+
+    bool
+    hasTexture() logical_const;
 
     mat4x4
     getWorldMatrix() logical_const;
@@ -70,16 +91,25 @@ public:
     comptr<ID3D11Buffer>
     getIndexBuffer() bitwise_const;
 
-    comptr<ID3D11ShaderResourceView>
+    std::shared_ptr<Texture>
     getTexture() bitwise_const;
+    
+    vec3f
+    getDimensions() logical_const;
+
+    vec3f
+    getPosition() logical_const;
+
+    void
+    setTexture(std::shared_ptr<Texture> texture);
 
 private:
 
     bool
-    loadMesh();
-
-    bool
-    loadTexture();
+    createMesh(Vertex* optVertices,
+               uint32* optIndices,
+               uint32  optNVertices,
+               uint32  optNIndices);
 
 public: 
     // the prefix m_ in the public fields is intentionally not added
@@ -91,10 +121,13 @@ public:
 private:
 
     stringID m_name;
-    bool m_hudElement;
+    
+    bool   m_hudElement;
+    bool   m_hasTexture;
     uint32 m_indexCount;
+    vec3f  m_dimensions;
 
-    comptr<ID3D11Buffer> m_vertexBuffer;
-    comptr<ID3D11Buffer> m_indexBuffer;
-    comptr<ID3D11ShaderResourceView> m_texture;
+    comptr<ID3D11Buffer>     m_vertexBuffer;
+    comptr<ID3D11Buffer>     m_indexBuffer;
+    std::shared_ptr<Texture> m_texture;
 };
