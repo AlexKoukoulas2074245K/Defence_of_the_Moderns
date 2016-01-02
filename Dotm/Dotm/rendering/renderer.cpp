@@ -95,18 +95,19 @@ Renderer::renderPrimitive(const uint32 primitive,
     
     if (mesh)
     {
-        real32 avgScaleRatio = (dimensions.x / mesh->getDimensions().x +
-                                dimensions.y / mesh->getDimensions().y +
-                                dimensions.z / mesh->getDimensions().z) / 3.0f;
+        real32 maxMeshDim = math::avg3f(dimensions.x,
+                                        dimensions.y,
+                                        dimensions.z);
         
-        mesh->scaleX *= avgScaleRatio;
-        mesh->scaleY *= primitive == RENDERER_PRIMITIVE_PLANE ? 0 : avgScaleRatio;
-        mesh->scaleZ *= avgScaleRatio;
+        mesh->scaleX *= maxMeshDim / mesh->getDimensions().x;
+        mesh->scaleY *= primitive == RENDERER_PRIMITIVE_PLANE ? 0 :
+                        maxMeshDim / mesh->getDimensions().y;
+        mesh->scaleZ *= maxMeshDim / mesh->getDimensions().z;
         
         mesh->x = position.x;
         mesh->y = position.y;
         mesh->z = position.z;
-
+        
         renderMesh(mesh);
     }
 
@@ -167,10 +168,10 @@ Renderer::renderMesh(const Mesh* mesh)
     mat4x4 rotMat   = mesh->getRotationMatrix();
 
     Shader::VSCBuffer vcbuffer = {};
-    vcbuffer.eyePosition    = D3DXVECTOR4();
-    vcbuffer.mvpMatrix      = finalMat;
-    vcbuffer.rotationMatrix = rotMat;
-    vcbuffer.worldMatrix    = worldMat;
+    vcbuffer.mvpMatrix         = finalMat;
+    vcbuffer.rotationMatrix    = rotMat;
+    vcbuffer.worldMatrix       = worldMat;
+    vcbuffer.eyePosition       = math::getVec4f(m_currentCam->getPosition());
 
     Shader::PSCBuffer pcbuffer = {};
     

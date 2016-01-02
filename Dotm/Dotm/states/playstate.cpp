@@ -16,12 +16,6 @@
 #include "../util/physics.h"
 #include "../util/logging.h"
 
-
-/* -------------
-   Internal Vars
-   ------------- */   
-static int32 touched(-1);
-
 /* --------------
    Public Methods
    -------------- */
@@ -61,11 +55,10 @@ PlayState::update()
 {
     m_camera->update();
     m_sysmonitor->update();
-   
-    touched = -1;
+       
     for (size_t i = 0; i < 6; ++i)
     {
-        if (i % 2 && physics::isPicked(m_meshes[i], m_camera)) touched = i;
+        if (i % 2) m_meshes[i]->rotY += 0.01f;
     }
 }
 
@@ -76,12 +69,7 @@ PlayState::render()
     for (size_t i = 0; i < 6; ++i)
     {
         Renderer::get().renderMesh(m_meshes[i]);        
-        if (i % 2) Renderer::get().renderPrimitive(Renderer::RENDERER_PRIMITIVE_SPHERE,
-                                                   m_meshes[i]->getPosition(),
-                                                   m_meshes[i]->getDimensions(),
-                                                   true);
-    }
-
+    }    
     
 
     // Profiling
@@ -90,8 +78,6 @@ PlayState::render()
     Renderer::get().renderString("Cpu: ", -0.95f, 0.80f);
     Renderer::get().renderString(std::string(std::to_string(m_sysmonitor->getCpuUsagePerc()) + "%").c_str(), -0.70f, 0.80f);
     Renderer::get().renderString("Mem: ", -0.95f, 0.65f);
-    Renderer::get().renderString(std::string(std::to_string(m_sysmonitor->getMemUsage()) + "mb").c_str(), -0.70f, 0.65f);
-    Renderer::get().renderString("Touching: ", -0.95f, 0.5f);
-    Renderer::get().renderString(std::to_string(touched).c_str(), -0.3f, 0.5f);
+    Renderer::get().renderString(std::string(std::to_string(m_sysmonitor->getMemUsage()) + "mb").c_str(), -0.70f, 0.65f);    
     Renderer::get().endFrame();
 }

@@ -243,7 +243,7 @@ Camera::calculateProjectionMatrix() logical_const
 {
     mat4x4 matres;
     D3DXMatrixPerspectiveFovLH(&matres,
-                               toRadians(m_fov),
+                               math::toRadians(m_fov),
                                g_window->getAspect(),
                                CAM_ZNEAR,
                                CAM_ZFAR);

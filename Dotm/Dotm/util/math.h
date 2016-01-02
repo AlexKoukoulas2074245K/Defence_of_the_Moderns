@@ -23,20 +23,35 @@ typedef D3DXVECTOR2 vec2f;
 typedef D3DXVECTOR3 vec3f;
 typedef D3DXVECTOR4 vec4f;
 
-inline FLOAT
-toRadians(const FLOAT deg) { return (FLOAT) D3DXToRadian(deg); }
+namespace math
+{
+    inline vec4f
+    getVec4f(const vec3f& in) { return D3DXVECTOR4(in.x, in.y, in.z, 0.0f); }
 
-inline FLOAT
-toDegrees(const FLOAT rad) { return (FLOAT) D3DXToDegree(rad); }
+    inline vec3f
+    getVec3f(const vec4f& in) { return D3DXVECTOR3(in.x, in.y, in.z); }
 
-inline FLOAT
-max2f(const FLOAT a, const FLOAT b) { return a > b ? a : b; }
+    inline FLOAT
+    toRadians(const FLOAT deg) { return (FLOAT) D3DXToRadian(deg); }
 
-inline FLOAT
-max3f(const FLOAT a, const FLOAT b, const FLOAT c) { return max2f(a, max2f(b, c)); }
+    inline FLOAT
+    toDegrees(const FLOAT rad) { return (FLOAT) D3DXToDegree(rad); }
 
-inline FLOAT
-min2f(const FLOAT a, const FLOAT b) { return a < b ? a : b; }
+    inline FLOAT
+    max2f(const FLOAT a, const FLOAT b) { return a > b ? a : b; }
 
-inline FLOAT
-min3f(const FLOAT a, const FLOAT b, const FLOAT c) { return min2f(a, min2f(b, c)); }
+    inline FLOAT
+    max3f(const FLOAT a, const FLOAT b, const FLOAT c) { return max2f(a, max2f(b, c)); }
+
+    inline FLOAT
+    min2f(const FLOAT a, const FLOAT b) { return a < b ? a : b; }
+
+    inline FLOAT
+    min3f(const FLOAT a, const FLOAT b, const FLOAT c) { return min2f(a, min2f(b, c)); }
+
+    inline FLOAT
+    avg2f(const FLOAT a, const FLOAT b) { return (a + b) / 2.0f; }
+
+    inline FLOAT
+    avg3f(const FLOAT a, const FLOAT b, const FLOAT c) { return (a + b + c) / 3.0f; }
+}
