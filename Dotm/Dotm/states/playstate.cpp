@@ -16,6 +16,7 @@
 #include "../util/physics.h"
 #include "../util/logging.h"
 
+static int32 touched = -1;
 /* --------------
    Public Methods
    -------------- */
@@ -33,7 +34,7 @@ PlayState::PlayState():
     
     m_meshes[0]->x = -5.0f;
     m_meshes[1]->x = -5.0f;
-    
+   
     m_meshes[2]->x =  0.0f;
     m_meshes[3]->x =  0.0f;
     
@@ -55,10 +56,16 @@ PlayState::update()
 {
     m_camera->update();
     m_sysmonitor->update();
-       
+    
+    touched = -1;
     for (size_t i = 0; i < 6; ++i)
     {
-        if (i % 2) m_meshes[i]->rotY += 0.01f;
+        
+        if (i % 2)
+        {
+            m_meshes[i]->rotY += 0.01f;
+            if (physics::isPicked(m_meshes[i], m_camera)) touched = i;
+        }
     }
 }
 
@@ -68,9 +75,14 @@ PlayState::render()
     Renderer::get().beginFrame();
     for (size_t i = 0; i < 6; ++i)
     {
-        Renderer::get().renderMesh(m_meshes[i]);        
-    }    
-    
+        Renderer::get().renderMesh(m_meshes[i]);
+        /*Renderer::get().renderPrimitive(Renderer::RENDERER_PRIMITIVE_SPHERE,
+                                        &m_meshes[i]->getCollidableGeometry(),
+                                        true);*/
+    }
+
+    math::Sphere light({0.0f, 0.0f, -3.0f}, 5.0f);
+    Renderer::get().renderPrimitive(Renderer::RENDERER_PRIMITIVE_SPHERE, &light, true);
 
     // Profiling
     Renderer::get().renderString("Fps: ", -0.95f, 0.95f); 
@@ -79,5 +91,7 @@ PlayState::render()
     Renderer::get().renderString(std::string(std::to_string(m_sysmonitor->getCpuUsagePerc()) + "%").c_str(), -0.70f, 0.80f);
     Renderer::get().renderString("Mem: ", -0.95f, 0.65f);
     Renderer::get().renderString(std::string(std::to_string(m_sysmonitor->getMemUsage()) + "mb").c_str(), -0.70f, 0.65f);    
+    Renderer::get().renderString("Touching: ", -0.95f, 0.5f);
+    Renderer::get().renderString(std::to_string(touched).c_str(), -0.3f, 0.5f);
     Renderer::get().endFrame();
 }

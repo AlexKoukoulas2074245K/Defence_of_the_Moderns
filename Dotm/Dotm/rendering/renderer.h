@@ -45,9 +45,8 @@ public:
 
     void
     renderPrimitive(const uint32 primitive, 
-                    const vec3f& position,
-                    const vec3f& dimensions,
-                    const bool   wireframe);
+                    const math::Geometry* geometry,
+                    bool wireframe);
 
     void
     renderString(const cstring str,
@@ -77,6 +76,9 @@ private:
 
     Renderer& 
     operator = (const Renderer& rhs) = delete;
+
+    bool
+    testVisible(const Mesh* mesh);
 
 private:
 

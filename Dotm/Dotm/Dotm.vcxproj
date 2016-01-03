@@ -87,6 +87,7 @@
     <ClCompile Include="states\gsqueue.cpp" />
     <ClCompile Include="states\playstate.cpp" />
     <ClCompile Include="systemmonitor.cpp" />
+    <ClCompile Include="util\math.cpp" />
     <ClCompile Include="util\physics.cpp" />
     <ClCompile Include="util\strings.cpp" />
     <ClCompile Include="util\stringutils.cpp" />

@@ -91,14 +91,20 @@ public:
     comptr<ID3D11Buffer>
     getIndexBuffer() bitwise_const;
 
-    std::shared_ptr<Texture>
-    getTexture() bitwise_const;
-    
     vec3f
-    getDimensions() logical_const;
+    calculateDimensions() logical_const;
 
     vec3f
     getPosition() logical_const;
+
+    std::shared_ptr<Texture>
+    getTexture() bitwise_const;
+    
+    math::Geometry&
+    getCollidableGeometry() bitwise_const;
+
+    math::Geometry&
+    getVisibleGeometry() bitwise_const;
 
     void
     setTexture(std::shared_ptr<Texture> texture);
@@ -130,4 +136,7 @@ private:
     comptr<ID3D11Buffer>     m_vertexBuffer;
     comptr<ID3D11Buffer>     m_indexBuffer;
     std::shared_ptr<Texture> m_texture;
+
+    mutable math::Sphere m_collSPhere;
+    mutable math::Sphere m_visiSphere;
 };

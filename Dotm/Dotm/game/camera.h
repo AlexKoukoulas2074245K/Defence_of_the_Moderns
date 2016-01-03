@@ -46,6 +46,9 @@ public:
     mat4x4
     calculateProjectionMatrix() logical_const;
 
+    void
+    calculateFrustum(math::Frustum* outFrustum) logical_const;
+
     const vec3f&
     getPosition() logical_const;
 

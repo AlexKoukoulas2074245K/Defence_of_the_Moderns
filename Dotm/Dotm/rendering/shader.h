@@ -28,10 +28,10 @@ public:
 
     struct PSCBuffer
     {
-        real32 _padding;
-        real32 _padding1;
-        real32 _padding2;
-        real32 _padding3;
+        vec4f ambientColor;
+        vec4f diffuseColor;
+        vec3f lightDirection;
+        float atten;
     };
 
 public:

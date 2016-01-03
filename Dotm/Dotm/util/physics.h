@@ -16,11 +16,15 @@ class Mesh;
 class Camera;
 namespace physics
 {
-    bool 
-    isPicked(const Mesh* mesh, const Camera* camera);
+    const uint32 PHYSICS_INTERSECTION_TYPE_SPHERESPHERE  = 1;
+    const uint32 PHYSICS_INTERSECTION_TYPE_RAYSPHERE     = 2;
+    const uint32 PHYSICS_INTERSECTION_TYPE_FRUSTUMSPHERE = 3;
 
     bool
-    raySphereIntersect(const vec3f& rayOrigin,
-                       const vec3f& rayDirection,
-                       const real32 sphereRad);
+    intersectionTest(const uint32 intersectionType,
+                     const math::Geometry* first,
+                     const math::Geometry* second);
+
+    bool 
+    isPicked(const Mesh* mesh, const Camera* camera);    
 }

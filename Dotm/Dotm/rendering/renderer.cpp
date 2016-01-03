@@ -16,6 +16,7 @@
 #include "../game/camera.h"
 #include "../window.h"
 #include "../util/logging.h"
+#include "../util/physics.h"
 
 /* -------------
    External Vars
@@ -42,7 +43,6 @@ Renderer::~Renderer()
     {
         if (m_primitiveModels[i]) delete m_primitiveModels[i];
     }
-
 }
 
 void
@@ -60,16 +60,15 @@ Renderer::beginFrame()
 
 void
 Renderer::endFrame()
-{    
+{        
     uint32 syncInterval = m_d3dState->m_vsync ? 1 : 0;
     m_d3dState->m_swapChain->Present(syncInterval, 0);    
 }
 
 void
 Renderer::renderPrimitive(const uint32 primitive, 
-                          const vec3f& position,
-                          const vec3f& dimensions,
-                          const bool   wireframe)
+                          const math::Geometry* geometry,
+                          const bool wireframe)
 {
     if (wireframe) m_d3dState->m_devcon->RSSetState(m_d3dState->m_wireFrameRastState.Get());
     
@@ -79,35 +78,44 @@ Renderer::renderPrimitive(const uint32 primitive,
     {
         case RENDERER_PRIMITIVE_CUBE:
         {
-            mesh = m_primitiveModels[RENDERER_PRIMITIVE_CUBE];            
+            //TODO
+            //mesh = m_primitiveModels[RENDERER_PRIMITIVE_CUBE]; 
+
         }break;
 
         case RENDERER_PRIMITIVE_PLANE:
         {
-            mesh = m_primitiveModels[RENDERER_PRIMITIVE_PLANE];            
+            //TODO
+            //mesh = m_primitiveModels[RENDERER_PRIMITIVE_PLANE];            
+
         }break;
 
         case RENDERER_PRIMITIVE_SPHERE:
         {
+            const math::Sphere* sphere = dynamic_cast<const math::Sphere*>(geometry);
+            
+            // Grab equivalent mesh
             mesh = m_primitiveModels[RENDERER_PRIMITIVE_SPHERE];             
+            
+            // Calculate new primitive dimensions
+            vec3f currMeshDims    = mesh->calculateDimensions();
+            real32 sphereDiameter = sphere->getRadius() * 2;
+
+            mesh->scaleX *= sphereDiameter / currMeshDims.x;
+            mesh->scaleY *= sphereDiameter / currMeshDims.y;
+            mesh->scaleZ *= sphereDiameter / currMeshDims.z;
+
+            // Set primitive position
+            vec3f spherePosition = sphere->getPosition();
+            mesh->x = spherePosition.x;
+            mesh->y = spherePosition.y;
+            mesh->z = spherePosition.z;
+
         }break;
     }
     
     if (mesh)
-    {
-        real32 maxMeshDim = math::avg3f(dimensions.x,
-                                        dimensions.y,
-                                        dimensions.z);
-        
-        mesh->scaleX *= maxMeshDim / mesh->getDimensions().x;
-        mesh->scaleY *= primitive == RENDERER_PRIMITIVE_PLANE ? 0 :
-                        maxMeshDim / mesh->getDimensions().y;
-        mesh->scaleZ *= maxMeshDim / mesh->getDimensions().z;
-        
-        mesh->x = position.x;
-        mesh->y = position.y;
-        mesh->z = position.z;
-        
+    {                
         renderMesh(mesh);
     }
 
@@ -128,7 +136,7 @@ Renderer::renderString(const cstring str,
         if (currChar == ' ') continue;
 
         std::shared_ptr<Mesh> currGlyph = m_font->getGlyph(currChar);
-
+        
         currGlyph->x = xCounter;
         currGlyph->y = y;
         renderMesh(currGlyph.get());        
@@ -151,6 +159,7 @@ void
 Renderer::renderMesh(const Mesh* mesh)
 {
     if (!mesh) return;
+    if (!mesh->isHUDElement() && !testVisible(mesh)) return;    
     if (!m_currentCam)
     {
         logline("Camera has not been set");
@@ -174,6 +183,9 @@ Renderer::renderMesh(const Mesh* mesh)
     vcbuffer.eyePosition       = math::getVec4f(m_currentCam->getPosition());
 
     Shader::PSCBuffer pcbuffer = {};
+    pcbuffer.ambientColor      = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
+    pcbuffer.diffuseColor      = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
+    pcbuffer.lightDirection    = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
     
     Shader* currentShader = mesh->isHUDElement() ? m_hudShader : m_stdShader;
     m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, &vcbuffer, NULL, NULL);
@@ -231,5 +243,16 @@ Renderer::Renderer():
     m_primitiveModels[RENDERER_PRIMITIVE_CUBE]->loadNewTexture("debug");
     m_primitiveModels[RENDERER_PRIMITIVE_PLANE]->loadNewTexture("debug");
     m_primitiveModels[RENDERER_PRIMITIVE_SPHERE]->loadNewTexture("debug");
+}
+
+bool
+Renderer::testVisible(const Mesh* mesh)
+{
+    math::Frustum camFrustum;
+    m_currentCam->calculateFrustum(&camFrustum);
+    
+    return !physics::intersectionTest(physics::PHYSICS_INTERSECTION_TYPE_FRUSTUMSPHERE,
+                                      &camFrustum,
+                                      &mesh->getVisibleGeometry());
 }
 

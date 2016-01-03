@@ -250,6 +250,76 @@ Camera::calculateProjectionMatrix() logical_const
     return matres;
 }
 
+void
+Camera::calculateFrustum(math::Frustum* outFrustum) logical_const
+{
+    if (!outFrustum) return;
+    *outFrustum = {};
+
+    mat4x4 projMatrix = calculateProjectionMatrix();
+    mat4x4 viewMatrix = calculateViewMatrix();
+
+    real32 r = CAM_ZFAR / (CAM_ZFAR - CAM_ZNEAR);
+    projMatrix._33 = r;
+    projMatrix._43 = -r * CAM_ZNEAR;
+
+    mat4x4 viewproj = viewMatrix * projMatrix;
+
+    // Calculate near plane of frustum.
+    plane nearPlane = {};
+    nearPlane.a = viewproj._14 + viewproj._13;
+    nearPlane.b = viewproj._24 + viewproj._23;
+    nearPlane.c = viewproj._34 + viewproj._33;
+    nearPlane.d = viewproj._44 + viewproj._43;
+    D3DXPlaneNormalize(&nearPlane, &nearPlane);
+    outFrustum->setPlane(0, nearPlane);
+
+    // Calculate far plane of frustum.
+    plane farPlane = {};
+    farPlane.a = viewproj._14 - viewproj._13;
+    farPlane.b = viewproj._24 - viewproj._23;
+    farPlane.c = viewproj._34 - viewproj._33;
+    farPlane.d = viewproj._44 - viewproj._43;
+    D3DXPlaneNormalize(&farPlane, &farPlane);
+    outFrustum->setPlane(1, farPlane);
+
+    // Calculate left plane of frustum.
+    plane leftPlane = {};
+    leftPlane.a = viewproj._14 + viewproj._11;
+    leftPlane.b = viewproj._24 + viewproj._21;
+    leftPlane.c = viewproj._34 + viewproj._31;
+    leftPlane.d = viewproj._44 + viewproj._41;
+    D3DXPlaneNormalize(&leftPlane, &leftPlane);
+    outFrustum->setPlane(2, leftPlane);
+
+    // Calculate right plane of frustum.    
+    plane rightPlane = {};
+    rightPlane.a = viewproj._14 - viewproj._11;
+    rightPlane.b = viewproj._24 - viewproj._21;
+    rightPlane.c = viewproj._34 - viewproj._31;
+    rightPlane.d = viewproj._44 - viewproj._41;
+    D3DXPlaneNormalize(&rightPlane, &rightPlane);
+    outFrustum->setPlane(3, rightPlane);
+
+    // Calculate top plane of frustum.    
+    plane topPlane = {};
+    topPlane.a = viewproj._14 - viewproj._12;
+    topPlane.b = viewproj._24 - viewproj._22;
+    topPlane.c = viewproj._34 - viewproj._32;
+    topPlane.d = viewproj._44 - viewproj._42;
+    D3DXPlaneNormalize(&topPlane, &topPlane);
+    outFrustum->setPlane(4, topPlane);
+
+    // Calculate bottom plane of frustum.
+    plane botPlane = {};
+    botPlane.a = viewproj._14 + viewproj._12;
+    botPlane.b = viewproj._24 + viewproj._22;
+    botPlane.c = viewproj._34 + viewproj._32;
+    botPlane.d = viewproj._44 + viewproj._42;
+    D3DXPlaneNormalize(&botPlane, &botPlane);
+    outFrustum->setPlane(5, botPlane);
+}
+
 const vec3f&
 Camera::getPosition() logical_const
 {

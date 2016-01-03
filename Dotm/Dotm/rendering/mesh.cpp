@@ -44,11 +44,11 @@ loadMesh(std::ifstream&             file,
    Public Methods
    -------------- */
 Mesh::Mesh(cstring meshName,
-           uint32  meshCreationFlags,
-           Vertex* optExternalVertexData /* nullptr */,
-           uint32* optExternalIndexData  /* nullptr */,
-           uint32  optExternalNVertices  /* 0U */,
-           uint32  optExternalNIndices   /* 0U */):
+    uint32  meshCreationFlags,
+    Vertex* optExternalVertexData /* nullptr */,
+    uint32* optExternalIndexData  /* nullptr */,
+    uint32  optExternalNVertices  /* 0U */,
+    uint32  optExternalNIndices   /* 0U */):
 
     m_name(internString(meshName)),
     m_hudElement((meshCreationFlags & MESH_TYPE_HUD) != 0),
@@ -56,7 +56,9 @@ Mesh::Mesh(cstring meshName,
     x(0.0f), y(0.0f), z(0.0f),
     rotX(0.0f), rotY(0.0f), rotZ(0.0f),
     scaleX(1.0f), scaleY(1.0f), scaleZ(1.0f),
-    m_dimensions()
+    m_dimensions(),
+    m_collSPhere(vec3f(), real32()),
+    m_visiSphere(vec3f(), real32())
 {
     // If there is a mesh registered with this name initialize
     // this mesh from the registered mesh
@@ -104,7 +106,7 @@ Mesh::init(const Mesh* rhs)
     m_vertexBuffer = rhs->getVertexBuffer();
     m_indexBuffer  = rhs->getIndexBuffer();
     m_texture      = rhs->getTexture();
-    m_dimensions   = rhs->getDimensions();
+    m_dimensions   = rhs->calculateDimensions();
     m_indexCount   = rhs->getIndexCount();
 }
 
@@ -192,7 +194,7 @@ Mesh::getIndexBuffer() bitwise_const
 }
 
 vec3f
-Mesh::getDimensions() logical_const
+Mesh::calculateDimensions() logical_const
 {
     return vec3f(m_dimensions.x * scaleX,
                  m_dimensions.y * scaleY,
@@ -203,6 +205,28 @@ vec3f
 Mesh::getPosition() logical_const
 {
     return vec3f(x, y, z);
+}
+
+math::Geometry&
+Mesh::getCollidableGeometry() bitwise_const
+{
+    vec3f meshDimensions = calculateDimensions();
+    m_collSPhere.setPosition(vec3f(x, y, z));
+    m_collSPhere.setRadius((math::avg3f(meshDimensions.x,
+                                        meshDimensions.y,
+                                        meshDimensions.z)) / 2.0f);
+    return m_collSPhere;
+}
+
+math::Geometry&
+Mesh::getVisibleGeometry() bitwise_const
+{
+    vec3f meshDimensions = calculateDimensions();
+    m_visiSphere.setPosition(vec3f(x, y, z));
+    m_visiSphere.setRadius((math::max3f(meshDimensions.x,
+                                        meshDimensions.y,
+                                        meshDimensions.z)) / 2.0f);
+    return m_visiSphere;
 }
 
 std::shared_ptr<Texture>
