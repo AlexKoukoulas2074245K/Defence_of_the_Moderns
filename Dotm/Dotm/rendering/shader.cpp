@@ -20,9 +20,9 @@
    -------------- */
 Shader::Shader(cstring shaderName)
 {
-    createVertexPixelShaders(shaderName);
-    createConstantBuffers();
-    createShaderLayout();
+               createVertexPixelShaders(shaderName);
+               createConstantBuffers();
+               createShaderLayout();
 }
 
 Shader::~Shader()
@@ -70,7 +70,7 @@ Shader::createVertexPixelShaders(cstring shaderName)
     
     // Form the wide vertex shader path
     std::string vertexPath(shaderName);
-    vertexPath = "assets/shaders/" + vertexPath + ".vs";
+    vertexPath = "assets/shaders/v_" + vertexPath + ".hlsl";
 
     // Shader Compilation
     HRESULT result; 
@@ -103,14 +103,14 @@ Shader::createVertexPixelShaders(cstring shaderName)
     }
 
     // Vertex shader creation
-    Renderer::get().getDeviceHandle()->CreateVertexShader(m_vsbuffer->GetBufferPointer(),
-                                                          m_vsbuffer->GetBufferSize(),
-                                                          nullptr,
-                                                          &m_vertexShader);
+    Renderer::get()->getDeviceHandle()->CreateVertexShader(m_vsbuffer->GetBufferPointer(),
+                                                           m_vsbuffer->GetBufferSize(),
+                                                           nullptr,
+                                                           &m_vertexShader);
 
     // Form the wide pixel shader path
     std::string pixelPath(shaderName);
-    pixelPath = "assets/shaders/" + pixelPath + ".ps";
+    pixelPath = "assets/shaders/p_" + pixelPath + ".hlsl";
     
     // Shader Compilation
     result = D3DCompileFromFile(string_utils::getwstring(pixelPath).c_str(),
@@ -142,10 +142,10 @@ Shader::createVertexPixelShaders(cstring shaderName)
     }
 
     // Pixel shader creation
-    Renderer::get().getDeviceHandle()->CreatePixelShader(m_psbuffer->GetBufferPointer(),
-                                                         m_psbuffer->GetBufferSize(),
-                                                         nullptr,
-                                                         &m_pixelShader);    
+    Renderer::get()->getDeviceHandle()->CreatePixelShader(m_psbuffer->GetBufferPointer(),
+                                                          m_psbuffer->GetBufferSize(),
+                                                          nullptr,
+                                                          &m_pixelShader);    
 }
 
 void
@@ -158,9 +158,9 @@ Shader::createConstantBuffers()
     vsCBufferDesc.ByteWidth         = sizeof(VSCBuffer);
     
     // Vertex Shader Constant Buffer creation
-    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&vsCBufferDesc,
-                                                       nullptr,
-                                                       &m_vertexShaderCBuffer));
+    HR(Renderer::get()->getDeviceHandle()->CreateBuffer(&vsCBufferDesc,
+                                                        nullptr,
+                                                        &m_vertexShaderCBuffer));
 
     // Pixel Shader Constant Buffer description
     D3D11_BUFFER_DESC psCBufferDesc = {};
@@ -169,9 +169,9 @@ Shader::createConstantBuffers()
     psCBufferDesc.ByteWidth         = sizeof(PSCBuffer);
 
     // Pixel Shader Constant Buffer creation
-    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&psCBufferDesc, 
-                                                       nullptr,
-                                                       &m_pixelShaderCBuffer));    
+    HR(Renderer::get()->getDeviceHandle()->CreateBuffer(&psCBufferDesc, 
+                                                        nullptr,
+                                                        &m_pixelShaderCBuffer));    
 }
 
 void
@@ -203,12 +203,12 @@ Shader::createShaderLayout()
                                                   inputTexcoordDesc,
                                                   inputNormalDesc};
     // Create Shader Input Layout
-    HR(Renderer::get().getDeviceHandle()->CreateInputLayout(combinedLayout,
-                                                            ARRAYSIZE(combinedLayout),
-                                                            m_vsbuffer->GetBufferPointer(),
-                                                            m_vsbuffer->GetBufferSize(),
-                                                            &m_shaderInputLayout));
+    HR(Renderer::get()->getDeviceHandle()->CreateInputLayout(combinedLayout,
+                                                             ARRAYSIZE(combinedLayout),
+                                                             m_vsbuffer->GetBufferPointer(),
+                                                             m_vsbuffer->GetBufferSize(),
+                                                             &m_shaderInputLayout));
     
     // Set the global input layout
-    Renderer::get().getDevconHandle()->IASetInputLayout(m_shaderInputLayout.Get());
+    Renderer::get()->getDevconHandle()->IASetInputLayout(m_shaderInputLayout.Get());
 }

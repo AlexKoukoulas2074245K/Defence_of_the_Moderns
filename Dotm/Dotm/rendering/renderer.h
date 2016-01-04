@@ -13,16 +13,17 @@
 
 
 #include "d3d11state.h"
+#include "shader.h"
 #include "../dotmdef.h"
 #include "../util/strings.h"
 #include "../util/math.h"
+#include <vector>
 
-class D3D11State;
-class Mesh;
-class Shader;
-class Camera;
-class Font;
-class Renderer
+class  D3D11State;
+class  Mesh;
+class  Camera;
+class  Font;
+class  Renderer
 {
 public:
 
@@ -32,7 +33,7 @@ public:
 
 public:
 
-    static Renderer&
+    static Renderer*
     get();
 
     ~Renderer();
@@ -42,6 +43,9 @@ public:
     
     void
     endFrame();
+
+    void
+    renderScene();
 
     void
     renderPrimitive(const uint32 primitive, 
@@ -88,4 +92,7 @@ private:
     const Camera* m_currentCam;
     Mesh*         m_primitiveModels[3];
     Font*         m_font;
+    
+    Shader::PSCBuffer* m_currentLightBuffer;
+
 };

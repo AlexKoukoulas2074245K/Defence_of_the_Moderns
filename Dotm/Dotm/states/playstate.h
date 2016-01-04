@@ -17,6 +17,7 @@
 class Mesh;
 class Camera;
 class SystemMonitor;
+class Light;
 class PlayState: public AGameState
 {
 public:
@@ -38,7 +39,9 @@ public:
 
 private:    
     
-    Mesh*          m_meshes[6];    
-    Camera*        m_camera;
-    SystemMonitor* m_sysmonitor;
+    Mesh*           m_meshes[6];        
+    Camera*         m_camera;
+    SystemMonitor*  m_sysmonitor;
+    Light*          m_sun;
+    Light*          m_fires[4];
 };

@@ -75,21 +75,21 @@ void
 Camera::update()
 {        
     // Manual Zoom
-    int32 wheelDelta = InputHandler::get().getWheelDelta();
+    int32 wheelDelta = InputHandler::get()->getWheelDelta();
     if (wheelDelta > 0 && m_fov > m_minZoom) m_fov -= m_zoomSpeed;
     if (wheelDelta < 0 && m_fov < m_maxZoom) m_fov += m_zoomSpeed;      
 
     // Manual movement control
-    if (InputHandler::get().isPressed(InputHandler::KEY_W)) moveCamera(DIR_FORWARD, m_moveSpeed);
-    if (InputHandler::get().isPressed(InputHandler::KEY_S)) moveCamera(DIR_BACKWARD, m_moveSpeed);
-    if (InputHandler::get().isPressed(InputHandler::KEY_A)) moveCamera(DIR_LEFT, m_moveSpeed);
-    if (InputHandler::get().isPressed(InputHandler::KEY_D)) moveCamera(DIR_RIGHT, m_moveSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_W)) moveCamera(DIR_FORWARD, m_moveSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_S)) moveCamera(DIR_BACKWARD, m_moveSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_A)) moveCamera(DIR_LEFT, m_moveSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_D)) moveCamera(DIR_RIGHT, m_moveSpeed);
 
     // Manual look control
-    if (InputHandler::get().isPressed(InputHandler::KEY_UP))    rotateCamera(DIR_UP, m_lookSpeed);
-    if (InputHandler::get().isPressed(InputHandler::KEY_DOWN))  rotateCamera(DIR_DOWN, m_lookSpeed);
-    if (InputHandler::get().isPressed(InputHandler::KEY_LEFT))  rotateCamera(DIR_LEFT, m_lookSpeed);
-    if (InputHandler::get().isPressed(InputHandler::KEY_RIGHT)) rotateCamera(DIR_RIGHT, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_UP))    rotateCamera(DIR_UP, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_DOWN))  rotateCamera(DIR_DOWN, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_LEFT))  rotateCamera(DIR_LEFT, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_RIGHT)) rotateCamera(DIR_RIGHT, m_lookSpeed);
 
 }
 
@@ -363,7 +363,7 @@ WorldViewCamera::update()
 void
 WorldViewCamera::screenEdgeTest()
 {
-    vec2f mousePos = InputHandler::get().getMousePos();
+    vec2f mousePos = InputHandler::get()->getMousePos();
 
     if (mousePos.x < m_leftDragArea)   panCamera(DIR_LEFT,     m_xDragSpeed);
     if (mousePos.x > m_rightDragArea)  panCamera(DIR_RIGHT,    m_xDragSpeed);

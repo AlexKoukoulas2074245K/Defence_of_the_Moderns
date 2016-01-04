@@ -74,10 +74,12 @@
     <ClCompile Include="config\configparser.cpp" />
     <ClCompile Include="dotmmain.cpp" />
     <ClCompile Include="game\camera.cpp" />
+    <ClCompile Include="game\scene.cpp" />
     <ClCompile Include="handlers\inputhandler.cpp" />
     <ClCompile Include="rendering\d3d11state.cpp" />
     <ClCompile Include="rendering\ddsloader.cpp" />
     <ClCompile Include="rendering\font.cpp" />
+    <ClCompile Include="rendering\lights.cpp" />
     <ClCompile Include="rendering\mesh.cpp" />
     <ClCompile Include="rendering\resregistry.cpp" />
     <ClCompile Include="rendering\renderer.cpp" />
@@ -97,12 +99,14 @@
     <ClInclude Include="config\configparser.h" />
     <ClInclude Include="dotmdef.h" />
     <ClInclude Include="game\camera.h" />
+    <ClInclude Include="game\scene.h" />
     <ClInclude Include="handlers\inputhandler.h" />
     <ClInclude Include="rendering\d3d11common.h" />
     <ClInclude Include="rendering\d3d11state.h" />
     <ClInclude Include="rendering\ddshelpers.h" />
     <ClInclude Include="rendering\ddsloader.h" />
     <ClInclude Include="rendering\font.h" />
+    <ClInclude Include="rendering\lights.h" />
     <ClInclude Include="rendering\mesh.h" />
     <ClInclude Include="rendering\resregistry.h" />
     <ClInclude Include="rendering\renderer.h" />

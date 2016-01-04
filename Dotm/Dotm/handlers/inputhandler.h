@@ -18,7 +18,7 @@ class InputHandler
 {
 public:
 
-    static InputHandler&
+    static InputHandler*
     get();
 
     ~InputHandler();

@@ -18,6 +18,11 @@ class Shader
 {
 public:
 
+    static const uint32 SHADER_MAX_DIRECTIONAL_LIGHTS = 4U;
+    static const uint32 SHADER_MAX_POINT_LIGHTS       = 10U;
+
+public:
+
     struct VSCBuffer
     {
         mat4x4 rotationMatrix;
@@ -26,12 +31,26 @@ public:
         vec4f  eyePosition;
     };
 
-    struct PSCBuffer
+    struct DirectionalLight
     {
-        vec4f ambientColor;
-        vec4f diffuseColor;
-        vec3f lightDirection;
-        float atten;
+        vec4f  ambientColor;
+        vec4f  diffuseColor;
+        vec3f  direction;
+        real32 _padding;
+    };
+
+    struct PointLight
+    {
+        vec4f  ambientColor;
+        vec4f  diffuseColor;
+        vec3f  position;
+        real32 range;        
+    };
+
+   struct PSCBuffer
+    {
+        DirectionalLight directionalLights[SHADER_MAX_DIRECTIONAL_LIGHTS];
+        PointLight       pointLights[SHADER_MAX_POINT_LIGHTS];
     };
 
 public:

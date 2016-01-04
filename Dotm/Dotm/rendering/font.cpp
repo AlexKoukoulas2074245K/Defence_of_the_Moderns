@@ -18,8 +18,8 @@
    -------------- */
 Font::Font(cstring fontName, real32 fontSize):
 
-    m_fontName(internString(fontName)),
-    m_fontSize(fontSize)
+           m_fontName(internString(fontName)),
+           m_fontSize(fontSize)
 {
     loadTexture();
     loadGlyphs();

@@ -25,8 +25,8 @@ physics::isPicked(const Mesh* mesh, const Camera* camera)
 {    
     // Move mouse coords in normalized screen coords (-1, 1)
     real32 pointX, pointY;
-    pointX = ((2.0f * InputHandler::get().getMousePos().x) / (real32) g_window->getWidth()) - 1.0f;
-    pointY = -(((2.0f * InputHandler::get().getMousePos().y) / (real32) g_window->getHeight()) - 1.0f);
+    pointX = ((2.0f * InputHandler::get()->getMousePos().x) / (real32) g_window->getWidth()) - 1.0f;
+    pointY = -(((2.0f * InputHandler::get()->getMousePos().y) / (real32) g_window->getHeight()) - 1.0f);
 
     // Unproject mouse coords from projection
     pointX /= camera->calculateProjectionMatrix()._11;

@@ -13,16 +13,20 @@
 #include "renderer.h"
 #include <string>
 
+/* --------------
+   Public Methods
+   -------------- */
+
 Texture::Texture(cstring textureName):
 
-    m_name(internString(textureName))
+                 m_name(internString(textureName))
 {
     std::wstring widePath = L"assets/textures/" + 
                             string_utils::getwstring(retrieveString(m_name)) +
                             L".png";
 
-    HRESULT result = DirectX::CreateWICTextureFromFile(Renderer::get().getDeviceHandle().Get(),
-                                                       Renderer::get().getDevconHandle().Get(),
+    HRESULT result = DirectX::CreateWICTextureFromFile(Renderer::get()->getDeviceHandle().Get(),
+                                                       Renderer::get()->getDevconHandle().Get(),
                                                        widePath.c_str(),
                                                        NULL,
                                                        &m_texture,
@@ -30,8 +34,8 @@ Texture::Texture(cstring textureName):
     
     if (FAILED(result))
     {        
-        DirectX::CreateWICTextureFromFile(Renderer::get().getDeviceHandle().Get(),
-                                          Renderer::get().getDevconHandle().Get(),
+        DirectX::CreateWICTextureFromFile(Renderer::get()->getDeviceHandle().Get(),
+                                          Renderer::get()->getDevconHandle().Get(),
                                           L"assets/textures/missing.png",
                                           NULL,
                                           &m_texture,

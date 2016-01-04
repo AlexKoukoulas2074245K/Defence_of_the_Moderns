@@ -13,6 +13,7 @@
 #include "texture.h"
 #include "../util/stringutils.h"
 #include "../window.h"
+#include "../game/scene.h"
 #include <fstream>
 
 /* -------------
@@ -44,21 +45,21 @@ loadMesh(std::ifstream&             file,
    Public Methods
    -------------- */
 Mesh::Mesh(cstring meshName,
-    uint32  meshCreationFlags,
-    Vertex* optExternalVertexData /* nullptr */,
-    uint32* optExternalIndexData  /* nullptr */,
-    uint32  optExternalNVertices  /* 0U */,
-    uint32  optExternalNIndices   /* 0U */):
+           uint32  meshCreationFlags,
+           Vertex* optExternalVertexData /* nullptr */,
+           uint32* optExternalIndexData  /* nullptr */,
+           uint32  optExternalNVertices  /* 0U */,
+           uint32  optExternalNIndices   /* 0U */):
 
-    m_name(internString(meshName)),
-    m_hudElement((meshCreationFlags & MESH_TYPE_HUD) != 0),
-    m_hasTexture((meshCreationFlags & MESH_LOAD_SAME_TEXTURE) != 0),
-    x(0.0f), y(0.0f), z(0.0f),
-    rotX(0.0f), rotY(0.0f), rotZ(0.0f),
-    scaleX(1.0f), scaleY(1.0f), scaleZ(1.0f),
-    m_dimensions(),
-    m_collSPhere(vec3f(), real32()),
-    m_visiSphere(vec3f(), real32())
+           m_name(internString(meshName)),
+           m_hudElement((meshCreationFlags & MESH_TYPE_HUD) != 0),
+           m_hasTexture((meshCreationFlags & MESH_LOAD_SAME_TEXTURE) != 0),
+           x(0.0f), y(0.0f), z(0.0f),
+           rotX(0.0f), rotY(0.0f), rotZ(0.0f),
+           scaleX(1.0f), scaleY(1.0f), scaleZ(1.0f),
+           m_dimensions(),
+           m_collSPhere(vec3f(), real32()),
+           m_visiSphere(vec3f(), real32())
 {
     // If there is a mesh registered with this name initialize
     // this mesh from the registered mesh
@@ -90,7 +91,7 @@ Mesh::Mesh(cstring meshName,
 
 Mesh::~Mesh()
 {
-    
+    Scene::get()->removeMesh(this);
 }
 
 void
@@ -328,9 +329,9 @@ Mesh::createMesh(Vertex* optVertices,
     D3D11_SUBRESOURCE_DATA vertexData = {};
     vertexData.pSysMem = &finalVertices[0];
 
-    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&vertexBufferDesc,
-                                                       &vertexData,
-                                                       &m_vertexBuffer));
+    HR(Renderer::get()->getDeviceHandle()->CreateBuffer(&vertexBufferDesc,
+                                                        &vertexData,
+                                                        &m_vertexBuffer));
 
     // Index Buffer creation
     D3D11_BUFFER_DESC indexBufferDesc = {};
@@ -340,9 +341,9 @@ Mesh::createMesh(Vertex* optVertices,
     D3D11_SUBRESOURCE_DATA indexData = {};
     indexData.pSysMem = &finalIndices[0];
 
-    HR(Renderer::get().getDeviceHandle()->CreateBuffer(&indexBufferDesc,
-                                                       &indexData,
-                                                       &m_indexBuffer));
+    HR(Renderer::get()->getDeviceHandle()->CreateBuffer(&indexBufferDesc,
+                                                        &indexData,
+                                                        &m_indexBuffer));
 
     return true;
 }

@@ -18,11 +18,11 @@ extern Window* g_window;
 /* --------------
    Public Methods
    -------------- */
-InputHandler&
+InputHandler*
 InputHandler::get()
 {
     static InputHandler instance;
-    return instance;
+    return &instance;
 }
 
 InputHandler::~InputHandler()

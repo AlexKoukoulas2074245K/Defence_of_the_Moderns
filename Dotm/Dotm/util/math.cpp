@@ -19,7 +19,7 @@
 
 math::Geometry::Geometry(const vec3f& position):
 
-    m_position(position)
+                         m_position(position)
 {
 
 }
@@ -80,8 +80,8 @@ math::Frustum::setPlane(const size_t index,
 math::Ray::Ray(const vec3f& position,
                const vec3f& direction):
     
-    Geometry(position),
-    m_direction(direction)
+               Geometry(position),
+               m_direction(direction)
 {
 
 }
@@ -111,8 +111,8 @@ math::Ray::setDirection(const vec3f& direction)
 math::Sphere::Sphere(const vec3f& position,
                      const real32 radius):
     
-    Geometry(position),
-    m_radius(radius)
+                     Geometry(position),
+                     m_radius(radius)
 {
 
 }

@@ -22,11 +22,11 @@ Window::Window(const char* configPath,
                const HINSTANCE& hInstance,
                const WNDPROC& windowProc):
 
-    m_ready(false),
-    m_fullscreen(false),
-    m_windowWidth(0),
-    m_windowHeight(0),
-    m_handle(NULL)
+               m_ready(false),
+               m_fullscreen(false),
+               m_windowWidth(0),
+               m_windowHeight(0),
+               m_handle(NULL)
 {
 
     // Exctract screen size

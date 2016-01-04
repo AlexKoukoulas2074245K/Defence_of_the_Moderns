@@ -10,10 +10,11 @@
 #include "renderer.h"
 #include "resregistry.h"
 #include "mesh.h"
-#include "shader.h"
 #include "texture.h"
 #include "font.h"
+#include "lights.h"
 #include "../game/camera.h"
+#include "../game/scene.h"
 #include "../window.h"
 #include "../util/logging.h"
 #include "../util/physics.h"
@@ -26,19 +27,20 @@ extern Window* g_window;
 /* --------------
    Public Methods
    -------------- */
-Renderer& Renderer::get()
+Renderer*
+Renderer::get()
 {
     static Renderer instance;
-    return instance;
+    return &instance;
 }
 
 Renderer::~Renderer()
 {
-    if (m_d3dState)  delete m_d3dState;
-    if (m_stdShader) delete m_stdShader;
-    if (m_hudShader) delete m_hudShader;
-    if (m_font)      delete m_font;
-    
+    if (m_d3dState)           delete m_d3dState;
+    if (m_stdShader)          delete m_stdShader;
+    if (m_hudShader)          delete m_hudShader;
+    if (m_font)               delete m_font;
+    if (m_currentLightBuffer) delete m_currentLightBuffer;
     for (size_t i = 0; i < ARRAYSIZE(m_primitiveModels); ++i)
     {
         if (m_primitiveModels[i]) delete m_primitiveModels[i];
@@ -55,7 +57,7 @@ Renderer::beginFrame()
     m_d3dState->m_devcon->ClearDepthStencilView(m_d3dState->m_depthStencilView.Get(),
                                                 D3D11_CLEAR_DEPTH,
                                                 1.0f,
-                                                0);
+                                                0);    
 }
 
 void
@@ -63,6 +65,60 @@ Renderer::endFrame()
 {        
     uint32 syncInterval = m_d3dState->m_vsync ? 1 : 0;
     m_d3dState->m_swapChain->Present(syncInterval, 0);    
+}
+
+void
+Renderer::renderScene()
+{
+    for (size_t i = 0; i < Shader::SHADER_MAX_DIRECTIONAL_LIGHTS; ++i)
+    {
+        m_currentLightBuffer->directionalLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+        m_currentLightBuffer->directionalLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+        m_currentLightBuffer->directionalLights[i].direction    = vec3f(0.0f, 0.0f, 0.0f);
+    }
+    for (size_t i = 0; i < Shader::SHADER_MAX_POINT_LIGHTS; ++i)
+    {
+        m_currentLightBuffer->pointLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+        m_currentLightBuffer->pointLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+        m_currentLightBuffer->pointLights[i].position     = vec3f(0.0f, 0.0f, 0.0f);
+        m_currentLightBuffer->pointLights[i].range        = 0.0f;
+    }
+
+    size_t dlIndex = 0U;
+    size_t plIndex = 0U;
+    
+    Scene::light_citer lbegin, lend;
+    Scene::get()->requestLightIter(lbegin, lend);
+    for (; lbegin != lend; ++lbegin)
+    {
+        switch ((*lbegin)->getType())
+        {
+            case Light::LIGHT_DIRECTIONAL:
+            {
+                if (dlIndex >= Shader::SHADER_MAX_DIRECTIONAL_LIGHTS) continue;
+                const DirectionalLight* dl = dynamic_cast<const DirectionalLight*>(*lbegin);
+                m_currentLightBuffer->directionalLights[dlIndex].ambientColor = dl->getAmbientColor();
+                m_currentLightBuffer->directionalLights[dlIndex].diffuseColor = dl->getDiffuseColor();
+                m_currentLightBuffer->directionalLights[dlIndex].direction    = dl->getDirection();                
+                ++dlIndex;
+            } break;
+
+            case Light::LIGHT_POINT:
+            {
+                if (plIndex >= Shader::SHADER_MAX_POINT_LIGHTS) continue;
+                const PointLight* pl = dynamic_cast<const PointLight*>(*lbegin);
+                m_currentLightBuffer->pointLights[plIndex].ambientColor = pl->getAmbientColor();
+                m_currentLightBuffer->pointLights[plIndex].diffuseColor = pl->getDiffuseColor();
+                m_currentLightBuffer->pointLights[plIndex].position     = pl->getPosition();
+                m_currentLightBuffer->pointLights[plIndex].range        = pl->getRange();
+                ++plIndex;
+            } break;
+        }
+    }
+
+    Scene::mesh_citer mbegin, mend;
+    Scene::get()->requestMeshIter(mbegin, mend);
+    for (; mbegin != mend; ++mbegin) renderMesh(*mbegin);
 }
 
 void
@@ -181,15 +237,10 @@ Renderer::renderMesh(const Mesh* mesh)
     vcbuffer.rotationMatrix    = rotMat;
     vcbuffer.worldMatrix       = worldMat;
     vcbuffer.eyePosition       = math::getVec4f(m_currentCam->getPosition());
-
-    Shader::PSCBuffer pcbuffer = {};
-    pcbuffer.ambientColor      = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
-    pcbuffer.diffuseColor      = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
-    pcbuffer.lightDirection    = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
     
     Shader* currentShader = mesh->isHUDElement() ? m_hudShader : m_stdShader;
     m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, &vcbuffer, NULL, NULL);
-    m_d3dState->m_devcon->UpdateSubresource(currentShader->getPSCBuffer().Get(), NULL, NULL, &pcbuffer, NULL, NULL);
+    m_d3dState->m_devcon->UpdateSubresource(currentShader->getPSCBuffer().Get(), NULL, NULL, m_currentLightBuffer, NULL, NULL);
 
     m_d3dState->m_devcon->IASetVertexBuffers(0, 1, mesh->getVertexBuffer().GetAddressOf(), &stride, &offset);
     m_d3dState->m_devcon->IASetIndexBuffer(mesh->getIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0U);
@@ -234,7 +285,8 @@ Renderer::Renderer():
     m_d3dState(new D3D11State()),        
     m_stdShader(new Shader("std")),
     m_hudShader(new Shader("hud")),
-    m_font(new Font("font_1", 0.1f))
+    m_font(new Font("font_1", 0.1f)),
+    m_currentLightBuffer(new Shader::PSCBuffer)
 {
     m_primitiveModels[RENDERER_PRIMITIVE_CUBE]   = new Mesh("sample_cube", Mesh::MESH_TYPE_NORMAL);
     m_primitiveModels[RENDERER_PRIMITIVE_PLANE]  = new Mesh("sample_plane", Mesh::MESH_TYPE_NORMAL);    

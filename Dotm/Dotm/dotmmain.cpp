@@ -68,7 +68,7 @@ WinMain(HINSTANCE hInstance,
 			gsq.update();
 			if (gsq.isDone()) break;
             gsq.render();
-            InputHandler::get().endFrame();
+            InputHandler::get()->endFrame();
 		}
 	}
 
@@ -103,7 +103,7 @@ messageHandler(HWND windowHandle,
 		} break;
 	}
 
-    InputHandler::get().handleInput(message, wparam, lparam);
+    InputHandler::get()->handleInput(message, wparam, lparam);
 
 	return DefWindowProc(windowHandle, message, wparam, lparam);
 }
