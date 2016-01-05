@@ -12,7 +12,26 @@
 #include "../util/stringutils.h"
 #include "renderer.h"
 #include <string>
+#include <map>
 
+/* -------------
+   Internal Vars
+   ------------- */
+std::map<stringID, comptr<ID3D11ShaderResourceView>> s_cachedTextures;
+
+/* -------------------
+   Internal Signatures
+   ------------------- */
+void
+registerTexture(const stringID textureID,
+                const Texture* texture);
+
+bool
+isPresent(const stringID textureID);
+
+comptr<ID3D11ShaderResourceView>
+retrieveTexture(const stringID textureID);
+   
 /* --------------
    Public Methods
    -------------- */
@@ -21,6 +40,12 @@ Texture::Texture(cstring textureName):
 
                  m_name(internString(textureName))
 {
+    if (isPresent(m_name))
+    {
+        m_texture = retrieveTexture(m_name);
+        return;
+    }
+
     std::wstring widePath = L"assets/textures/" + 
                             string_utils::getwstring(retrieveString(m_name)) +
                             L".png";
@@ -46,6 +71,8 @@ Texture::Texture(cstring textureName):
                     L"Missing Texture!",
                     MB_ICONEXCLAMATION);
     }
+
+    registerTexture(m_name, this);
 }
 
 Texture::~Texture()
@@ -63,4 +90,30 @@ cstring
 Texture::getTextureName() logical_const
 {
     return retrieveString(m_name);
+}
+
+
+/* ------------------
+   Internal Functions
+   ------------------ */
+void
+registerTexture(const stringID textureID, 
+                const Texture* texture)
+{
+    if (isPresent(textureID)) return;
+    s_cachedTextures[textureID] = texture->getTexturePointer();
+}
+
+bool
+isPresent(const stringID textureID)
+{
+    return s_cachedTextures.find(textureID) != 
+           s_cachedTextures.end();
+}
+
+comptr<ID3D11ShaderResourceView>
+retrieveTexture(const stringID textureID)
+{
+    if (isPresent(textureID)) return s_cachedTextures[textureID];
+    return nullptr;
 }

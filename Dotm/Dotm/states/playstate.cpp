@@ -26,17 +26,35 @@ PlayState::PlayState():
     
     m_camera(new WorldViewCamera),
     m_sysmonitor(new SystemMonitor),
-    m_sun(new DirectionalLight(vec4f(0.0f, 0.0f, 0.0f, 1.0f),
-                               vec4f(0.0f, 0.0f, 0.0f, 1.0f),
+    m_field(new Mesh("sample_plane", Mesh::MESH_TYPE_NORMAL)),
+    m_sky(new Mesh("sky", Mesh::MESH_TYPE_HUD)),
+    m_sun(new DirectionalLight(vec4f(0.4f, 0.4f, 0.4f, 1.0f),
+                               vec4f(0.8f, 0.8f, 0.8f, 1.0f),
                                vec3f(0.0f, 0.0f, 1.0f)))   
-{         
-    m_meshes[0] = new Mesh("turret01_base", Mesh::MESH_LOAD_SAME_TEXTURE | Mesh::MESH_TYPE_NORMAL);
-    m_meshes[1] = new Mesh("turret01_top",  Mesh::MESH_LOAD_SAME_TEXTURE | Mesh::MESH_TYPE_NORMAL);
-    m_meshes[2] = new Mesh("turret02_base", Mesh::MESH_LOAD_SAME_TEXTURE | Mesh::MESH_TYPE_NORMAL);
-    m_meshes[3] = new Mesh("turret02_top",  Mesh::MESH_LOAD_SAME_TEXTURE | Mesh::MESH_TYPE_NORMAL);
-    m_meshes[4] = new Mesh("turret03_base", Mesh::MESH_LOAD_SAME_TEXTURE | Mesh::MESH_TYPE_NORMAL);
-    m_meshes[5] = new Mesh("turret03_top",  Mesh::MESH_LOAD_SAME_TEXTURE | Mesh::MESH_TYPE_NORMAL);
+{
+    m_field->loadNewTexture("grass");
+    Scene::get()->addMesh(m_field);
+    m_field->scaleX = 50.0f;
+    m_field->scaleZ = 50.0f;
     
+    m_sky->loadNewTexture("sky");        
+    m_sky->scaleX = 4.0f;
+    m_sky->scaleY = 2.0f;        
+
+    m_meshes[0] = new Mesh("turret03_base", Mesh::MESH_TYPE_NORMAL);
+    m_meshes[1] = new Mesh("turret03_top",  Mesh::MESH_TYPE_NORMAL);
+    m_meshes[2] = new Mesh("turret03_base", Mesh::MESH_TYPE_NORMAL);
+    m_meshes[3] = new Mesh("turret03_top",  Mesh::MESH_TYPE_NORMAL);
+    m_meshes[4] = new Mesh("turret03_base", Mesh::MESH_TYPE_NORMAL);
+    m_meshes[5] = new Mesh("turret03_top",  Mesh::MESH_TYPE_NORMAL);
+
+    m_meshes[0]->loadNewTexture("grass");
+    m_meshes[1]->loadNewTexture("grass");
+    m_meshes[2]->loadNewTexture("grass");
+    m_meshes[3]->loadNewTexture("grass");
+    m_meshes[4]->loadNewTexture("grass");
+    m_meshes[5]->loadNewTexture("grass");
+
     m_meshes[0]->x = -5.0f;
     m_meshes[1]->x = -5.0f;
    
@@ -48,27 +66,6 @@ PlayState::PlayState():
     
     for (size_t i = 0; i < 6; ++i) Scene::get()->addMesh(m_meshes[i]);
 
-    m_fires[0] = new PointLight(vec4f(0.4f, 0.1f, 0.1f, 1.0f),
-                                vec4f(0.8f, 0.4f, 0.4f, 1.0f),
-                                vec3f(0.0f, 0.0f, -3.0f),
-                                5.0f);
-    
-    m_fires[1] = new PointLight(vec4f(0.4f, 0.1f, 0.1f, 1.0f),
-                                vec4f(0.8f, 0.4f, 0.4f, 1.0f),
-                                vec3f(0.0f, 0.0f,  3.0f),
-                                5.0f);
-
-    m_fires[2] = new PointLight(vec4f(0.4f, 0.1f, 0.1f, 1.0f),
-                                vec4f(0.8f, 0.4f, 0.4f, 1.0f),
-                                vec3f(-8.0f, 0.0f, 0.0f),
-                                10.0f);
-
-    m_fires[3] = new PointLight(vec4f(0.4f, 0.1f, 0.1f, 1.0f),
-                                vec4f(0.8f, 0.4f, 0.4f, 1.0f),
-                                vec3f(8.0f, 0.0f, 0.0f),
-                                10.0f);
-
-    for (size_t i = 0; i < 4; ++i) Scene::get()->addLight(m_fires[i]);
     Scene::get()->addLight(m_sun);
     Renderer::get()->setCamera(m_camera);
 }
@@ -77,9 +74,10 @@ PlayState::~PlayState()
 { 
     if (m_camera)     delete m_camera;
     if (m_sysmonitor) delete m_sysmonitor;
-    if (m_sun)        delete m_sun;
-
-    for (size_t i = 0; i < 4; ++i) delete m_fires[i];
+    if (m_sun)        delete m_sun;    
+    if (m_field)      delete m_field;
+    if (m_sky)        delete m_sky;
+    
     for (size_t i = 0; i < 6; ++i) delete m_meshes[i];
 }
 
@@ -104,7 +102,8 @@ void
 PlayState::render()
 {
     Renderer::get()->beginFrame();
-    Renderer::get()->renderScene();
+    Renderer::get()->renderMesh(m_sky);
+    Renderer::get()->renderScene();    
 
     // Profiling
     Renderer::get()->renderString("Fps: ", -0.95f, 0.95f); 

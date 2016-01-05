@@ -131,3 +131,65 @@ math::Sphere::setRadius(const real32 radius)
     m_radius = radius;
 }
 
+
+/* ===========
+   Class: Cube
+   =========== */
+
+/* --------------
+   Public Methods
+   -------------- */
+math::Cube::Cube(const vec3f& position,
+                 const vec3f& dimensions):
+
+                 Geometry(position),
+                 m_dimensions(dimensions)
+{
+
+}
+
+math::Cube::~Cube(){}
+
+const vec3f&
+math::Cube::getDimensions() logical_const
+{
+    return m_dimensions;
+}
+   
+void
+math::Cube::setDimensions(const vec3f& dimensions)
+{
+    m_dimensions = dimensions;
+}
+
+/* ============
+   Class: Plane
+   ============ */
+
+/* ------------- 
+   Public Method
+   ------------- */
+math::GeoPlane::GeoPlane(const vec3f& position,
+                         const vec2f& dimensions):
+
+                         Geometry(position),
+                         m_dimensions(dimensions)
+{
+
+}
+
+math::GeoPlane::~GeoPlane(){};
+
+const vec2f&
+math::GeoPlane::getDimensions() logical_const
+{
+    return m_dimensions;
+}
+
+void
+math::GeoPlane::setDimensions(const vec2f& dimensions)
+{
+    m_dimensions = dimensions;
+}
+
+   

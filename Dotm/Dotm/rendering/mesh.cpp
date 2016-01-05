@@ -8,30 +8,50 @@
    ------------------------------------------ */
 
 #include "mesh.h"
-#include "resregistry.h"
 #include "renderer.h"
 #include "texture.h"
 #include "../util/stringutils.h"
 #include "../window.h"
 #include "../game/scene.h"
 #include <fstream>
+#include <unordered_map>
 
 /* -------------
    External Vars
    ------------- */
 extern Window* g_window;
-
+   
 /* ----------------
    Internal Structs
    ---------------- */
-struct VertexPos { real32 x, y, z;    };
-struct VertexTex { real32 tu, tv;     };
-struct VertexNor { real32 nx, ny, nz; };
-struct ObjIndex  { uint32 vertexIndex, texIndex, normIndex;  };
-   
+struct VertexPos      { real32 x, y, z;    };
+struct VertexTex      { real32 tu, tv;     };
+struct VertexNor      { real32 nx, ny, nz; };
+struct ObjIndex       { uint32 vertexIndex, texIndex, normIndex;  };
+
+struct MeshCachedData { comptr<ID3D11Buffer> vertexBuffer;
+                        comptr<ID3D11Buffer> indexBuffer;
+                        uint32 indexCount;
+                        vec3f dimensions; };
+
+/* -------------
+   Internal Vars
+   ------------- */
+static std::unordered_map<stringID, std::shared_ptr<MeshCachedData>> s_cachedMeshes;
+
 /* -------------------
    Internal Signatures
    ------------------- */
+static void
+registerMeshData(const stringID meshID,
+                 const Mesh* mesh);
+
+static bool
+isPresent(const stringID meshID);
+
+static std::shared_ptr<MeshCachedData>
+retrieveMeshData(const stringID meshID);
+
 static bool
 loadMesh(std::ifstream&             file,
          std::vector<VertexPos>&    disorgPos,
@@ -41,19 +61,33 @@ loadMesh(std::ifstream&             file,
          std::vector<Mesh::Vertex>& finalVertices,
          std::vector<uint32>&       finalIndices);
 
+   
+/* ----------------
+   Static Constants
+   ---------------- */
+const Mesh::Vertex Mesh::MESH_HUD_VERTICES[] =
+{
+    Mesh::Vertex{-0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f},
+    Mesh::Vertex{ 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f},
+    Mesh::Vertex{ 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f},
+    Mesh::Vertex{-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f}
+};
+
+const uint32 Mesh::MESH_HUD_INDICES[] = 
+{
+    0, 1, 2, 2, 3, 0
+};
+
 /* --------------
    Public Methods
    -------------- */
 Mesh::Mesh(cstring meshName,
            uint32  meshCreationFlags,
-           Vertex* optExternalVertexData /* nullptr */,
-           uint32* optExternalIndexData  /* nullptr */,
-           uint32  optExternalNVertices  /* 0U */,
-           uint32  optExternalNIndices   /* 0U */):
+           vec2f*  optExternalCoords, /* nullptr */
+           uint32  optNExternalCoords   /* 0U */):
 
-           m_name(internString(meshName)),
-           m_hudElement((meshCreationFlags & MESH_TYPE_HUD) != 0),
-           m_hasTexture((meshCreationFlags & MESH_LOAD_SAME_TEXTURE) != 0),
+           m_name(internString(meshName)),           
+           m_meshFlags(meshCreationFlags),
            x(0.0f), y(0.0f), z(0.0f),
            rotX(0.0f), rotY(0.0f), rotZ(0.0f),
            scaleX(1.0f), scaleY(1.0f), scaleZ(1.0f),
@@ -63,28 +97,34 @@ Mesh::Mesh(cstring meshName,
 {
     // If there is a mesh registered with this name initialize
     // this mesh from the registered mesh
-    if (resource::meshExists(m_name)) init(resource::retrieveMesh(m_name));
-
+    if (isPresent(m_name))
+    {
+        auto cachedData = retrieveMeshData(m_name);
+        m_vertexBuffer  = cachedData->vertexBuffer;
+        m_indexBuffer   = cachedData->indexBuffer;
+        m_indexCount    = cachedData->indexCount;
+        m_dimensions    = cachedData->dimensions;
+    }    
     // otherwise initialize this mesh and its texture (if the same texture flag is set)
     // normally.
     else
     {  
         // Same texture flag is set
-        if (m_hasTexture) m_texture.reset(new Texture(meshName));            
+        if ((meshCreationFlags & MESH_LOAD_SAME_TEXTURE) != 0) 
+        {
+            m_texture.reset(new Texture(meshName));            
+        }
         
         // Load mesh and if succesful register it
-        if ((meshCreationFlags & MESH_EXTERNAL_DATA) != 0)
+        if ((meshCreationFlags & MESH_EXTERNAL_TEXCOORDS) != 0)
         {
-            createMesh(optExternalVertexData,
-                       optExternalIndexData,
-                       optExternalNVertices,
-                       optExternalNIndices);
+            createMesh(optExternalCoords, optNExternalCoords);
             // No register here as it is a mesh with specific data
         }
         else
         {
-            if (createMesh(nullptr, nullptr, 0U, 0U)) 
-                resource::registerMesh(m_name, this);
+            createMesh(nullptr, 0U);
+            registerMeshData(m_name, this);
         }        
     }
 }
@@ -95,27 +135,9 @@ Mesh::~Mesh()
 }
 
 void
-Mesh::init(const Mesh* rhs)
-{
-    m_name = rhs->m_name;
-    x      = rhs->x;           y = rhs->y;           z = rhs->z;
-    rotX   = rhs->rotX;     rotY = rhs->rotY;     rotZ = rhs->rotZ;
-    scaleX = rhs->scaleX; scaleY = rhs->scaleY; scaleZ = rhs->scaleZ;
-
-    m_hudElement   = rhs->isHUDElement();
-    m_hasTexture   = rhs->hasTexture();
-    m_vertexBuffer = rhs->getVertexBuffer();
-    m_indexBuffer  = rhs->getIndexBuffer();
-    m_texture      = rhs->getTexture();
-    m_dimensions   = rhs->calculateDimensions();
-    m_indexCount   = rhs->getIndexCount();
-}
-
-void
 Mesh::loadNewTexture(const cstring textureName)
 {
-    m_texture.reset(new Texture(textureName));
-    m_hasTexture = true;
+    m_texture.reset(new Texture(textureName));    
 }
 
 stringID
@@ -124,22 +146,10 @@ Mesh::getNameID() logical_const
     return m_name;
 }
 
-cstring
-Mesh::getName() logical_const
-{
-    return retrieveString(m_name);
-}
-
 bool
 Mesh::isHUDElement() logical_const
 {
-    return m_hudElement;
-}
-
-bool
-Mesh::hasTexture() logical_const
-{
-    return m_hasTexture;
+    return (m_meshFlags & MESH_TYPE_HUD) != 0;
 }
 
 mat4x4 
@@ -172,7 +182,8 @@ mat4x4
 Mesh::getScaleMatrix() logical_const
 {
     D3DXMATRIX scaMatrix;
-    D3DXMatrixScaling(&scaMatrix, m_hudElement ? scaleX / g_window->getAspect() : scaleX, scaleY, scaleZ);
+    D3DXMatrixScaling(&scaMatrix, isHUDElement() ? scaleX / g_window->getAspect() :
+                                                   scaleX, scaleY, scaleZ);
     return scaMatrix;
 }
 
@@ -245,36 +256,25 @@ Mesh::setTexture(std::shared_ptr<Texture> texture)
 /* ---------------
    Private Methods
    --------------- */
-
 bool
-Mesh::createMesh(Vertex* optVertices,
-                 uint32* optIndices,
-                 uint32  optNVertices,
-                 uint32  optNIndices)
+Mesh::createMesh(vec2f*  optTexCoords,                 
+                 uint32  optNTexCoords)
 {
     // Disorganized data containers
     std::vector<VertexPos> disorgPos;
     std::vector<VertexTex> disorgTexcoords;
     std::vector<VertexNor> disorgNormals;
-    std::vector<ObjIndex> objIndices;
+    std::vector<ObjIndex>  objIndices;
 
     // Organized data containers
     std::vector<Vertex> finalVertices;
     std::vector<uint32> finalIndices;
-
-    // Check if external vertex and index data are provided
-    if (optVertices)
-    {
-        while (finalVertices.size() < optNVertices)
-        {
-            finalVertices.push_back(*optVertices++);            
-        }
-        while (finalIndices.size() < optNIndices)
-        {
-            finalIndices.push_back(*optIndices++);            
-        }       
-    }
     
+    if (isHUDElement())
+    {
+        finalVertices.assign(MESH_HUD_VERTICES, MESH_HUD_VERTICES + 4);
+        finalIndices.assign(MESH_HUD_INDICES, MESH_HUD_INDICES + 6);
+    }
     // Otherwise begin manual mesh loading
     else
     {
@@ -299,6 +299,15 @@ Mesh::createMesh(Vertex* optVertices,
                       finalIndices)) return false;
     }
     
+    if (optTexCoords)
+    {
+        for (size_t i = 0; i < optNTexCoords; ++i, ++optTexCoords)
+        {
+            finalVertices[i].tu = optTexCoords->x;
+            finalVertices[i].tv = optTexCoords->y;
+        }
+    }
+
     real32 minWidth  = 0.0f, maxWidth  = 0.0f;
     real32 minDepth  = 0.0f, maxDepth  = 0.0f;
     real32 minHeight = 0.0f, maxHeight = 0.0f;
@@ -346,6 +355,39 @@ Mesh::createMesh(Vertex* optVertices,
                                                         &m_indexBuffer));
 
     return true;
+}
+
+/* ------------------
+   Internal Functions
+   ------------------ */
+static void
+registerMeshData(const stringID meshID,
+                 const Mesh* mesh)
+{
+    if (isPresent(meshID)) return;
+    s_cachedMeshes[meshID] = std::shared_ptr<MeshCachedData>(new MeshCachedData);
+    s_cachedMeshes[meshID]->vertexBuffer = mesh->getVertexBuffer();
+    s_cachedMeshes[meshID]->indexBuffer  = mesh->getIndexBuffer();
+    s_cachedMeshes[meshID]->indexCount   = mesh->getIndexCount();
+    s_cachedMeshes[meshID]->dimensions   = mesh->calculateDimensions();
+}
+
+static bool
+isPresent(const stringID meshID)
+{
+    return s_cachedMeshes.find(meshID) !=
+           s_cachedMeshes.end();
+}
+
+static std::shared_ptr<MeshCachedData>
+retrieveMeshData(const stringID meshID)
+{
+    if (s_cachedMeshes.find(meshID) !=
+        s_cachedMeshes.end())
+    {
+        return s_cachedMeshes[meshID];
+    }
+    return nullptr;
 }
 
 static bool

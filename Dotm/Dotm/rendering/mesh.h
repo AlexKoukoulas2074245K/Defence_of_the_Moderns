@@ -29,10 +29,15 @@ public:
 
 public:
 
-    static const uint32 MESH_TYPE_NORMAL       = 0x01;
-    static const uint32 MESH_TYPE_HUD          = 0x02;
-    static const uint32 MESH_LOAD_SAME_TEXTURE = 0x04;
-    static const uint32 MESH_EXTERNAL_DATA     = 0x08;
+    static const uint32 MESH_TYPE_NORMAL        = 0x01;
+    static const uint32 MESH_TYPE_HUD           = 0x02;
+    static const uint32 MESH_LOAD_SAME_TEXTURE  = 0x04;
+    static const uint32 MESH_EXTERNAL_TEXCOORDS = 0x08;
+
+private:
+
+    static const Vertex MESH_HUD_VERTICES[4];
+    static const uint32 MESH_HUD_INDICES[6];
 
 public:
 
@@ -40,10 +45,8 @@ public:
     // the method expects a valid array of vec2f and its size
     Mesh(cstring meshName,
          uint32  meshCreationFlags,
-         Vertex* optExternalVertexData = nullptr,
-         uint32* optExternalIndexData  = nullptr,
-         uint32  optExternalNVertices  = 0U,
-         uint32  optExternalNIndices   = 0U);
+         vec2f*  optExternalCoords = nullptr,
+         uint32  optNExternalCoords = 0U);
 
     ~Mesh();
 
@@ -52,24 +55,15 @@ public:
     Mesh&
     operator = (const Mesh& rhs);
 
-    void 
-    init(const Mesh* rhs);
-
     void
     loadNewTexture(cstring textureName);
 
     stringID
     getNameID() logical_const;
 
-    cstring
-    getName() logical_const;
-
     bool 
     isHUDElement() logical_const;
-
-    bool
-    hasTexture() logical_const;
-
+    
     mat4x4
     getWorldMatrix() logical_const;
 
@@ -112,10 +106,8 @@ public:
 private:
 
     bool
-    createMesh(Vertex* optVertices,
-               uint32* optIndices,
-               uint32  optNVertices,
-               uint32  optNIndices);
+    createMesh(vec2f*  optTexCoords,               
+               uint32  optNTexCoords);
 
 public: 
     // the prefix m_ in the public fields is intentionally not added
@@ -127,11 +119,9 @@ public:
 private:
 
     stringID m_name;
-    
-    bool   m_hudElement;
-    bool   m_hasTexture;
-    uint32 m_indexCount;
-    vec3f  m_dimensions;
+    uint32   m_meshFlags;
+    uint32   m_indexCount;    
+    vec3f    m_dimensions;
 
     comptr<ID3D11Buffer>     m_vertexBuffer;
     comptr<ID3D11Buffer>     m_indexBuffer;

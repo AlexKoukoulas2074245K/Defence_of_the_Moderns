@@ -77,4 +77,5 @@ private:
     std::vector<const Entity*> m_entities;
     std::vector<const Mesh*>   m_meshes;
     std::vector<const Light*>  m_lights;
+
 };

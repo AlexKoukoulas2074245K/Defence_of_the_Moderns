@@ -17,7 +17,7 @@
 #include "../dotmdef.h"
 #include "../util/strings.h"
 #include "../util/math.h"
-#include <vector>
+#include <map>
 
 class  D3D11State;
 class  Mesh;
@@ -27,9 +27,10 @@ class  Renderer
 {
 public:
 
-    static const uint32 RENDERER_PRIMITIVE_PLANE  = 0;
-    static const uint32 RENDERER_PRIMITIVE_CUBE   = 1;
-    static const uint32 RENDERER_PRIMITIVE_SPHERE = 2;
+    enum Primitive
+    {
+        CUBE, PLANE, SPHERE
+    };
 
 public:
 
@@ -48,7 +49,7 @@ public:
     renderScene();
 
     void
-    renderPrimitive(const uint32 primitive, 
+    renderPrimitive(const Primitive primitive, 
                     const math::Geometry* geometry,
                     bool wireframe);
 
@@ -57,9 +58,6 @@ public:
                  const real32 x,
                  const real32 y);
     
-    void
-    renderMesh(const cstring meshName);
-
     void
     renderMesh(const Mesh* mesh);
 
@@ -89,10 +87,10 @@ private:
     D3D11State*   m_d3dState;
     Shader*       m_stdShader;
     Shader*       m_hudShader;
-    const Camera* m_currentCam;
-    Mesh*         m_primitiveModels[3];
+    const Camera* m_currentCam;    
     Font*         m_font;
     
-    Shader::PSCBuffer* m_currentLightBuffer;
+    std::map<Primitive, Mesh*> m_primitiveModels;
+    Shader::PSCBuffer*         m_currentLightBuffer;
 
 };

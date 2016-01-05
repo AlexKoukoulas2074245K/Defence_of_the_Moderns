@@ -54,9 +54,6 @@
     <ClCompile Include="rendering\ddsloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\resregistry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="handlers\inputhandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -132,9 +129,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendering\ddsloader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\resregistry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\camera.h">

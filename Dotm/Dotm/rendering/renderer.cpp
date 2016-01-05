@@ -8,7 +8,6 @@
    --------------------------------------------- */
 
 #include "renderer.h"
-#include "resregistry.h"
 #include "mesh.h"
 #include "texture.h"
 #include "font.h"
@@ -41,10 +40,10 @@ Renderer::~Renderer()
     if (m_hudShader)          delete m_hudShader;
     if (m_font)               delete m_font;
     if (m_currentLightBuffer) delete m_currentLightBuffer;
-    for (size_t i = 0; i < ARRAYSIZE(m_primitiveModels); ++i)
-    {
-        if (m_primitiveModels[i]) delete m_primitiveModels[i];
-    }
+    
+    for (auto iter = m_primitiveModels.begin();
+         iter != m_primitiveModels.end();
+         ++iter) delete iter->second;
 }
 
 void
@@ -69,7 +68,7 @@ Renderer::endFrame()
 
 void
 Renderer::renderScene()
-{
+{    
     for (size_t i = 0; i < Shader::SHADER_MAX_DIRECTIONAL_LIGHTS; ++i)
     {
         m_currentLightBuffer->directionalLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -122,36 +121,56 @@ Renderer::renderScene()
 }
 
 void
-Renderer::renderPrimitive(const uint32 primitive, 
+Renderer::renderPrimitive(const Primitive primitive, 
                           const math::Geometry* geometry,
                           const bool wireframe)
 {
     if (wireframe) m_d3dState->m_devcon->RSSetState(m_d3dState->m_wireFrameRastState.Get());
     
-    Mesh* mesh = nullptr;
-    
+    Mesh* mesh = m_primitiveModels[primitive];
+    if (!mesh) return;
+
     switch (primitive)
     {
-        case RENDERER_PRIMITIVE_CUBE:
+        case Primitive::CUBE:
         {
-            //TODO
-            //mesh = m_primitiveModels[RENDERER_PRIMITIVE_CUBE]; 
+            const math::Cube* cube = dynamic_cast<const math::Cube*>(geometry);
+            
+            vec3f meshDims         = mesh->calculateDimensions();
+            const vec3f& cubeDims  = cube->getDimensions();
+            const vec3f& cubePos   = cube->getPosition();
+            
+            mesh->scaleX *= cubeDims.x / meshDims.x;
+            mesh->scaleY *= cubeDims.y / meshDims.y;
+            mesh->scaleZ *= cubeDims.z / meshDims.z;
+
+            mesh->x = cubePos.x;
+            mesh->y = cubePos.y;
+            mesh->z = cubePos.z;
 
         }break;
 
-        case RENDERER_PRIMITIVE_PLANE:
+        case Primitive::PLANE:
         {
-            //TODO
-            //mesh = m_primitiveModels[RENDERER_PRIMITIVE_PLANE];            
+            const math::GeoPlane* plane = dynamic_cast<const math::GeoPlane*>(geometry);
+
+            vec3f meshDims         = mesh->calculateDimensions();
+            const vec2f& planeDims = plane->getDimensions();
+            const vec3f& planePos  = plane->getPosition();
+
+            mesh->scaleX *= planeDims.x / meshDims.x;
+            mesh->scaleY  = 1.0f;
+            mesh->scaleZ *= planeDims.y / meshDims.z;
+
+            mesh->x = planePos.x;
+            mesh->y = planePos.y;
+            mesh->z = planePos.z;
 
         }break;
 
-        case RENDERER_PRIMITIVE_SPHERE:
+        case Primitive::SPHERE:
         {
             const math::Sphere* sphere = dynamic_cast<const math::Sphere*>(geometry);
-            
-            // Grab equivalent mesh
-            mesh = m_primitiveModels[RENDERER_PRIMITIVE_SPHERE];             
             
             // Calculate new primitive dimensions
             vec3f currMeshDims    = mesh->calculateDimensions();
@@ -162,19 +181,16 @@ Renderer::renderPrimitive(const uint32 primitive,
             mesh->scaleZ *= sphereDiameter / currMeshDims.z;
 
             // Set primitive position
-            vec3f spherePosition = sphere->getPosition();
+            const vec3f& spherePosition = sphere->getPosition();
             mesh->x = spherePosition.x;
             mesh->y = spherePosition.y;
             mesh->z = spherePosition.z;
 
         }break;
     }
+        
+    renderMesh(mesh);
     
-    if (mesh)
-    {                
-        renderMesh(mesh);
-    }
-
     if (wireframe) m_d3dState->m_devcon->RSSetState(m_d3dState->m_solidRastState.Get());
 }
 
@@ -197,18 +213,6 @@ Renderer::renderString(const cstring str,
         currGlyph->y = y;
         renderMesh(currGlyph.get());        
     }
-}
-
-void
-Renderer::renderMesh(const cstring meshName)
-{   
-    const Mesh* mesh = resource::retrieveMesh(meshName);
-    if (!mesh)
-    {
-        logstring("Could not find mesh: ");
-        logline(meshName);        
-    }
-    renderMesh(resource::retrieveMesh(meshName));
 }
 
 void
@@ -287,14 +291,14 @@ Renderer::Renderer():
     m_hudShader(new Shader("hud")),
     m_font(new Font("font_1", 0.1f)),
     m_currentLightBuffer(new Shader::PSCBuffer)
-{
-    m_primitiveModels[RENDERER_PRIMITIVE_CUBE]   = new Mesh("sample_cube", Mesh::MESH_TYPE_NORMAL);
-    m_primitiveModels[RENDERER_PRIMITIVE_PLANE]  = new Mesh("sample_plane", Mesh::MESH_TYPE_NORMAL);    
-    m_primitiveModels[RENDERER_PRIMITIVE_SPHERE] = new Mesh("sample_sphere", Mesh::MESH_TYPE_NORMAL);
+{   
+    m_primitiveModels[Primitive::CUBE]   = new Mesh("sample_cube",   Mesh::MESH_TYPE_NORMAL);
+    m_primitiveModels[Primitive::PLANE]  = new Mesh("sample_plane",  Mesh::MESH_TYPE_NORMAL);
+    m_primitiveModels[Primitive::SPHERE] = new Mesh("sample_sphere", Mesh::MESH_TYPE_NORMAL);
 
-    m_primitiveModels[RENDERER_PRIMITIVE_CUBE]->loadNewTexture("debug");
-    m_primitiveModels[RENDERER_PRIMITIVE_PLANE]->loadNewTexture("debug");
-    m_primitiveModels[RENDERER_PRIMITIVE_SPHERE]->loadNewTexture("debug");
+    m_primitiveModels[Primitive::CUBE]  ->loadNewTexture("debug");
+    m_primitiveModels[Primitive::PLANE] ->loadNewTexture("debug");
+    m_primitiveModels[Primitive::SPHERE]->loadNewTexture("debug");    
 }
 
 bool

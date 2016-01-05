@@ -118,29 +118,12 @@ Font::loadGlyphs()
             vec2f customTexCoords[] = { vec2f( xCoord / texWidth,            yCoord / texHeight),
                                         vec2f((xCoord + boxSize) / texWidth, yCoord / texHeight),
                                         vec2f((xCoord + boxSize) / texWidth, (yCoord + boxSize) / texHeight),
-                                        vec2f( xCoord / texWidth,            (yCoord + boxSize) / texHeight) };
-
-            // Vertex data
-            Mesh::Vertex vertices[] = 
-            {
-                Mesh::Vertex{-0.5f,  0.5f, 0.0f, customTexCoords[0].x, customTexCoords[0].y, 0.0f, 0.0f, 1.0f},
-                Mesh::Vertex{ 0.5f,  0.5f, 0.0f, customTexCoords[1].x, customTexCoords[1].y, 0.0f, 0.0f, 1.0f},
-                Mesh::Vertex{ 0.5f, -0.5f, 0.0f, customTexCoords[2].x, customTexCoords[2].y, 0.0f, 0.0f, 1.0f},
-                Mesh::Vertex{-0.5f, -0.5f, 0.0f, customTexCoords[3].x, customTexCoords[3].y, 0.0f, 0.0f, 1.0f}
-            };
-
-            // Index data
-            uint32 indices[] = 
-            {
-                0, 1, 2, 2, 3, 0
-            };
+                                        vec2f( xCoord / texWidth,            (yCoord + boxSize) / texHeight) };            
             
             std::shared_ptr<Mesh> glyph(new Mesh("sample_plane",
-                                                 Mesh::MESH_EXTERNAL_DATA | Mesh::MESH_TYPE_HUD,
-                                                 vertices,
-                                                 indices,
-                                                 ARRAYSIZE(vertices),
-                                                 ARRAYSIZE(indices)));
+                                                 Mesh::MESH_EXTERNAL_TEXCOORDS | Mesh::MESH_TYPE_HUD,
+                                                 customTexCoords,
+                                                 ARRAYSIZE(customTexCoords)));
                                     
             glyph->setTexture(m_fontTexture);            
             m_glyphs[currChar] = glyph;

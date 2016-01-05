@@ -39,9 +39,11 @@ public:
 
 private:    
     
-    Mesh*           m_meshes[6];        
+    Mesh*           m_meshes[6];    
+    Mesh*           m_field;
+    Mesh*           m_sky;
     Camera*         m_camera;
     SystemMonitor*  m_sysmonitor;
-    Light*          m_sun;
-    Light*          m_fires[4];
+    Light*          m_sun;    
+
 };

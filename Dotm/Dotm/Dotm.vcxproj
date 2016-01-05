@@ -81,7 +81,6 @@
     <ClCompile Include="rendering\font.cpp" />
     <ClCompile Include="rendering\lights.cpp" />
     <ClCompile Include="rendering\mesh.cpp" />
-    <ClCompile Include="rendering\resregistry.cpp" />
     <ClCompile Include="rendering\renderer.cpp" />
     <ClCompile Include="rendering\shader.cpp" />
     <ClCompile Include="rendering\texture.cpp" />
@@ -108,7 +107,6 @@
     <ClInclude Include="rendering\font.h" />
     <ClInclude Include="rendering\lights.h" />
     <ClInclude Include="rendering\mesh.h" />
-    <ClInclude Include="rendering\resregistry.h" />
     <ClInclude Include="rendering\renderer.h" />
     <ClInclude Include="rendering\shader.h" />
     <ClInclude Include="rendering\texture.h" />

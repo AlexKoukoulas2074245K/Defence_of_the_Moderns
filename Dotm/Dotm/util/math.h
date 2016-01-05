@@ -157,4 +157,52 @@ namespace math
         real32 m_radius;
 
     };
+
+    /* ===========
+       Class: Cube
+       =========== */
+    class Cube: public Geometry
+    {
+    public:
+
+        Cube(const vec3f& position,
+             const vec3f& dimensions);
+
+        ~Cube();
+
+        const vec3f&
+        getDimensions() logical_const;
+
+        void
+        setDimensions(const vec3f& dimensions);
+
+    private:
+
+        vec3f m_dimensions;
+
+    };
+
+    /* ============
+       Class: Plane
+       ============ */
+    class GeoPlane: public Geometry
+    {
+    public:
+
+        GeoPlane(const vec3f& position,
+                 const vec2f& dimensions);
+
+        ~GeoPlane();
+
+        const vec2f&
+        getDimensions() logical_const;
+
+        void
+        setDimensions(const vec2f& dimensions);
+
+    private:
+
+        vec2f m_dimensions;
+
+    };
 }
