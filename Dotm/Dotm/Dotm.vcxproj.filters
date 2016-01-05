@@ -81,6 +81,9 @@
     <ClCompile Include="rendering\lights.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h">
@@ -156,6 +159,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendering\lights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

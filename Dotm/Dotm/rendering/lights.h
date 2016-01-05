@@ -16,6 +16,7 @@
 /* ============
    class: Light
    ============ */
+class Scene;
 class Light
 {
 public:
@@ -31,7 +32,8 @@ public:
 
     Light(const vec4f&    ambientCol,
           const vec4f&    diffuseCol,
-          const LightType lightType);
+          const LightType lightType,
+          Scene*          sceneptr);
 
     virtual
     ~Light();
@@ -50,6 +52,7 @@ protected:
     LightType m_lightType;
     vec4f     m_ambientColor;
     vec4f     m_diffuseColor;
+    Scene*    m_sceneRef;
 
 };
 
@@ -62,7 +65,8 @@ public:
 
     DirectionalLight(const vec4f& ambientCol,
                      const vec4f& diffuseCol,
-                     const vec3f& direction);
+                     const vec3f& direction,
+                     Scene*       sceneptr);
 
     ~DirectionalLight();
 
@@ -85,7 +89,8 @@ public:
     PointLight(const vec4f& ambientCol,
                const vec4f& diffuseCol,
                const vec3f& position,
-               const real32 range);
+               const real32 range,
+               Scene*       sceneptr);
 
     ~PointLight();
 
@@ -99,5 +104,5 @@ private:
 
     vec3f  m_position;
     real32 m_range;
-
+    
 };

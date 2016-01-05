@@ -29,6 +29,8 @@ public:
         mat4x4 worldMatrix;
         mat4x4 mvpMatrix;
         vec4f  eyePosition;
+        int32  highlight;
+        vec3f  _padding;
     };
 
     struct DirectionalLight
@@ -51,6 +53,23 @@ public:
     {
         DirectionalLight directionalLights[SHADER_MAX_DIRECTIONAL_LIGHTS];
         PointLight       pointLights[SHADER_MAX_POINT_LIGHTS];
+
+        void clear() 
+        {
+            for (size_t i = 0; i < SHADER_MAX_DIRECTIONAL_LIGHTS; ++i)
+            {
+                directionalLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                directionalLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                directionalLights[i].direction = vec3f(0.0f, 0.0f, 0.0f);
+            }
+            for (size_t i = 0; i < SHADER_MAX_POINT_LIGHTS; ++i)
+            {
+                pointLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                pointLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                pointLights[i].position = vec3f(0.0f, 0.0f, 0.0f);
+                pointLights[i].range = 0.0f;
+            }
+        }
     };
 
 public:

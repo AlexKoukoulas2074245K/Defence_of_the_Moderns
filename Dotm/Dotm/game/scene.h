@@ -25,9 +25,8 @@ public:
     typedef std::vector<const Entity*>::const_iterator entity_citer;
 
 public:
-
-    static Scene*
-    get();    
+    
+    Scene();
 
     ~Scene();
 
@@ -37,7 +36,10 @@ public:
     operator = (const Scene& rhs) = delete;
     
     void
-    clearScene();
+    update();
+
+    void
+    clear();
 
     void
     requestLightIter(light_citer& outBegin,
@@ -67,10 +69,6 @@ public:
 
     void
     removeLight(const Light* light);
-
-private:
-
-    Scene();
 
 private:
 

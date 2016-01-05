@@ -21,6 +21,20 @@
 static ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
 static HANDLE thisProcess;
 
+/* --------------
+   Static Methods
+   -------------- */
+uint64
+SystemMonitor::getTimeMS()
+{
+    return timeGetTime();
+}
+
+uint64
+SystemMonitor::getTimeS()
+{
+    return timeGetTime() / 1000;
+}
 
 /* --------------
    Public Methods

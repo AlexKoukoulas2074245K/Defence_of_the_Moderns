@@ -14,6 +14,7 @@
 #include "lights.h"
 #include "../game/camera.h"
 #include "../game/scene.h"
+#include "../game/entity.h"
 #include "../window.h"
 #include "../util/logging.h"
 #include "../util/physics.h"
@@ -67,27 +68,16 @@ Renderer::endFrame()
 }
 
 void
-Renderer::renderScene()
-{    
-    for (size_t i = 0; i < Shader::SHADER_MAX_DIRECTIONAL_LIGHTS; ++i)
-    {
-        m_currentLightBuffer->directionalLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-        m_currentLightBuffer->directionalLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-        m_currentLightBuffer->directionalLights[i].direction    = vec3f(0.0f, 0.0f, 0.0f);
-    }
-    for (size_t i = 0; i < Shader::SHADER_MAX_POINT_LIGHTS; ++i)
-    {
-        m_currentLightBuffer->pointLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-        m_currentLightBuffer->pointLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-        m_currentLightBuffer->pointLights[i].position     = vec3f(0.0f, 0.0f, 0.0f);
-        m_currentLightBuffer->pointLights[i].range        = 0.0f;
-    }
+Renderer::renderScene(const Scene* scene)
+{   
+    // Light accumulation
+    m_currentLightBuffer->clear();
 
     size_t dlIndex = 0U;
     size_t plIndex = 0U;
     
     Scene::light_citer lbegin, lend;
-    Scene::get()->requestLightIter(lbegin, lend);
+    scene->requestLightIter(lbegin, lend);
     for (; lbegin != lend; ++lbegin)
     {
         switch ((*lbegin)->getType())
@@ -115,9 +105,48 @@ Renderer::renderScene()
         }
     }
 
+    // Mesh accumulation
+    std::vector<const Mesh*> meshList;
+    
     Scene::mesh_citer mbegin, mend;
-    Scene::get()->requestMeshIter(mbegin, mend);
-    for (; mbegin != mend; ++mbegin) renderMesh(*mbegin);
+    scene->requestMeshIter(mbegin, mend);
+    meshList.assign(mbegin, mend);
+
+    Scene::entity_citer ebegin, eend;
+    scene->requestEntityIter(ebegin, eend);
+    for (; ebegin != eend; ++ebegin)
+    {
+        const std::vector<Mesh*>& entityBodies = (*ebegin)->getBodies();
+        for (auto bodyiter = entityBodies.cbegin();
+             bodyiter != entityBodies.cend();
+             ++bodyiter)
+        {
+            meshList.push_back(*bodyiter);
+        }
+    }
+
+    // Final mesh rendering
+    for (auto citer = meshList.cbegin();
+         citer != meshList.cend();
+         ++citer)
+    {
+        if ((*citer)->isHighlighted())
+        {
+            // Insidious hack
+            Mesh* mesh = const_cast<Mesh*>(*citer);
+            mesh->scale = vec3f(1.05f, 1.05f, 1.05f);
+            m_d3dState->m_devcon->OMSetDepthStencilState(m_d3dState->m_disabledDepth.Get(), 1);
+            renderMesh(mesh);
+            m_d3dState->m_devcon->OMSetDepthStencilState(m_d3dState->m_enabledDepth.Get(), 1);
+            m_d3dState->m_devcon->ClearDepthStencilView(m_d3dState->m_depthStencilView.Get(),
+                                                        D3D11_CLEAR_DEPTH,
+                                                        1.0f,
+                                                        0);
+            mesh->setHighlighted(false);
+            mesh->scale = vec3f(1.0f, 1.0f, 1.0f);
+        }
+        renderMesh(*citer);
+    }    
 }
 
 void
@@ -137,16 +166,13 @@ Renderer::renderPrimitive(const Primitive primitive,
             const math::Cube* cube = dynamic_cast<const math::Cube*>(geometry);
             
             vec3f meshDims         = mesh->calculateDimensions();
-            const vec3f& cubeDims  = cube->getDimensions();
-            const vec3f& cubePos   = cube->getPosition();
+            const vec3f& cubeDims  = cube->getDimensions();            
             
-            mesh->scaleX *= cubeDims.x / meshDims.x;
-            mesh->scaleY *= cubeDims.y / meshDims.y;
-            mesh->scaleZ *= cubeDims.z / meshDims.z;
+            mesh->scale.x *= cubeDims.x / meshDims.x;
+            mesh->scale.y *= cubeDims.y / meshDims.y;
+            mesh->scale.z *= cubeDims.z / meshDims.z;
 
-            mesh->x = cubePos.x;
-            mesh->y = cubePos.y;
-            mesh->z = cubePos.z;
+            mesh->position = cube->getPosition();
 
         }break;
 
@@ -156,15 +182,12 @@ Renderer::renderPrimitive(const Primitive primitive,
 
             vec3f meshDims         = mesh->calculateDimensions();
             const vec2f& planeDims = plane->getDimensions();
-            const vec3f& planePos  = plane->getPosition();
 
-            mesh->scaleX *= planeDims.x / meshDims.x;
-            mesh->scaleY  = 1.0f;
-            mesh->scaleZ *= planeDims.y / meshDims.z;
+            mesh->scale.x *= planeDims.x / meshDims.x;
+            mesh->scale.y  = 1.0f;
+            mesh->scale.z *= planeDims.y / meshDims.z;
 
-            mesh->x = planePos.x;
-            mesh->y = planePos.y;
-            mesh->z = planePos.z;
+            mesh->position = plane->getPosition();
 
         }break;
 
@@ -176,15 +199,12 @@ Renderer::renderPrimitive(const Primitive primitive,
             vec3f currMeshDims    = mesh->calculateDimensions();
             real32 sphereDiameter = sphere->getRadius() * 2;
 
-            mesh->scaleX *= sphereDiameter / currMeshDims.x;
-            mesh->scaleY *= sphereDiameter / currMeshDims.y;
-            mesh->scaleZ *= sphereDiameter / currMeshDims.z;
+            mesh->scale.x *= sphereDiameter / currMeshDims.x;
+            mesh->scale.y *= sphereDiameter / currMeshDims.y;
+            mesh->scale.z *= sphereDiameter / currMeshDims.z;
 
             // Set primitive position
-            const vec3f& spherePosition = sphere->getPosition();
-            mesh->x = spherePosition.x;
-            mesh->y = spherePosition.y;
-            mesh->z = spherePosition.z;
+            mesh->position = sphere->getPosition();            
 
         }break;
     }
@@ -209,8 +229,8 @@ Renderer::renderString(const cstring str,
 
         std::shared_ptr<Mesh> currGlyph = m_font->getGlyph(currChar);
         
-        currGlyph->x = xCounter;
-        currGlyph->y = y;
+        currGlyph->position.x = xCounter;
+        currGlyph->position.y = y;
         renderMesh(currGlyph.get());        
     }
 }
@@ -241,6 +261,7 @@ Renderer::renderMesh(const Mesh* mesh)
     vcbuffer.rotationMatrix    = rotMat;
     vcbuffer.worldMatrix       = worldMat;
     vcbuffer.eyePosition       = math::getVec4f(m_currentCam->getPosition());
+    vcbuffer.highlight         = mesh->isHighlighted() ? 1 : -1;
     
     Shader* currentShader = mesh->isHUDElement() ? m_hudShader : m_stdShader;
     m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, &vcbuffer, NULL, NULL);

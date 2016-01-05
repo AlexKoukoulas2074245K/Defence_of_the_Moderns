@@ -18,20 +18,22 @@
    Public Methods
    -------------- */
 
-Light::Light(const vec4f& ambientCol,
-             const vec4f& diffuseCol,
-             const LightType lightType):
+Light::Light(const vec4f&    ambientCol,
+             const vec4f&    diffuseCol,
+             const LightType lightType,
+             Scene*          sceneptr):
 
              m_ambientColor(ambientCol),
              m_diffuseColor(diffuseCol),
-             m_lightType(lightType)
+             m_lightType(lightType),
+             m_sceneRef(sceneptr)
 {
-
+    if (m_sceneRef) m_sceneRef->addLight(this);
 }
 
 Light::~Light()
 {
-    Scene::get()->removeLight(this);
+    if(m_sceneRef) m_sceneRef->removeLight(this);
 }
 
 Light::LightType
@@ -61,9 +63,10 @@ Light::getDiffuseColor() logical_const
    -------------- */
 DirectionalLight::DirectionalLight(const vec4f& ambientCol,
                                    const vec4f& diffuseCol,
-                                   const vec3f& direction):
+                                   const vec3f& direction,
+                                   Scene*       sceneptr):
 
-                                   Light(ambientCol, diffuseCol, LIGHT_DIRECTIONAL),
+                                   Light(ambientCol, diffuseCol, LIGHT_DIRECTIONAL, sceneptr),
                                    m_direction(direction)
 {
 
@@ -88,11 +91,12 @@ DirectionalLight::getDirection() logical_const
 PointLight::PointLight(const vec4f& ambientCol,
                        const vec4f& diffuseCol,
                        const vec3f& position,
-                       const real32 range):
+                       const real32 range,
+                       Scene*       sceneptr):
 
-                       Light(ambientCol, diffuseCol, LIGHT_POINT),
+                       Light(ambientCol, diffuseCol, LIGHT_POINT, sceneptr),
                        m_position(position),
-                       m_range(range)
+                       m_range(range)                    
 {
     
 }

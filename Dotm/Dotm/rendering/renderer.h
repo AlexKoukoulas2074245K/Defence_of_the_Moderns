@@ -23,6 +23,7 @@ class  D3D11State;
 class  Mesh;
 class  Camera;
 class  Font;
+class  Scene;
 class  Renderer
 {
 public:
@@ -46,7 +47,7 @@ public:
     endFrame();
 
     void
-    renderScene();
+    renderScene(const Scene* scene);
 
     void
     renderPrimitive(const Primitive primitive, 

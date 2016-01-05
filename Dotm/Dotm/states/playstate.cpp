@@ -11,6 +11,7 @@
 #include "../rendering/mesh.h"
 #include "../rendering/renderer.h"
 #include "../rendering/lights.h"
+#include "../game/entity.h"
 #include "../game/camera.h"
 #include "../game/scene.h"
 #include "../systemmonitor.h"
@@ -18,55 +19,53 @@
 #include "../util/physics.h"
 #include "../util/logging.h"
 
-static int32 touched = -1;
+
 /* --------------
    Public Methods
    -------------- */
 PlayState::PlayState():
     
+    m_scene(new Scene),
     m_camera(new WorldViewCamera),
     m_sysmonitor(new SystemMonitor),
-    m_field(new Mesh("sample_plane", Mesh::MESH_TYPE_NORMAL)),
-    m_sky(new Mesh("sky", Mesh::MESH_TYPE_HUD)),
+    m_field(new Mesh("sample_plane", Mesh::MESH_TYPE_NORMAL, m_scene)),
+    m_sky(new Mesh("sky", Mesh::MESH_TYPE_HUD, nullptr)),
     m_sun(new DirectionalLight(vec4f(0.4f, 0.4f, 0.4f, 1.0f),
                                vec4f(0.8f, 0.8f, 0.8f, 1.0f),
-                               vec3f(0.0f, 0.0f, 1.0f)))   
+                               vec3f(0.0f, 0.0f, 1.0f),
+                               m_scene))   
 {
-    m_field->loadNewTexture("grass");
-    Scene::get()->addMesh(m_field);
-    m_field->scaleX = 50.0f;
-    m_field->scaleZ = 50.0f;
-    
+    m_field->loadNewTexture("grass");    
+    m_field->scale.x     = 50.0f;
+    m_field->scale.z     = 50.0f;
+    m_field->position.y -= 0.7f;
+
     m_sky->loadNewTexture("sky");        
-    m_sky->scaleX = 4.0f;
-    m_sky->scaleY = 2.0f;        
+    m_sky->scale.x = 4.0f;
+    m_sky->scale.y = 2.0f;        
 
-    m_meshes[0] = new Mesh("turret03_base", Mesh::MESH_TYPE_NORMAL);
-    m_meshes[1] = new Mesh("turret03_top",  Mesh::MESH_TYPE_NORMAL);
-    m_meshes[2] = new Mesh("turret03_base", Mesh::MESH_TYPE_NORMAL);
-    m_meshes[3] = new Mesh("turret03_top",  Mesh::MESH_TYPE_NORMAL);
-    m_meshes[4] = new Mesh("turret03_base", Mesh::MESH_TYPE_NORMAL);
-    m_meshes[5] = new Mesh("turret03_top",  Mesh::MESH_TYPE_NORMAL);
-
-    m_meshes[0]->loadNewTexture("grass");
-    m_meshes[1]->loadNewTexture("grass");
-    m_meshes[2]->loadNewTexture("grass");
-    m_meshes[3]->loadNewTexture("grass");
-    m_meshes[4]->loadNewTexture("grass");
-    m_meshes[5]->loadNewTexture("grass");
-
-    m_meshes[0]->x = -5.0f;
-    m_meshes[1]->x = -5.0f;
-   
-    m_meshes[2]->x =  0.0f;
-    m_meshes[3]->x =  0.0f;
+    uint64 start = SystemMonitor::getTimeMS();
     
-    m_meshes[4]->x =  5.0f;
-    m_meshes[5]->x =  5.0f;
+    /*for (size_t i = 0; i < 10; ++i)
+    {*/
+        m_entities[0] = new Entity("first_turret", {"turret01_base", "turret01_top"},  m_scene, {-5.0f, 0.0f, 0.0f});
+        m_entities[1] = new Entity("second_turret", {"turret01_base", "turret01_top"}, m_scene, {0.0f, 0.0f, 0.0f});
+        m_entities[2] = new Entity("third_turret", {"turret03_base", "turret03_top"},  m_scene, {5.0f, 0.0f, 0.0f});
+/*
+        if (i < 9)
+        {
+            delete m_entities[0];
+            delete m_entities[1];
+            delete m_entities[2];
+        }
+    }
     
-    for (size_t i = 0; i < 6; ++i) Scene::get()->addMesh(m_meshes[i]);
+    */
+    logstring("Time elapsed: ");
+    logvar(SystemMonitor::getTimeMS() - start);
+    logline(" ms");
 
-    Scene::get()->addLight(m_sun);
+    
     Renderer::get()->setCamera(m_camera);
 }
 
@@ -78,7 +77,9 @@ PlayState::~PlayState()
     if (m_field)      delete m_field;
     if (m_sky)        delete m_sky;
     
-    for (size_t i = 0; i < 6; ++i) delete m_meshes[i];
+    for (size_t i = 0; i < 3; ++i) if(m_entities[i]) delete m_entities[i];
+
+    if (m_scene) delete m_scene;
 }
 
 void
@@ -86,16 +87,7 @@ PlayState::update()
 {
     m_camera->update();
     m_sysmonitor->update();
-    
-    touched = -1;
-    for (size_t i = 0; i < 6; ++i)
-    {        
-        if (i % 2)
-        {
-            m_meshes[i]->rotY += 0.01f;
-            if (physics::isPicked(m_meshes[i], m_camera)) touched = i;
-        }
-    }
+    m_scene->update();    
 }
 
 void
@@ -103,7 +95,7 @@ PlayState::render()
 {
     Renderer::get()->beginFrame();
     Renderer::get()->renderMesh(m_sky);
-    Renderer::get()->renderScene();    
+    Renderer::get()->renderScene(m_scene);    
 
     // Profiling
     Renderer::get()->renderString("Fps: ", -0.95f, 0.95f); 
@@ -112,7 +104,7 @@ PlayState::render()
     Renderer::get()->renderString(std::string(std::to_string(m_sysmonitor->getCpuUsagePerc()) + "%").c_str(), -0.70f, 0.80f);
     Renderer::get()->renderString("Mem: ", -0.95f, 0.65f);
     Renderer::get()->renderString(std::string(std::to_string(m_sysmonitor->getMemUsage()) + "mb").c_str(), -0.70f, 0.65f);    
-    Renderer::get()->renderString("Touching: ", -0.95f, 0.5f);
-    Renderer::get()->renderString(std::to_string(touched).c_str(), -0.3f, 0.5f);
+    /*Renderer::get()->renderString("Touching: ", -0.95f, 0.5f);
+    Renderer::get()->renderString(std::to_string(touched).c_str(), -0.3f, 0.5f);*/
     Renderer::get()->endFrame();
 }

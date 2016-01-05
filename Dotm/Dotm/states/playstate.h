@@ -15,9 +15,11 @@
 #include "../util/strings.h"
 
 class Mesh;
+class Entity;
 class Camera;
 class SystemMonitor;
 class Light;
+class Scene;
 class PlayState: public AGameState
 {
 public:
@@ -37,9 +39,15 @@ public:
     void
     render();
 
+private:
+
+    void
+    meshLoading(const size_t i, const cstring meshName);
+
 private:    
     
-    Mesh*           m_meshes[6];    
+    Scene*          m_scene;
+    Entity*         m_entities[3];
     Mesh*           m_field;
     Mesh*           m_sky;
     Camera*         m_camera;

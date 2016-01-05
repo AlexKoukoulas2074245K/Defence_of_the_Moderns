@@ -81,19 +81,22 @@ const uint32 Mesh::MESH_HUD_INDICES[] =
 /* --------------
    Public Methods
    -------------- */
-Mesh::Mesh(cstring meshName,
-           uint32  meshCreationFlags,
-           vec2f*  optExternalCoords, /* nullptr */
-           uint32  optNExternalCoords   /* 0U */):
+Mesh::Mesh(cstring      meshName,
+           uint32       meshCreationFlags,
+           Scene*       optSceneptr,         /* nullptr */   
+           vec2f*       optExternalCoords,   /* nullptr */
+           uint32       optNExternalCoords   /* 0U */):
 
            m_name(internString(meshName)),           
            m_meshFlags(meshCreationFlags),
-           x(0.0f), y(0.0f), z(0.0f),
-           rotX(0.0f), rotY(0.0f), rotZ(0.0f),
-           scaleX(1.0f), scaleY(1.0f), scaleZ(1.0f),
+           m_sceneRef(optSceneptr),
+           position(0.0f, 0.0f, 0.0f),
+           rotation(0.0f, 0.0f, 0.0f),
+           scale(1.0f, 1.0f, 1.0f),
            m_dimensions(),
            m_collSPhere(vec3f(), real32()),
-           m_visiSphere(vec3f(), real32())
+           m_visiSphere(vec3f(), real32()),
+           m_highlighted(false)
 {
     // If there is a mesh registered with this name initialize
     // this mesh from the registered mesh
@@ -109,12 +112,6 @@ Mesh::Mesh(cstring meshName,
     // normally.
     else
     {  
-        // Same texture flag is set
-        if ((meshCreationFlags & MESH_LOAD_SAME_TEXTURE) != 0) 
-        {
-            m_texture.reset(new Texture(meshName));            
-        }
-        
         // Load mesh and if succesful register it
         if ((meshCreationFlags & MESH_EXTERNAL_TEXCOORDS) != 0)
         {
@@ -127,11 +124,19 @@ Mesh::Mesh(cstring meshName,
             registerMeshData(m_name, this);
         }        
     }
+
+    // Same texture flag is set
+    if ((meshCreationFlags & MESH_LOAD_SAME_TEXTURE) != 0)
+    {
+        m_texture.reset(new Texture(meshName));
+    }
+
+    if (m_sceneRef) m_sceneRef->addMesh(this);
 }
 
 Mesh::~Mesh()
 {
-    Scene::get()->removeMesh(this);
+    if (m_sceneRef) m_sceneRef->removeMesh(this);
 }
 
 void
@@ -164,7 +169,10 @@ mat4x4
 Mesh::getTranslationMatrix() logical_const
 {
     D3DXMATRIX trMatrix;
-    D3DXMatrixTranslation(&trMatrix, x, y, z);
+    D3DXMatrixTranslation(&trMatrix,
+                           position.x,
+                           position.y,
+                           position.z);
     return trMatrix;
 }
 
@@ -172,9 +180,9 @@ mat4x4
 Mesh::getRotationMatrix() logical_const
 {
     D3DXMATRIX rotXMatrix, rotYMatrix, rotZMatrix;
-    D3DXMatrixRotationX(&rotXMatrix, rotX);
-    D3DXMatrixRotationY(&rotYMatrix, rotY);
-    D3DXMatrixRotationZ(&rotZMatrix, rotZ);
+    D3DXMatrixRotationX(&rotXMatrix, rotation.x);
+    D3DXMatrixRotationY(&rotYMatrix, rotation.y);
+    D3DXMatrixRotationZ(&rotZMatrix, rotation.z);
     return rotXMatrix * rotYMatrix * rotZMatrix;
 }
 
@@ -182,8 +190,8 @@ mat4x4
 Mesh::getScaleMatrix() logical_const
 {
     D3DXMATRIX scaMatrix;
-    D3DXMatrixScaling(&scaMatrix, isHUDElement() ? scaleX / g_window->getAspect() :
-                                                   scaleX, scaleY, scaleZ);
+    D3DXMatrixScaling(&scaMatrix, isHUDElement() ? scale.x / g_window->getAspect() :
+                                                   scale.x, scale.y, scale.z);
     return scaMatrix;
 }
 
@@ -208,22 +216,22 @@ Mesh::getIndexBuffer() bitwise_const
 vec3f
 Mesh::calculateDimensions() logical_const
 {
-    return vec3f(m_dimensions.x * scaleX,
-                 m_dimensions.y * scaleY,
-                 m_dimensions.z * scaleZ);
+    return vec3f(m_dimensions.x * scale.x,
+                 m_dimensions.y * scale.y,
+                 m_dimensions.z * scale.z);
 }
 
 vec3f
 Mesh::getPosition() logical_const
 {
-    return vec3f(x, y, z);
+    return position;
 }
 
 math::Geometry&
 Mesh::getCollidableGeometry() bitwise_const
 {
     vec3f meshDimensions = calculateDimensions();
-    m_collSPhere.setPosition(vec3f(x, y, z));
+    m_collSPhere.setPosition(position);
     m_collSPhere.setRadius((math::avg3f(meshDimensions.x,
                                         meshDimensions.y,
                                         meshDimensions.z)) / 2.0f);
@@ -234,7 +242,7 @@ math::Geometry&
 Mesh::getVisibleGeometry() bitwise_const
 {
     vec3f meshDimensions = calculateDimensions();
-    m_visiSphere.setPosition(vec3f(x, y, z));
+    m_visiSphere.setPosition(position);
     m_visiSphere.setRadius((math::max3f(meshDimensions.x,
                                         meshDimensions.y,
                                         meshDimensions.z)) / 2.0f);
@@ -245,6 +253,18 @@ std::shared_ptr<Texture>
 Mesh::getTexture() bitwise_const
 {
     return m_texture;
+}
+
+bool
+Mesh::isHighlighted() logical_const
+{
+    return m_highlighted;
+}
+
+void
+Mesh::setHighlighted(const bool highlighted)
+{
+    m_highlighted = highlighted;
 }
 
 void

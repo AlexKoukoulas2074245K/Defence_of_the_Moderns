@@ -13,20 +13,24 @@
 /* --------------
    Public Methods
    -------------- */
-Scene*
-Scene::get()
+Scene::Scene()
 {
-    static Scene scene;
-    return &scene;
+
 }
 
 Scene::~Scene()
 {
-    clearScene();
+    clear();
 }
 
 void
-Scene::clearScene()
+Scene::update()
+{
+
+}
+
+void
+Scene::clear()
 {
     m_entities.clear();
     m_lights.clear();
@@ -101,8 +105,3 @@ Scene::removeLight(const Light* light)
         if (m_lights[i] == light) m_lights.erase(m_lights.begin() + i);
     }
 }
-
-/* ---------------
-   Private Methods
-   --------------- */
-Scene::Scene(){}

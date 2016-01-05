@@ -13,6 +13,7 @@
 #include "../util/stringutils.h"
 #include <fstream>
 #include <string>
+
 /* --------------
    Public Methods
    -------------- */
@@ -44,9 +45,9 @@ Font::setSize(const real32 size)
          iter != m_glyphs.end();
          ++iter)
     {
-        iter->second->scaleX = 
-         iter->second->scaleY = 
-          iter->second->scaleZ = m_fontSize;
+        iter->second->scale = vec3f(m_fontSize,
+                                    m_fontSize,
+                                    m_fontSize);          
     }
 }
 
@@ -122,6 +123,7 @@ Font::loadGlyphs()
             
             std::shared_ptr<Mesh> glyph(new Mesh("sample_plane",
                                                  Mesh::MESH_EXTERNAL_TEXCOORDS | Mesh::MESH_TYPE_HUD,
+                                                 nullptr,
                                                  customTexCoords,
                                                  ARRAYSIZE(customTexCoords)));
                                     

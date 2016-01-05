@@ -74,6 +74,7 @@
     <ClCompile Include="config\configparser.cpp" />
     <ClCompile Include="dotmmain.cpp" />
     <ClCompile Include="game\camera.cpp" />
+    <ClCompile Include="game\entity.cpp" />
     <ClCompile Include="game\scene.cpp" />
     <ClCompile Include="handlers\inputhandler.cpp" />
     <ClCompile Include="rendering\d3d11state.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="config\configparser.h" />
     <ClInclude Include="dotmdef.h" />
     <ClInclude Include="game\camera.h" />
+    <ClInclude Include="game\entity.h" />
     <ClInclude Include="game\scene.h" />
     <ClInclude Include="handlers\inputhandler.h" />
     <ClInclude Include="rendering\d3d11common.h" />

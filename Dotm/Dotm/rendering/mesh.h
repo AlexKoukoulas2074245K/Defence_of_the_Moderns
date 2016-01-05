@@ -16,6 +16,7 @@
 #include <memory>
 
 class Texture;
+class Scene;
 class Mesh
 {
 public:
@@ -41,12 +42,15 @@ private:
 
 public:
 
+    // If the optSceneptr parameter is set, the mesh
+    // will attempt to remove itself from that scene during destruction
     // If the MESH_EXTERNAL_TEXCOORDS flag is set,
-    // the method expects a valid array of vec2f and its size
-    Mesh(cstring meshName,
-         uint32  meshCreationFlags,
-         vec2f*  optExternalCoords = nullptr,
-         uint32  optNExternalCoords = 0U);
+    // the method expects a valid array of vec2f and its size.    
+    Mesh(cstring      meshName,
+         uint32       meshCreationFlags,
+         Scene*       optSceneptr = nullptr,
+         vec2f*       optExternalCoords = nullptr,
+         uint32       optNExternalCoords = 0U);
 
     ~Mesh();
 
@@ -100,6 +104,12 @@ public:
     math::Geometry&
     getVisibleGeometry() bitwise_const;
 
+    bool
+    isHighlighted() logical_const;
+
+    void
+    setHighlighted(const bool highlighted);
+
     void
     setTexture(std::shared_ptr<Texture> texture);
 
@@ -112,9 +122,7 @@ private:
 public: 
     // the prefix m_ in the public fields is intentionally not added
     // to enable faster field accessing and a struct like use    
-    real32 x, y, z;
-    real32 rotX, rotY, rotZ;
-    real32 scaleX, scaleY, scaleZ;
+    vec3f position, rotation, scale;
    
 private:
 
@@ -122,11 +130,14 @@ private:
     uint32   m_meshFlags;
     uint32   m_indexCount;    
     vec3f    m_dimensions;
+    bool     m_highlighted;
+
+    Scene*   m_sceneRef;
 
     comptr<ID3D11Buffer>     m_vertexBuffer;
     comptr<ID3D11Buffer>     m_indexBuffer;
     std::shared_ptr<Texture> m_texture;
-
+    
     mutable math::Sphere m_collSPhere;
     mutable math::Sphere m_visiSphere;
 };

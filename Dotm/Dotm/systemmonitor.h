@@ -14,6 +14,14 @@
 class SystemMonitor
 {
 public:
+    
+    static uint64
+    getTimeMS();
+
+    static uint64
+    getTimeS();
+
+public:
 
     SystemMonitor();
     
