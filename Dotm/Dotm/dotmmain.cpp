@@ -48,13 +48,15 @@ WinMain(HINSTANCE hInstance,
     if (!window.isReady()) return 1;
     g_window = &window;
 
-	MSG message = {};
-	GameStateQueue gsq;
-
     // Initialize Singletons
     Renderer::get();
     InputHandler::get();
 
+    // Initialize Game State Queue
+	GameStateQueue gsq;
+
+    // Begin Game Loop
+	MSG message = {};
 	for (;;)
 	{
 		if (PeekMessage(&message, window.getHandle(), 0, 0, PM_REMOVE))

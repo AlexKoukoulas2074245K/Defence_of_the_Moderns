@@ -15,10 +15,8 @@
 #include "../game/camera.h"
 #include "../game/scene.h"
 #include "../systemmonitor.h"
-#include "../handlers/inputhandler.h"
-#include "../util/physics.h"
 #include "../util/logging.h"
-
+#include <string>
 
 /* --------------
    Public Methods
@@ -28,17 +26,15 @@ PlayState::PlayState():
     m_scene(new Scene),
     m_camera(new WorldViewCamera),
     m_sysmonitor(new SystemMonitor),
-    m_field(new Mesh("sample_plane", Mesh::MESH_TYPE_NORMAL, m_scene)),
+    m_field(new Entity("field", {"sample_plane"}, m_scene, {0.0f, -0.7f, 0.0f}, "grass")),
     m_sky(new Mesh("sky", Mesh::MESH_TYPE_HUD, nullptr)),
     m_sun(new DirectionalLight(vec4f(0.4f, 0.4f, 0.4f, 1.0f),
                                vec4f(0.8f, 0.8f, 0.8f, 1.0f),
                                vec3f(0.0f, 0.0f, 1.0f),
                                m_scene))   
-{
-    m_field->loadNewTexture("grass");    
-    m_field->scale.x     = 50.0f;
-    m_field->scale.z     = 50.0f;
-    m_field->position.y -= 0.7f;
+{    
+    m_field->getBody()->scale.x = 50.0f;
+    m_field->getBody()->scale.z = 50.0f;    
 
     m_sky->loadNewTexture("sky");        
     m_sky->scale.x = 4.0f;
@@ -46,21 +42,12 @@ PlayState::PlayState():
 
     uint64 start = SystemMonitor::getTimeMS();
     
-    /*for (size_t i = 0; i < 10; ++i)
-    {*/
-        m_entities[0] = new Entity("first_turret", {"turret01_base", "turret01_top"},  m_scene, {-5.0f, 0.0f, 0.0f});
-        m_entities[1] = new Entity("second_turret", {"turret01_base", "turret01_top"}, m_scene, {0.0f, 0.0f, 0.0f});
-        m_entities[2] = new Entity("third_turret", {"turret03_base", "turret03_top"},  m_scene, {5.0f, 0.0f, 0.0f});
-/*
-        if (i < 9)
-        {
-            delete m_entities[0];
-            delete m_entities[1];
-            delete m_entities[2];
-        }
-    }
     
-    */
+    m_entities[0] = new Entity("first_turret", {"turret01_top", "turret01_base"},  m_scene, {-5.0f, 0.0f, 0.0f});
+    m_entities[1] = new Entity("second_turret", {"turret02_top", "turret02_base"}, m_scene, {0.0f, 0.0f, 0.0f});
+    m_entities[2] = new Entity("third_turret", {"turret03_top", "turret03_base"},  m_scene, {5.0f, 0.0f, 0.0f});
+
+    
     logstring("Time elapsed: ");
     logvar(SystemMonitor::getTimeMS() - start);
     logline(" ms");

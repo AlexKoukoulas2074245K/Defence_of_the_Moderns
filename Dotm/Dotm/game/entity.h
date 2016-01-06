@@ -23,13 +23,17 @@ public:
     Entity(const cstring               name,
            const std::vector<cstring>& meshNames,
            Scene*                      scene,
-           const vec3f&                optPosition = vec3f());
+           const vec3f&                optPosition = vec3f(),
+           const cstring               externTexName = nullptr);
 
     virtual
     ~Entity();
 
     virtual void
     update();
+
+    Mesh*
+    getBody(size_t i = 0U) bitwise_const;
 
     const std::vector<Mesh*>&
     getBodies() logical_const;

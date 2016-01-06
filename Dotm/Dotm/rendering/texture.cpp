@@ -70,6 +70,8 @@ Texture::Texture(cstring textureName):
                     (L"Missing texture: " + widePath).c_str(),
                     L"Missing Texture!",
                     MB_ICONEXCLAMATION);
+        
+        return;
     }
 
     registerTexture(m_name, this);

@@ -22,7 +22,7 @@ public:
 
     typedef std::vector<const Mesh*>::const_iterator   mesh_citer;
     typedef std::vector<const Light*>::const_iterator  light_citer;
-    typedef std::vector<const Entity*>::const_iterator entity_citer;
+    typedef std::vector<Entity*>::const_iterator entity_citer;
 
 public:
     
@@ -53,7 +53,7 @@ public:
                       entity_citer& outEnd) logical_const;
 
     void
-    addEntity(const Entity* entity);
+    addEntity(Entity* entity);
 
     void
     addMesh(const Mesh* mesh);
@@ -62,7 +62,7 @@ public:
     addLight(const Light* light);
 
     void
-    removeEntity(const Entity* entity);
+    removeEntity(Entity* entity);
 
     void
     removeMesh(const Mesh* mesh);
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    std::vector<const Entity*> m_entities;
+    std::vector<Entity*> m_entities;
     std::vector<const Mesh*>   m_meshes;
     std::vector<const Light*>  m_lights;
 

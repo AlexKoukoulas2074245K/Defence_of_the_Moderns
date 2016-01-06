@@ -48,7 +48,7 @@ private:
     
     Scene*          m_scene;
     Entity*         m_entities[3];
-    Mesh*           m_field;
+    Entity*         m_field;
     Mesh*           m_sky;
     Camera*         m_camera;
     SystemMonitor*  m_sysmonitor;

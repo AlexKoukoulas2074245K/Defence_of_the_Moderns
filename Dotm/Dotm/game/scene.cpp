@@ -8,6 +8,7 @@
    ------------------------------------------------ */
 
 #include "scene.h"
+#include "entity.h"
 #include <algorithm>
 
 /* --------------
@@ -26,7 +27,12 @@ Scene::~Scene()
 void
 Scene::update()
 {
-
+    for (auto iter = m_entities.begin();
+        iter != m_entities.end();
+        ++iter) 
+    {
+        (*iter)->update();
+    }
 }
 
 void
@@ -62,7 +68,7 @@ Scene::requestEntityIter(Scene::entity_citer& outBegin,
 }
 
 void
-Scene::addEntity(const Entity* entity)
+Scene::addEntity(Entity* entity)
 {
     m_entities.push_back(entity);
 }
@@ -80,7 +86,7 @@ Scene::addLight(const Light* light)
 }
 
 void
-Scene::removeEntity(const Entity* entity)
+Scene::removeEntity(Entity* entity)
 {
     for (size_t i = 0; i < m_entities.size(); ++i)
     {
