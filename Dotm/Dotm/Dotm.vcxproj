@@ -76,6 +76,7 @@
     <ClCompile Include="game\camera.cpp" />
     <ClCompile Include="game\entity.cpp" />
     <ClCompile Include="game\scene.cpp" />
+    <ClCompile Include="game\tilemap.cpp" />
     <ClCompile Include="handlers\inputhandler.cpp" />
     <ClCompile Include="rendering\d3d11state.cpp" />
     <ClCompile Include="rendering\ddsloader.cpp" />

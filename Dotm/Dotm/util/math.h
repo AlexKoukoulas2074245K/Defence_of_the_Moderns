@@ -31,10 +31,16 @@ typedef D3DXPLANE   plane;
 namespace math
 {
     inline vec4f
-    getVec4f(const vec3f& in) { return D3DXVECTOR4(in.x, in.y, in.z, 0.0f); }
+    getVec4f(const vec3f& in) { return vec4f(in.x, in.y, in.z, 0.0f); }
 
     inline vec3f
-    getVec3f(const vec4f& in) { return D3DXVECTOR3(in.x, in.y, in.z); }
+    getVec3f(const vec4f& in) { return vec3f(in.x, in.y, in.z); }
+
+    inline vec3f
+    getVec3f(const vec2f& in) { return vec3f(in.x, 0.0f, in.y); }
+
+    inline vec2f
+    getVec2f(const vec3f& in) { return vec2f(in.x, in.y); }
 
     inline FLOAT
     toRadians(const FLOAT deg) { return (FLOAT) D3DXToRadian(deg); }

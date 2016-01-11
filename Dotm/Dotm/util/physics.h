@@ -27,5 +27,5 @@ namespace physics
 
     bool 
     isPicked(const Mesh*   mesh,
-             const Camera* camera);    
+             const Camera* camera);     
 }

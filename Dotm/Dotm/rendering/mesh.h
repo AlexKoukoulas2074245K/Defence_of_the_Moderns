@@ -49,8 +49,6 @@ public:
     // the method expects a valid array of vec2f and its size.    
     Mesh(cstring meshName,
          uint32  meshCreationFlags,
-         Entity* optParentptr       = nullptr,
-         Scene*  optSceneptr        = nullptr,
          vec2f*  optExternalCoords  = nullptr,
          uint32  optNExternalCoords = 0U);
 
@@ -133,9 +131,6 @@ private:
     uint32   m_indexCount;    
     vec3f    m_dimensions;
     bool     m_highlighted;
-
-    Scene*   m_sceneRef;
-    Entity*  m_parentRef;
 
     comptr<ID3D11Buffer>     m_vertexBuffer;
     comptr<ID3D11Buffer>     m_indexBuffer;

@@ -78,7 +78,7 @@ protected:
     real32 m_bottomDragArea;
     real32 m_xDragSpeed;
     real32 m_yDragSpeed;     
-    
+        
     real32 m_minZoom;
     real32 m_maxZoom;
     real32 m_zoomSpeed;

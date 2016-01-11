@@ -24,11 +24,10 @@ public:
 
 public:
 
-    static const real32 TILEMAP_TILESIZE;
-
-public:
-
-    Tilemap();
+    Tilemap(const size_t nRows, 
+            const size_t nCols,
+            const real32 tileSize,
+            const vec3f& origin);
 
     ~Tilemap();
 
@@ -37,12 +36,19 @@ public:
     Tilemap&
     operator = (const Tilemap& rhs) = delete;
 
+    vec2f
+    getTilePos2f(const size_t col, const size_t row);
+
+    vec3f
+    getTilePos3f(const size_t col, const size_t row);
+
     void
     renderDebug();
 
 private:
-
-    uint32 m_tileRows, m_tileCols;
-    vec3f  m_position;
-
+    
+    size_t m_nRows, m_nCols;
+    real32 m_tileSize;
+    Tile** m_tiles;
+    vec3f  m_origin;
 };

@@ -124,8 +124,6 @@ Font::loadGlyphs()
             
             std::shared_ptr<Mesh> glyph(new Mesh("sample_plane",
                                                  Mesh::MESH_EXTERNAL_TEXCOORDS | Mesh::MESH_TYPE_HUD,
-                                                 nullptr,
-                                                 nullptr,
                                                  customTexCoords,
                                                  ARRAYSIZE(customTexCoords)));
                                     

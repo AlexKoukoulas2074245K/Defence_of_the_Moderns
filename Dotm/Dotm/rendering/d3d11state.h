@@ -40,6 +40,7 @@ public:
 
     comptr<ID3D11Device>            m_device;
     comptr<ID3D11DeviceContext>     m_devcon;
+    comptr<ID3D11DeviceContext>     m_defcon;
     comptr<IDXGISwapChain>          m_swapChain;
     comptr<ID3D11RenderTargetView>  m_backBuffer;
     comptr<ID3D11Texture2D>         m_depthBuffer;

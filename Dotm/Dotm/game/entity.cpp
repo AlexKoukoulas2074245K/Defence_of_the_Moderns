@@ -17,16 +17,14 @@
    Public Methods
    -------------- */
 Entity::Entity(const cstring               name,
-               const std::vector<cstring>& meshNames,
-               Scene*                      scene,
+               const std::vector<cstring>& meshNames,     
                Camera*                     camera,
                const uint32                entityProperties,
                const vec3f&                position,     /* vec3f() */
                const cstring               externTexName /* nullptr*/):
 
                m_name(internString(name)),
-               m_properties(entityProperties),
-               m_sceneRef(scene),
+               m_properties(entityProperties),               
                m_cameraRef(camera)
 {
 
@@ -42,7 +40,7 @@ Entity::Entity(const cstring               name,
             uint32 meshFlags = Mesh::MESH_TYPE_NORMAL;
             if (!externTexName) meshFlags |= Mesh::MESH_LOAD_SAME_TEXTURE;
 
-            Mesh* body = new Mesh(meshNames[i], meshFlags, this, scene);
+            Mesh* body = new Mesh(meshNames[i], meshFlags);
 
             if (externTexName)  body->loadNewTexture(externTexName);
             body->position = position;
@@ -58,8 +56,6 @@ Entity::Entity(const cstring               name,
     // Assign to final body vector
     m_bodies.assign(tempMeshArray, tempMeshArray + nMeshes);
     delete tempMeshArray;
-
-    m_sceneRef->addEntity(this);
 }
 
 Entity::~Entity()
@@ -67,8 +63,6 @@ Entity::~Entity()
     for (auto iter = m_bodies.begin();
          iter != m_bodies.end();
          ++iter) delete *iter;
-
-    m_sceneRef->removeEntity(this);
 }
 
 void

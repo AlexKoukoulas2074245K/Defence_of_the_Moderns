@@ -60,6 +60,9 @@ public:
                  const real32  y);
     
     void
+    renderMeshAsync(const Mesh* mesh);
+
+    void
     renderMesh(const Mesh* mesh);
 
     void
@@ -93,5 +96,5 @@ private:
     
     std::map<Primitive, Mesh*> m_primitiveModels;
     Shader::PSCBuffer*         m_currentLightBuffer;
-
+    comptr<ID3D11CommandList>  m_commandList;
 };

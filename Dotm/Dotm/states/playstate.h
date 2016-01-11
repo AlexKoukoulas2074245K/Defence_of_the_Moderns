@@ -20,6 +20,7 @@ class Camera;
 class SystemMonitor;
 class Light;
 class Scene;
+class Tilemap;
 class PlayState: public AGameState
 {
 public:
@@ -53,5 +54,5 @@ private:
     Camera*         m_camera;
     SystemMonitor*  m_sysmonitor;
     Light*          m_sun;    
-
+    Tilemap*        m_tilemap;
 };

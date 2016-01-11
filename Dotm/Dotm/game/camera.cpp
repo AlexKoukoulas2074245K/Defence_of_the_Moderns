@@ -45,7 +45,7 @@ Camera::Camera():
     m_right(CAM_DEFAULT_RIGHT),
     m_pitch(0.0f),
     m_yaw(0.0f),
-    m_roll(0.0f)    
+    m_roll(0.0f)
 {
     float horDragSpace, verDragSpace;
     config::initConfigFile("camconfig");
@@ -73,23 +73,25 @@ Camera::~Camera()
 
 void
 Camera::update()
-{        
+{    
     // Manual Zoom
     int32 wheelDelta = InputHandler::get()->getWheelDelta();
-    if (wheelDelta > 0 && m_fov > m_minZoom) m_fov -= m_zoomSpeed;
-    if (wheelDelta < 0 && m_fov < m_maxZoom) m_fov += m_zoomSpeed;      
+        
+    if (wheelDelta > 0 && m_position.y > m_maxZoom)
+    {
+        moveCamera(DIR_FORWARD, m_zoomSpeed);
+    }
+    else if (wheelDelta < 0 && m_position.y < m_minZoom) 
+    {        
+        moveCamera(DIR_BACKWARD, m_zoomSpeed);      
+    }
 
     // Manual movement control
-    if (InputHandler::get()->isPressed(InputHandler::KEY_W)) moveCamera(DIR_FORWARD, m_moveSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_S)) moveCamera(DIR_BACKWARD, m_moveSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_A)) moveCamera(DIR_LEFT, m_moveSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_D)) moveCamera(DIR_RIGHT, m_moveSpeed);
-
-    // Manual look control
-    if (InputHandler::get()->isPressed(InputHandler::KEY_UP))    rotateCamera(DIR_UP, m_lookSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_DOWN))  rotateCamera(DIR_DOWN, m_lookSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_LEFT))  rotateCamera(DIR_LEFT, m_lookSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_RIGHT)) rotateCamera(DIR_RIGHT, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_W)) rotateCamera(DIR_UP, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_S)) rotateCamera(DIR_DOWN, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_A)) rotateCamera(DIR_LEFT, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_D)) rotateCamera(DIR_RIGHT, m_lookSpeed);
+    
 
 }
 

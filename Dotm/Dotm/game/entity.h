@@ -31,8 +31,7 @@ public:
 public:
 
     Entity(const cstring               name,
-           const std::vector<cstring>& meshNames,
-           Scene*                      scene,
+           const std::vector<cstring>& meshNames,           
            Camera*                     camera,
            const uint32                entityProperties,
            const vec3f&                optPosition = vec3f(),
@@ -60,5 +59,5 @@ private:
     const Camera*      m_cameraRef;
     uint32             m_properties;
     std::vector<Mesh*> m_bodies;
-    Scene*             m_sceneRef;
+
 };
