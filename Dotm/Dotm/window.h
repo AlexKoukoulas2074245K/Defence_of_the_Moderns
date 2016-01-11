@@ -20,9 +20,9 @@ class Window
 {
 public:
 
-    Window(const char* configPath,
+    Window(const char*      configPath,
            const HINSTANCE& hInstance,
-           const WNDPROC& windowProc);
+           const WNDPROC&   windowProc);
 
     ~Window();
 

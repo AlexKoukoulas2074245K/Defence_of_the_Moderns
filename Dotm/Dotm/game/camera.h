@@ -30,15 +30,15 @@ public:
 
     void
     moveCamera(const direction dir,
-               const real32 amount);
+               const real32    amount);
 
     void
     rotateCamera(const direction dir,
-                 const real32 amount);
+                 const real32    amount);
 
     void
     panCamera(const direction dir,
-              const real32 amount);
+              const real32    amount);
 
     mat4x4
     calculateViewMatrix() logical_const;

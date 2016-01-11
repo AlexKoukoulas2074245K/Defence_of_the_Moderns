@@ -21,10 +21,11 @@ namespace physics
     const uint32 PHYSICS_INTERSECTION_TYPE_FRUSTUMSPHERE = 3;
 
     bool
-    intersectionTest(const uint32 intersectionType,
+    intersectionTest(const uint32          intersectionType,
                      const math::Geometry* first,
                      const math::Geometry* second);
 
     bool 
-    isPicked(const Mesh* mesh, const Camera* camera);    
+    isPicked(const Mesh*   mesh,
+             const Camera* camera);    
 }

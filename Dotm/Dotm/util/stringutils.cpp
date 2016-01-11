@@ -24,8 +24,8 @@ string_utils::getstring(const std::wstring& wstr)
 }
 
 void
-string_utils::split(const std::string& s,
-                    char delim,
+string_utils::split(const std::string&        s,
+                    char                      delim,
                     std::vector<std::string>& elems)
 {
     std::stringstream ss(s);
@@ -37,7 +37,8 @@ string_utils::split(const std::string& s,
 }
 
 std::vector<std::string>
-string_utils::split(const std::string& s, char delim)
+string_utils::split(const std::string& s,
+                    char               delim)
 {
     std::vector<std::string> elems;
 	split(s, delim, elems);

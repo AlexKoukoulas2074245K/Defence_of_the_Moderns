@@ -107,34 +107,52 @@ Renderer::renderScene(const Scene* scene)
 
     // Mesh accumulation
     std::vector<const Mesh*> meshList;
-    
-    Scene::mesh_citer mbegin, mend;
-    scene->requestMeshIter(mbegin, mend);
-    meshList.assign(mbegin, mend);
+    Entity* highlightedEntity = nullptr;
 
-    Scene::entity_citer ebegin, eend;
-    scene->requestEntityIter(ebegin, eend);
-    for (; ebegin != eend; ++ebegin)
+    Scene::mesh_citer meshBegin, meshEnd;
+    scene->requestMeshIter(meshBegin, meshEnd);
+    meshList.assign(meshBegin, meshEnd);
+
+    Scene::entity_citer entityBegin, entityEnd;
+    scene->requestEntityIter(entityBegin, entityEnd);
+
+    for (; entityBegin != entityEnd; ++entityBegin)
     {
-        const std::vector<Mesh*>& entityBodies = (*ebegin)->getBodies();
-        for (auto bodyiter = entityBodies.cbegin();
-             bodyiter != entityBodies.cend();
-             ++bodyiter)
+        if ((*entityBegin)->isHighlighted())
         {
-            meshList.push_back(*bodyiter);
+            highlightedEntity = *entityBegin;
+        }
+        else
+        {
+            Entity::body_iter bodyBegin, bodyEnd;
+            (*entityBegin)->acquireBodies(bodyBegin, bodyEnd);
+
+            for (; bodyBegin != bodyEnd; ++bodyBegin)
+            {            
+                meshList.push_back(*bodyBegin);            
+            }
         }
     }
 
-    // Final mesh rendering
+    // Normal mesh rendering
     for (auto citer = meshList.cbegin();
-         citer != meshList.cend();
-         ++citer)
+        citer != meshList.cend();
+        ++citer)
+    {       
+        renderMesh(*citer);
+    }
+
+    // Highlighted mesh rendering 
+    if (highlightedEntity)
     {
-        if ((*citer)->isHighlighted())
+        Entity::body_iter bodyBegin, bodyEnd;
+        highlightedEntity->acquireBodies(bodyBegin, bodyEnd);
+
+        for (; bodyBegin != bodyEnd; ++bodyBegin)
         {
             // Insidious hack
-            Mesh* mesh = const_cast<Mesh*>(*citer);
-            mesh->scale = vec3f(1.05f, 1.05f, 1.05f);
+            Mesh* mesh = const_cast<Mesh*>(*bodyBegin);
+            mesh->scale = vec3f(1.08f, 1.08f, 1.08f);
             m_d3dState->m_devcon->OMSetDepthStencilState(m_d3dState->m_disabledDepth.Get(), 1);
             renderMesh(mesh);
             m_d3dState->m_devcon->OMSetDepthStencilState(m_d3dState->m_enabledDepth.Get(), 1);
@@ -144,15 +162,15 @@ Renderer::renderScene(const Scene* scene)
                                                         0);
             mesh->setHighlighted(false);
             mesh->scale = vec3f(1.0f, 1.0f, 1.0f);
+            renderMesh(mesh);
         }
-        renderMesh(*citer);
-    }    
+    }        
 }
 
 void
-Renderer::renderPrimitive(const Primitive primitive, 
+Renderer::renderPrimitive(const Primitive       primitive, 
                           const math::Geometry* geometry,
-                          const bool wireframe)
+                          const bool            wireframe)
 {
     if (wireframe) m_d3dState->m_devcon->RSSetState(m_d3dState->m_wireFrameRastState.Get());
     
@@ -216,8 +234,8 @@ Renderer::renderPrimitive(const Primitive primitive,
 
 void
 Renderer::renderString(const cstring str,
-                       const real32 x,
-                       const real32 y)
+                       const real32  x,
+                       const real32  y)
 {
     real32 xCounter = x;
     for (size_t i = 0;

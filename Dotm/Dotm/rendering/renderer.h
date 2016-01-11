@@ -50,14 +50,14 @@ public:
     renderScene(const Scene* scene);
 
     void
-    renderPrimitive(const Primitive primitive, 
+    renderPrimitive(const Primitive       primitive, 
                     const math::Geometry* geometry,
-                    bool wireframe);
+                    bool                  wireframe);
 
     void
     renderString(const cstring str,
-                 const real32 x,
-                 const real32 y);
+                 const real32  x,
+                 const real32  y);
     
     void
     renderMesh(const Mesh* mesh);

@@ -100,7 +100,7 @@ namespace math
         getPlane(size_t index) logical_const;
 
         void
-        setPlane(size_t index,
+        setPlane(const size_t index,
                  const plane& plane);
 
     private:

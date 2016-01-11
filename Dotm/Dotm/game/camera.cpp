@@ -95,7 +95,7 @@ Camera::update()
 
 void
 Camera::moveCamera(const direction dir,
-                   const real32 amount)
+                   const real32    amount)
 { 
     switch (dir)
     {
@@ -139,7 +139,7 @@ Camera::moveCamera(const direction dir,
 
 void
 Camera::rotateCamera(const direction dir,
-                     const real32 amount)
+                     const real32    amount)
 {
     switch (dir)
     {
@@ -154,7 +154,7 @@ Camera::rotateCamera(const direction dir,
 
 void
 Camera::panCamera(const direction dir,
-                  const real32 amount)
+                  const real32    amount)
 {
     switch (dir)
     {

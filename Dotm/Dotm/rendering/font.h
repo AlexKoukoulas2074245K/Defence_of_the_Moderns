@@ -24,7 +24,8 @@ public:
 
     // Font size in normalized screen coords here.
     // a medium font size would be 0.1f
-    Font(cstring fontName, real32 fontSize);
+    Font(cstring fontName,
+         real32  fontSize);
 
     ~Font();
 

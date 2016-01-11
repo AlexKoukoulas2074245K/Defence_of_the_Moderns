@@ -17,24 +17,24 @@ namespace config
     initConfigFile(cstring configName);
 
     void
-    extractConfigString(cstring section,
-                        cstring varname,
+    extractConfigString(cstring   section,
+                        cstring   varname,
                         stringID* outStringID);
 
     void
     extractConfigBool(cstring section,
                       cstring varname,
-                      bool* outBool);
+                      bool*   outBool);
 
     void
-    extractConfigUint(cstring section,
-                      cstring varname,
+    extractConfigUint(cstring       section,
+                      cstring       varname,
                       unsigned int* outUint);
 
     void
     extractConfigFloat(cstring section,
                        cstring varname,
-                       float* outFloat);
+                       float*  outFloat);
 }
 
 

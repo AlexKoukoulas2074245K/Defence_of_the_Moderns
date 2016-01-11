@@ -17,7 +17,8 @@
 /* --------------
    Public Methods
    -------------- */
-Font::Font(cstring fontName, real32 fontSize):
+Font::Font(cstring fontName,
+           real32  fontSize):
 
            m_fontName(internString(fontName)),
            m_fontSize(fontSize)
@@ -123,6 +124,7 @@ Font::loadGlyphs()
             
             std::shared_ptr<Mesh> glyph(new Mesh("sample_plane",
                                                  Mesh::MESH_EXTERNAL_TEXCOORDS | Mesh::MESH_TYPE_HUD,
+                                                 nullptr,
                                                  nullptr,
                                                  customTexCoords,
                                                  ARRAYSIZE(customTexCoords)));

@@ -53,8 +53,8 @@ config::initConfigFile(cstring configName)
 }
 
 void
-config::extractConfigString(cstring section,
-                            cstring varname,
+config::extractConfigString(cstring   section,
+                            cstring   varname,
                             stringID* outStringID)
 {
     char buffer[32];
@@ -71,7 +71,7 @@ config::extractConfigString(cstring section,
 void
 config::extractConfigBool(cstring section,
                           cstring varname,
-                          bool* outBool)
+                          bool*   outBool)
 {
     char buffer[8];
     GetPrivateProfileString(section,
@@ -103,7 +103,7 @@ config::extractConfigUint(cstring section,
 void
 config::extractConfigFloat(cstring section,
                            cstring varname,
-                           float* outFloat)
+                           float*  outFloat)
 {
     char buffer[16];
     GetPrivateProfileString(section,

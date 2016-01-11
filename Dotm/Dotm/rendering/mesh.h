@@ -15,6 +15,7 @@
 #include "../util/strings.h"
 #include <memory>
 
+class Entity;
 class Texture;
 class Scene;
 class Mesh
@@ -46,11 +47,12 @@ public:
     // will attempt to remove itself from that scene during destruction
     // If the MESH_EXTERNAL_TEXCOORDS flag is set,
     // the method expects a valid array of vec2f and its size.    
-    Mesh(cstring      meshName,
-         uint32       meshCreationFlags,
-         Scene*       optSceneptr = nullptr,
-         vec2f*       optExternalCoords = nullptr,
-         uint32       optNExternalCoords = 0U);
+    Mesh(cstring meshName,
+         uint32  meshCreationFlags,
+         Entity* optParentptr       = nullptr,
+         Scene*  optSceneptr        = nullptr,
+         vec2f*  optExternalCoords  = nullptr,
+         uint32  optNExternalCoords = 0U);
 
     ~Mesh();
 
@@ -133,6 +135,7 @@ private:
     bool     m_highlighted;
 
     Scene*   m_sceneRef;
+    Entity*  m_parentRef;
 
     comptr<ID3D11Buffer>     m_vertexBuffer;
     comptr<ID3D11Buffer>     m_indexBuffer;

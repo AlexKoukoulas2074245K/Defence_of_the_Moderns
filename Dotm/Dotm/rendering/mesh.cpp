@@ -83,12 +83,14 @@ const uint32 Mesh::MESH_HUD_INDICES[] =
    -------------- */
 Mesh::Mesh(cstring      meshName,
            uint32       meshCreationFlags,
+           Entity*      optParentptr,        /* nullptr */
            Scene*       optSceneptr,         /* nullptr */   
            vec2f*       optExternalCoords,   /* nullptr */
            uint32       optNExternalCoords   /* 0U */):
 
            m_name(internString(meshName)),           
            m_meshFlags(meshCreationFlags),
+           m_parentRef(optParentptr),
            m_sceneRef(optSceneptr),
            position(0.0f, 0.0f, 0.0f),
            rotation(0.0f, 0.0f, 0.0f),
@@ -131,7 +133,10 @@ Mesh::Mesh(cstring      meshName,
         m_texture.reset(new Texture(meshName));
     }
 
-    if (m_sceneRef) m_sceneRef->addMesh(this);
+    // if the scene pointer is set but it is not child of 
+    // an entity (as the entity itself will be part of the scene),
+    // add this mesh to the scene
+    if (m_sceneRef && !m_parentRef) m_sceneRef->addMesh(this);
 }
 
 Mesh::~Mesh()

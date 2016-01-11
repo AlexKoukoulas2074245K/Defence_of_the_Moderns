@@ -72,7 +72,7 @@ public:
 
 private:
 
-    std::vector<Entity*> m_entities;
+    std::vector<Entity*>       m_entities;
     std::vector<const Mesh*>   m_meshes;
     std::vector<const Light*>  m_lights;
 

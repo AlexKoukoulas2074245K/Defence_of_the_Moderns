@@ -21,7 +21,8 @@ extern Window* g_window;
    Public Function
    --------------- */
 bool
-physics::isPicked(const Mesh* mesh, const Camera* camera)
+physics::isPicked(const Mesh*   mesh,
+                  const Camera* camera)
 {    
     // Move mouse coords in normalized screen coords (-1, 1)
     real32 pointX, pointY;
@@ -65,7 +66,7 @@ physics::isPicked(const Mesh* mesh, const Camera* camera)
 }
 
 bool
-physics::intersectionTest(const uint32 intersectionType,
+physics::intersectionTest(const uint32          intersectionType,
                           const math::Geometry* first,
                           const math::Geometry* second)
 {

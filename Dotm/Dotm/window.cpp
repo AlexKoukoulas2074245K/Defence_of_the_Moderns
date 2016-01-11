@@ -18,9 +18,9 @@ const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1000U;
 /* --------------
    Public Methods
    -------------- */
-Window::Window(const char* configPath,
+Window::Window(const char*      configPath,
                const HINSTANCE& hInstance,
-               const WNDPROC& windowProc):
+               const WNDPROC&   windowProc):
 
                m_ready(false),
                m_fullscreen(false),

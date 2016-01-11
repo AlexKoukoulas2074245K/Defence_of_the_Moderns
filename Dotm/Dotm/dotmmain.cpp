@@ -26,8 +26,8 @@ Window* g_window;
    Internal Signatures 
    ------------------- */
 LRESULT CALLBACK
-messageHandler(HWND windowHandle,
-			   UINT message,
+messageHandler(HWND   windowHandle,
+			   UINT   message,
 			   WPARAM wparam,
 			   LPARAM lparam);			   
 
@@ -37,8 +37,8 @@ messageHandler(HWND windowHandle,
 int CALLBACK
 WinMain(HINSTANCE hInstance,
 		HINSTANCE hPrevInstance,
-		LPSTR lpCmdLine,
-		int nCmdShow)
+		LPSTR     lpCmdLine,
+		int       nCmdShow)
 {
 	Window window("winconfig",
 				  hInstance,
@@ -81,8 +81,8 @@ WinMain(HINSTANCE hInstance,
    Internal Functions
    ------------------ */
 LRESULT CALLBACK 
-messageHandler(HWND windowHandle,
-			   UINT message,
+messageHandler(HWND   windowHandle,
+			   UINT   message,
 			   WPARAM wparam,
 			   LPARAM lparam)
 {
