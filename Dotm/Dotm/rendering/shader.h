@@ -25,49 +25,49 @@ public:
 
     struct VSCBuffer
     {
-        mat4x4 rotationMatrix;
-        mat4x4 worldMatrix;
-        mat4x4 mvpMatrix;
-        vec4f  eyePosition;
-        int32  highlight;
+        mat4x4 vcb_rotationMatrix;
+        mat4x4 vcb_worldMatrix;
+        mat4x4 vcb_mvpMatrix;
+        vec4f  vcb_eyePosition;
+        int32  vcb_highlight;
         vec3f  _padding;
     };
 
     struct DirectionalLight
     {
-        vec4f  ambientColor;
-        vec4f  diffuseColor;
-        vec3f  direction;
+        vec4f  dl_ambientColor;
+        vec4f  dl_diffuseColor;
+        vec3f  dl_direction;
         real32 _padding;
     };
 
     struct PointLight
     {
-        vec4f  ambientColor;
-        vec4f  diffuseColor;
-        vec3f  position;
-        real32 range;        
+        vec4f  pl_ambientColor;
+        vec4f  pl_diffuseColor;
+        vec3f  pl_position;
+        real32 pl_range;        
     };
 
    struct PSCBuffer
     {
-        DirectionalLight directionalLights[SHADER_MAX_DIRECTIONAL_LIGHTS];
-        PointLight       pointLights[SHADER_MAX_POINT_LIGHTS];
+        DirectionalLight pcb_directionalLights[SHADER_MAX_DIRECTIONAL_LIGHTS];
+        PointLight       pcb_pointLights[SHADER_MAX_POINT_LIGHTS];
 
         void clear() 
         {
             for (size_t i = 0; i < SHADER_MAX_DIRECTIONAL_LIGHTS; ++i)
             {
-                directionalLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-                directionalLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-                directionalLights[i].direction = vec3f(0.0f, 0.0f, 0.0f);
+                pcb_directionalLights[i].dl_ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                pcb_directionalLights[i].dl_diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                pcb_directionalLights[i].dl_direction = vec3f(0.0f, 0.0f, 0.0f);
             }
             for (size_t i = 0; i < SHADER_MAX_POINT_LIGHTS; ++i)
             {
-                pointLights[i].ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-                pointLights[i].diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-                pointLights[i].position = vec3f(0.0f, 0.0f, 0.0f);
-                pointLights[i].range = 0.0f;
+                pcb_pointLights[i].pl_ambientColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                pcb_pointLights[i].pl_diffuseColor = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+                pcb_pointLights[i].pl_position = vec3f(0.0f, 0.0f, 0.0f);
+                pcb_pointLights[i].pl_range = 0.0f;
             }
         }
     };

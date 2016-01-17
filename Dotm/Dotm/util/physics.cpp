@@ -113,7 +113,9 @@ physics::intersectionTest(const uint32          intersectionType,
             const math::Frustum* frustum = dynamic_cast<const math::Frustum*>(first);
             const math::Sphere*  sphere  = dynamic_cast<const math::Sphere*>(second);
             
-            for (size_t i = 0; i < 6; ++i)
+            for (size_t i = 0;
+                        i < 6;
+                      ++i)
             {
                 if (D3DXPlaneDotCoord(&frustum->getPlane(i),
                                       &sphere->getPosition()) < -sphere->getRadius())

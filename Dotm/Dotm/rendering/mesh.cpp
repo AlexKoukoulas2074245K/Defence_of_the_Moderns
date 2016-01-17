@@ -29,10 +29,10 @@ struct VertexTex      { real32 tu, tv;     };
 struct VertexNor      { real32 nx, ny, nz; };
 struct ObjIndex       { uint32 vertexIndex, texIndex, normIndex;  };
 
-struct MeshCachedData { comptr<ID3D11Buffer> vertexBuffer;
-                        comptr<ID3D11Buffer> indexBuffer;
-                        uint32 indexCount;
-                        vec3f dimensions; };
+struct MeshCachedData { comptr<ID3D11Buffer> mcd_vertexBuffer;
+                        comptr<ID3D11Buffer> mcd_indexBuffer;
+                        uint32               mcd_indexCount;
+                        vec3f                mcd_dimensions; };
 
 /* -------------
    Internal Vars
@@ -101,10 +101,10 @@ Mesh::Mesh(cstring      meshName,
     if (isPresent(m_name))
     {
         auto cachedData = retrieveMeshData(m_name);
-        m_vertexBuffer  = cachedData->vertexBuffer;
-        m_indexBuffer   = cachedData->indexBuffer;
-        m_indexCount    = cachedData->indexCount;
-        m_dimensions    = cachedData->dimensions;
+        m_vertexBuffer  = cachedData->mcd_vertexBuffer;
+        m_indexBuffer   = cachedData->mcd_indexBuffer;
+        m_indexCount    = cachedData->mcd_indexCount;
+        m_dimensions    = cachedData->mcd_dimensions;
     }    
     // otherwise initialize this mesh and its texture (if the same texture flag is set)
     // normally.
@@ -217,12 +217,6 @@ Mesh::calculateDimensions() logical_const
                  m_dimensions.z * scale.z);
 }
 
-vec3f
-Mesh::getPosition() logical_const
-{
-    return position;
-}
-
 math::Geometry&
 Mesh::getCollidableGeometry() bitwise_const
 {
@@ -317,10 +311,12 @@ Mesh::createMesh(vec2f*  optTexCoords,
     
     if (optTexCoords)
     {
-        for (size_t i = 0; i < optNTexCoords; ++i, ++optTexCoords)
+        for (size_t i = 0;
+                    i < optNTexCoords; 
+                  ++i, ++optTexCoords)
         {
-            finalVertices[i].tu = optTexCoords->x;
-            finalVertices[i].tv = optTexCoords->y;
+            finalVertices[i].v_tu = optTexCoords->x;
+            finalVertices[i].v_tv = optTexCoords->y;
         }
     }
 
@@ -330,15 +326,15 @@ Mesh::createMesh(vec2f*  optTexCoords,
 
     // Update Dimensions
     for (auto citer = finalVertices.cbegin();
-         citer != finalVertices.cend();
-         ++citer)
+              citer != finalVertices.cend();
+            ++citer)
     {
-        if (citer->x < minWidth)  minWidth  = citer->x;
-        if (citer->x > maxWidth)  maxWidth  = citer->x;
-        if (citer->y < minHeight) minHeight = citer->y;
-        if (citer->y > maxHeight) maxHeight = citer->y;
-        if (citer->z < minDepth)  minDepth  = citer->z;
-        if (citer->z > maxDepth)  maxDepth  = citer->z;
+        if (citer->v_x < minWidth)  minWidth  = citer->v_x;
+        if (citer->v_x > maxWidth)  maxWidth  = citer->v_x;
+        if (citer->v_y < minHeight) minHeight = citer->v_y;
+        if (citer->v_y > maxHeight) maxHeight = citer->v_y;
+        if (citer->v_z < minDepth)  minDepth  = citer->v_z;
+        if (citer->v_z > maxDepth)  maxDepth  = citer->v_z;
     }
     m_dimensions.x = std::abs(minWidth)  + std::abs(maxWidth);
     m_dimensions.y = std::abs(minHeight) + std::abs(maxHeight);
@@ -382,10 +378,10 @@ registerMeshData(const stringID meshID,
 {
     if (isPresent(meshID)) return;
     s_cachedMeshes[meshID] = std::shared_ptr<MeshCachedData>(new MeshCachedData);
-    s_cachedMeshes[meshID]->vertexBuffer = mesh->getVertexBuffer();
-    s_cachedMeshes[meshID]->indexBuffer  = mesh->getIndexBuffer();
-    s_cachedMeshes[meshID]->indexCount   = mesh->getIndexCount();
-    s_cachedMeshes[meshID]->dimensions   = mesh->calculateDimensions();
+    s_cachedMeshes[meshID]->mcd_vertexBuffer = mesh->getVertexBuffer();
+    s_cachedMeshes[meshID]->mcd_indexBuffer  = mesh->getIndexBuffer();
+    s_cachedMeshes[meshID]->mcd_indexCount   = mesh->getIndexCount();
+    s_cachedMeshes[meshID]->mcd_dimensions   = mesh->calculateDimensions();
 }
 
 static bool
@@ -458,7 +454,9 @@ loadMesh(std::ifstream&             file,
         // face
         else
         {
-            for (size_t i = 1; i < 4; ++i)
+            for (size_t i = 1;
+                        i < 4;
+                      ++i)
             {
                 ObjIndex objIndex = {};
 
@@ -476,23 +474,25 @@ loadMesh(std::ifstream&             file,
     file.close();
 
     // Calculate the final data
-    for (size_t i = 0; i < objIndices.size(); ++i)
+    for (size_t i = 0;
+                i < objIndices.size();
+              ++i)
     {
         Mesh::Vertex finalVertex = {};
 
         // Position Extraction        
-        finalVertex.x = disorgPos[objIndices[i].vertexIndex].x;
-        finalVertex.y = disorgPos[objIndices[i].vertexIndex].y;
-        finalVertex.z = disorgPos[objIndices[i].vertexIndex].z;
+        finalVertex.v_x = disorgPos[objIndices[i].vertexIndex].x;
+        finalVertex.v_y = disorgPos[objIndices[i].vertexIndex].y;
+        finalVertex.v_z = disorgPos[objIndices[i].vertexIndex].z;
 
         // Tex Coord Extraction
-        finalVertex.tu = disorgTexcoords[objIndices[i].texIndex].tu;
-        finalVertex.tv = disorgTexcoords[objIndices[i].texIndex].tv;
+        finalVertex.v_tu = disorgTexcoords[objIndices[i].texIndex].tu;
+        finalVertex.v_tv = disorgTexcoords[objIndices[i].texIndex].tv;
 
         // Normal Extraction        
-        finalVertex.nx = disorgNormals[objIndices[i].normIndex].nx;
-        finalVertex.ny = disorgNormals[objIndices[i].normIndex].ny;
-        finalVertex.nz = disorgNormals[objIndices[i].normIndex].nz;
+        finalVertex.v_nx = disorgNormals[objIndices[i].normIndex].nx;
+        finalVertex.v_ny = disorgNormals[objIndices[i].normIndex].ny;
+        finalVertex.v_nz = disorgNormals[objIndices[i].normIndex].nz;
 
         finalVertices.push_back(finalVertex);
         finalIndices.push_back(i);

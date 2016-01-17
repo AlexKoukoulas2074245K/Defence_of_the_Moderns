@@ -90,7 +90,9 @@ D3D11State::initD3D()
 
     // Find the appropriate display mode for the current window
     // resolution
-    for (size_t i = 0; i < numModes; ++i)
+    for (size_t i = 0;
+                i < numModes;
+              ++i)
     {
         if (displayModes[i].Width  == (uint32) g_window->getWidth() &&
             displayModes[i].Height == (uint32) g_window->getHeight())

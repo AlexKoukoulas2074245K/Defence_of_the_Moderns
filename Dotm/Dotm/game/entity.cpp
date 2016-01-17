@@ -10,6 +10,7 @@
 #include "entity.h"
 #include "scene.h"
 #include "camera.h"
+#include "tilemap.h"
 #include "../util/physics.h"
 #include <thread>
 
@@ -33,7 +34,9 @@ Entity::Entity(const cstring               name,
     Mesh** tempMeshArray = new Mesh*[nMeshes];
 
     // Asynchronous component initialization
-    for (size_t i = 0; i < nMeshes; ++i)         
+    for (size_t i = 0;
+                i < nMeshes;
+              ++i)         
     {
         initThreads.push_back(std::thread([=]()
         {
@@ -50,8 +53,11 @@ Entity::Entity(const cstring               name,
     }   
 
     for (auto iter = initThreads.begin();
-         iter != initThreads.end();
-         ++iter) iter->join();
+              iter != initThreads.end();
+            ++iter)
+    {
+        iter->join();
+    }
 
     // Assign to final body vector
     m_bodies.assign(tempMeshArray, tempMeshArray + nMeshes);
@@ -61,13 +67,16 @@ Entity::Entity(const cstring               name,
 Entity::~Entity()
 {
     for (auto iter = m_bodies.begin();
-         iter != m_bodies.end();
-         ++iter) delete *iter;
+              iter != m_bodies.end();
+            ++iter) 
+    {
+        delete *iter;
+    }
 }
 
 void
 Entity::update()
-{
+{    
     // if not static entity
     if ((m_properties & ENTITY_PROPERTY_STATIC) == 0) 
     {
@@ -76,28 +85,8 @@ Entity::update()
 
     // if selectable
     if ((m_properties & ENTITY_PROPERTY_SELECTABLE) != 0)
-    {
-        bool isHighlighted = false;
-        for (auto citer = m_bodies.cbegin();
-             citer != m_bodies.cend();
-             ++citer)
-        {
-            if (physics::isPicked(*citer, m_cameraRef)) 
-            {
-                isHighlighted = true;
-                break;
-            }
-        }
-
-        if (isHighlighted)
-        {
-            for (auto iter = m_bodies.begin();
-                iter != m_bodies.end();
-                ++iter)
-            {
-                (*iter)->setHighlighted(true);
-            }
-        }
+    {        
+        setHighlighted(physics::isPicked(m_bodies[0], m_cameraRef));
     }
 }
 
@@ -114,10 +103,31 @@ Entity::isHighlighted() logical_const
     return m_bodies[0]->isHighlighted();
 }
 
-void
-Entity::acquireBodies(Entity::body_iter& begin, 
-                      Entity::body_iter& end) logical_const
+const std::vector<Mesh*>&
+Entity::getBodies() logical_const
 {
-    begin = m_bodies.rbegin();
-    end   = m_bodies.rend();
+    return m_bodies;
+}
+
+Tile*
+Entity::getTileRef() logical_const
+{
+    return m_tileRef;
+}
+
+void
+Entity::setTileRef(Tile* tileRef)
+{
+    m_tileRef = tileRef;
+}
+
+void
+Entity::setHighlighted(const bool highlighted)
+{
+    for (auto iter = m_bodies.begin();
+              iter != m_bodies.end();
+            ++iter)
+    {
+        (*iter)->setHighlighted(highlighted);
+    }
 }

@@ -43,8 +43,8 @@ Font::setSize(const real32 size)
 {
     m_fontSize = size;
     for (auto iter = m_glyphs.begin();
-         iter != m_glyphs.end();
-         ++iter)
+              iter != m_glyphs.end();
+            ++iter)
     {
         iter->second->scale = vec3f(m_fontSize,
                                     m_fontSize,
@@ -111,8 +111,8 @@ Font::loadGlyphs()
         // Iterate through the glyphs and create
         // the respective mesh
         for (auto citer = glyphChars.cbegin();
-             citer != glyphChars.cend();
-             ++citer)
+                  citer != glyphChars.cend();
+                ++citer)
         {
             uint8 currChar = citer->at(0);
             

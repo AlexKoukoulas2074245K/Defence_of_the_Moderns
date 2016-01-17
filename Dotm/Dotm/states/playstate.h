@@ -48,11 +48,11 @@ private:
 private:    
     
     Scene*          m_scene;
-    Entity*         m_entities[3];
+    Entity**        m_entities;
     Entity*         m_field;
     Mesh*           m_sky;
     Camera*         m_camera;
     SystemMonitor*  m_sysmonitor;
     Light*          m_sun;    
-    Tilemap*        m_tilemap;
+    Tilemap*        m_levelGrid;
 };

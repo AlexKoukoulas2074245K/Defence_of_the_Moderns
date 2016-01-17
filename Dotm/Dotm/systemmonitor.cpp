@@ -118,6 +118,14 @@ SystemMonitor::update()
     }
 }
 
+void
+SystemMonitor::loglap(const uint64 startTime,
+                      uint64 (*timeFunc)()) logical_const
+{
+    logstring("Time elapsed since start: ");
+    logline(timeFunc() - startTime);
+}
+
 uint32
 SystemMonitor::getFPS() logical_const
 {

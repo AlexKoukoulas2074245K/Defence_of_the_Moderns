@@ -89,8 +89,8 @@ Camera::update()
     // Manual movement control
     if (InputHandler::get()->isPressed(InputHandler::KEY_W)) rotateCamera(DIR_UP, m_lookSpeed);
     if (InputHandler::get()->isPressed(InputHandler::KEY_S)) rotateCamera(DIR_DOWN, m_lookSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_A)) rotateCamera(DIR_LEFT, m_lookSpeed);
-    if (InputHandler::get()->isPressed(InputHandler::KEY_D)) rotateCamera(DIR_RIGHT, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_A)) rotateCamera(DIR_RIGHT, m_lookSpeed);
+    if (InputHandler::get()->isPressed(InputHandler::KEY_D)) rotateCamera(DIR_LEFT, m_lookSpeed);
     
 
 }

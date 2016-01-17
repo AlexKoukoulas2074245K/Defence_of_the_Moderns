@@ -43,8 +43,11 @@ Renderer::~Renderer()
     if (m_currentLightBuffer) delete m_currentLightBuffer;
     
     for (auto iter = m_primitiveModels.begin();
-         iter != m_primitiveModels.end();
-         ++iter) delete iter->second;
+              iter != m_primitiveModels.end();
+            ++iter) 
+    {
+        delete iter->second;
+    }
 }
 
 void
@@ -76,9 +79,10 @@ Renderer::renderScene(const Scene* scene)
     size_t dlIndex = 0U;
     size_t plIndex = 0U;
     
-    Scene::light_citer lbegin, lend;
-    scene->requestLightIter(lbegin, lend);
-    for (; lbegin != lend; ++lbegin)
+    auto lightVec = scene->getLights();
+    for (auto lbegin = lightVec.cbegin();
+              lbegin != lightVec.cend();
+            ++lbegin)
     {
         switch ((*lbegin)->getType())
         {
@@ -86,9 +90,9 @@ Renderer::renderScene(const Scene* scene)
             {
                 if (dlIndex >= Shader::SHADER_MAX_DIRECTIONAL_LIGHTS) continue;
                 const DirectionalLight* dl = dynamic_cast<const DirectionalLight*>(*lbegin);
-                m_currentLightBuffer->directionalLights[dlIndex].ambientColor = dl->getAmbientColor();
-                m_currentLightBuffer->directionalLights[dlIndex].diffuseColor = dl->getDiffuseColor();
-                m_currentLightBuffer->directionalLights[dlIndex].direction    = dl->getDirection();                
+                m_currentLightBuffer->pcb_directionalLights[dlIndex].dl_ambientColor = dl->getAmbientColor();
+                m_currentLightBuffer->pcb_directionalLights[dlIndex].dl_diffuseColor = dl->getDiffuseColor();
+                m_currentLightBuffer->pcb_directionalLights[dlIndex].dl_direction    = dl->getDirection();                
                 ++dlIndex;
             } break;
 
@@ -96,48 +100,41 @@ Renderer::renderScene(const Scene* scene)
             {
                 if (plIndex >= Shader::SHADER_MAX_POINT_LIGHTS) continue;
                 const PointLight* pl = dynamic_cast<const PointLight*>(*lbegin);
-                m_currentLightBuffer->pointLights[plIndex].ambientColor = pl->getAmbientColor();
-                m_currentLightBuffer->pointLights[plIndex].diffuseColor = pl->getDiffuseColor();
-                m_currentLightBuffer->pointLights[plIndex].position     = pl->getPosition();
-                m_currentLightBuffer->pointLights[plIndex].range        = pl->getRange();
+                m_currentLightBuffer->pcb_pointLights[plIndex].pl_ambientColor = pl->getAmbientColor();
+                m_currentLightBuffer->pcb_pointLights[plIndex].pl_diffuseColor = pl->getDiffuseColor();
+                m_currentLightBuffer->pcb_pointLights[plIndex].pl_position     = pl->getPosition();
+                m_currentLightBuffer->pcb_pointLights[plIndex].pl_range        = pl->getRange();
                 ++plIndex;
             } break;
         }
     }
 
-    // Mesh accumulation
+    // Aggregate mesh list
     std::vector<const Mesh*> meshList;
-    Entity* highlightedEntity = nullptr;
-
-    Scene::mesh_citer meshBegin, meshEnd;
-    scene->requestMeshIter(meshBegin, meshEnd);
-    meshList.assign(meshBegin, meshEnd);
-
-    Scene::entity_citer entityBegin, entityEnd;
-    scene->requestEntityIter(entityBegin, entityEnd);
-
-    for (; entityBegin != entityEnd; ++entityBegin)
+     
+    auto entityVec = scene->getEntities();
+    Entity* highlightedEntity = scene->getHighlightedEntity();
+    
+    for (auto entityBegin = entityVec.begin();
+              entityBegin != entityVec.end();
+            ++entityBegin)
     {
-        if ((*entityBegin)->isHighlighted())
-        {
-            highlightedEntity = *entityBegin;
-        }
-        else
-        {
-            Entity::body_iter bodyBegin, bodyEnd;
-            (*entityBegin)->acquireBodies(bodyBegin, bodyEnd);
-
-            for (; bodyBegin != bodyEnd; ++bodyBegin)
+        if ((*entityBegin) != highlightedEntity)        
+        {            
+            auto bodyVec = (*entityBegin)->getBodies();
+            for (auto bodyBegin = bodyVec.begin();
+                      bodyBegin != bodyVec.end(); 
+                    ++bodyBegin)
             {            
                 meshList.push_back(*bodyBegin);            
             }
         }
     }
-
+    
     // Normal mesh rendering
     for (auto citer = meshList.cbegin();
-        citer != meshList.cend();
-        ++citer)
+              citer != meshList.cend();
+            ++citer)
     {       
         renderMesh(*citer);
     }
@@ -145,10 +142,10 @@ Renderer::renderScene(const Scene* scene)
     // Highlighted mesh rendering 
     if (highlightedEntity)
     {
-        Entity::body_iter bodyBegin, bodyEnd;
-        highlightedEntity->acquireBodies(bodyBegin, bodyEnd);
-
-        for (; bodyBegin != bodyEnd; ++bodyBegin)
+        auto bodyVec = highlightedEntity->getBodies();
+        for (auto bodyBegin = bodyVec.rbegin();
+                  bodyBegin != bodyVec.rend();
+                ++bodyBegin)
         {
             // Insidious hack
             Mesh* mesh = const_cast<Mesh*>(*bodyBegin);
@@ -239,8 +236,8 @@ Renderer::renderString(const cstring str,
 {
     real32 xCounter = x;
     for (size_t i = 0;
-         i < strlen(str);
-         ++i, xCounter += m_font->getSize() / 1.5f)
+                i < strlen(str);
+              ++i, xCounter += m_font->getSize() / 1.5f)
     {
         uint8 currChar = str[i];
         if (currChar == ' ') continue;
@@ -275,11 +272,11 @@ Renderer::renderMesh(const Mesh* mesh)
     mat4x4 rotMat   = mesh->getRotationMatrix();
 
     Shader::VSCBuffer vcbuffer = {};
-    vcbuffer.mvpMatrix         = finalMat;
-    vcbuffer.rotationMatrix    = rotMat;
-    vcbuffer.worldMatrix       = worldMat;
-    vcbuffer.eyePosition       = math::getVec4f(m_currentCam->getPosition());
-    vcbuffer.highlight         = mesh->isHighlighted() ? 1 : -1;
+    vcbuffer.vcb_mvpMatrix         = finalMat;
+    vcbuffer.vcb_rotationMatrix    = rotMat;
+    vcbuffer.vcb_worldMatrix       = worldMat;
+    vcbuffer.vcb_eyePosition       = math::getVec4f(m_currentCam->getPosition());
+    vcbuffer.vcb_highlight         = mesh->isHighlighted() ? 1 : -1;
     
     Shader* currentShader = mesh->isHUDElement() ? m_hudShader : m_stdShader;
     m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, &vcbuffer, NULL, NULL);

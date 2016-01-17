@@ -14,15 +14,14 @@
 #include "../dotmdef.h"
 
 class Entity;
-class Mesh;
 class Light;
+class Tilemap;
 class Scene
 {
 public:
 
-    typedef std::vector<const Mesh*>::const_iterator   mesh_citer;
-    typedef std::vector<const Light*>::const_iterator  light_citer;
-    typedef std::vector<Entity*>::const_iterator entity_citer;
+    static const uint32 SCENE_NUM_CELLS;
+    static const real32 SCENE_CELL_SIZE;
 
 public:
     
@@ -40,23 +39,18 @@ public:
 
     void
     clear();
-
-    void
-    requestLightIter(light_citer& outBegin,
-                     light_citer& outEnd) logical_const;
     
-    void
-    requestMeshIter(mesh_citer& outBegin,
-                    mesh_citer& outEnd) logical_const;
-    void
-    requestEntityIter(entity_citer& outBegin,
-                      entity_citer& outEnd) logical_const;
+    const std::vector<const Light*>&
+    getLights() logical_const;
+
+    const std::vector<Entity*>&
+    getEntities() logical_const;
+
+    Entity*
+    getHighlightedEntity() bitwise_const;
 
     void
     addEntity(Entity* entity);
-
-    void
-    addMesh(const Mesh* mesh);
 
     void
     addLight(const Light* light);
@@ -65,15 +59,11 @@ public:
     removeEntity(Entity* entity);
 
     void
-    removeMesh(const Mesh* mesh);
-
-    void
     removeLight(const Light* light);
 
 private:
-
-    std::vector<Entity*>       m_entities;
-    std::vector<const Mesh*>   m_meshes;
-    std::vector<const Light*>  m_lights;
-
+    
+    std::vector<const Light*> m_lights;
+    std::vector<Entity*>      m_cachedEntities;
+    Tilemap*                  m_entityGraph;    
 };

@@ -35,6 +35,10 @@ public:
     void
     update();
 
+    void
+    loglap(const uint64 startTime,
+           uint64 (*timefunc)()) logical_const;
+
     uint32
     getFPS() logical_const;
 

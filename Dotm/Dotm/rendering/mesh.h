@@ -24,9 +24,9 @@ public:
 
     struct Vertex    
     {
-        real32 x, y, z;
-        real32 tu, tv;
-        real32 nx, ny, nz;
+        real32 v_x, v_y, v_z;
+        real32 v_tu, v_tv;
+        real32 v_nx, v_ny, v_nz;
     };
 
 public:
@@ -91,9 +91,6 @@ public:
 
     vec3f
     calculateDimensions() logical_const;
-
-    vec3f
-    getPosition() logical_const;
 
     std::shared_ptr<Texture>
     getTexture() bitwise_const;

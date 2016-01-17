@@ -30,6 +30,9 @@ typedef D3DXPLANE   plane;
 
 namespace math
 {
+    inline real32
+    absf(const real32 in) { return in > 0 ? in : -in; }
+
     inline vec4f
     getVec4f(const vec3f& in) { return vec4f(in.x, in.y, in.z, 0.0f); }
 

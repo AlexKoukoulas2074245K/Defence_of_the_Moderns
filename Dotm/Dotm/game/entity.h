@@ -15,9 +15,10 @@
 #include "../util/math.h"
 #include <vector>
 
-class Scene;
-class Camera;
-class Entity
+struct Tile;
+class  Scene;
+class  Camera;
+class  Entity
 {
 public:
 
@@ -48,15 +49,24 @@ public:
     
     bool
     isHighlighted() logical_const;
+   
+    const std::vector<Mesh*>&
+    getBodies() logical_const;
+
+    Tile*
+    getTileRef() logical_const;
 
     void
-    acquireBodies(Entity::body_iter& begin,
-                  Entity::body_iter& end) logical_const;
+    setTileRef(Tile* tileRef); 
+    
+    void
+    setHighlighted(const bool highlighted);
 
 private:
 
     const stringID     m_name;
     const Camera*      m_cameraRef;
+    Tile*              m_tileRef;
     uint32             m_properties;
     std::vector<Mesh*> m_bodies;
 
