@@ -15,10 +15,20 @@
 #include <vector>
 
 class Entity;
+
+const uint32 TILE_FLAG_SOLID = 0x01;
+const uint32 TILE_FLAG_INVIS = 0x02;
+
 struct Tile
 {
-    vec2f t_position;
+    uint32               t_flags;
+    vec2f                t_position;
     std::vector<Entity*> t_entities;
+    size_t               t_col;
+    size_t               t_row;
+
+    inline bool isSolid()     logical_const { return (t_flags & TILE_FLAG_SOLID) != 0; }
+    inline bool isInvisible() logical_const { return (t_flags & TILE_FLAG_INVIS) != 0; }
 };
 
 class Tilemap
@@ -44,6 +54,12 @@ public:
     size_t
     getRow(const real32 z) logical_const;
 
+    size_t
+    getCols() logical_const;
+
+    size_t
+    getRows() logical_const;
+
     vec2f
     getTilePos2f(const size_t col, const size_t row) logical_const;
 
@@ -52,6 +68,9 @@ public:
 
     Tile*
     getTile(const size_t col, const size_t row) bitwise_const;
+
+    Tile*
+    getTile(const vec3f& position) bitwise_const;
 
     void
     renderDebug();

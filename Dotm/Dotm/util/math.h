@@ -54,11 +54,17 @@ namespace math
     inline FLOAT
     max2f(const FLOAT a, const FLOAT b) { return a > b ? a : b; }
 
+    inline SIZE_T
+    max2ui(const SIZE_T a, const SIZE_T b) { return a > b ? a : b; }
+
     inline FLOAT
     max3f(const FLOAT a, const FLOAT b, const FLOAT c) { return max2f(a, max2f(b, c)); }
 
     inline FLOAT
     min2f(const FLOAT a, const FLOAT b) { return a < b ? a : b; }
+
+    inline SIZE_T
+    min2ui(const SIZE_T a, const SIZE_T b)  { return a < b ? a : b; }
 
     inline FLOAT
     min3f(const FLOAT a, const FLOAT b, const FLOAT c) { return min2f(a, min2f(b, c)); }
@@ -69,6 +75,25 @@ namespace math
     inline FLOAT
     avg3f(const FLOAT a, const FLOAT b, const FLOAT c) { return (a + b + c) / 3.0f; }
 
+    inline INT
+    lerpf(FLOAT& curr, const FLOAT goal, const FLOAT dt) 
+    {
+        FLOAT diff = goal - curr;
+
+        if (diff > dt)
+        {
+            curr += dt;
+            return 0;
+        }
+        else if (diff < -dt)
+        {
+            curr -= dt;
+            return 0;
+        }
+
+        curr = goal;
+        return 1;
+    }
     
     /* ===============
        Class: Geometry

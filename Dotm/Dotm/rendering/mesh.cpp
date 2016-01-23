@@ -94,7 +94,7 @@ Mesh::Mesh(cstring      meshName,
            m_dimensions(),
            m_collSPhere(vec3f(), real32()),
            m_visiSphere(vec3f(), real32()),
-           m_highlighted(false)
+           m_highlighted(false)           
 {
     // If there is a mesh registered with this name initialize
     // this mesh from the registered mesh
@@ -233,9 +233,9 @@ Mesh::getVisibleGeometry() bitwise_const
 {
     vec3f meshDimensions = calculateDimensions();
     m_visiSphere.setPosition(position);
-    m_visiSphere.setRadius((math::max3f(meshDimensions.x,
+    m_visiSphere.setRadius(math::max3f(meshDimensions.x,
                                         meshDimensions.y,
-                                        meshDimensions.z)) / 2.0f);
+                                        meshDimensions.z));
     return m_visiSphere;
 }
 

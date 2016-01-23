@@ -128,7 +128,7 @@ private:
     uint32   m_indexCount;    
     vec3f    m_dimensions;
     bool     m_highlighted;
-
+    
     comptr<ID3D11Buffer>     m_vertexBuffer;
     comptr<ID3D11Buffer>     m_indexBuffer;
     std::shared_ptr<Texture> m_texture;

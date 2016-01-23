@@ -15,6 +15,7 @@
 #include "../game/camera.h"
 #include "../game/scene.h"
 #include "../game/tilemap.h"
+#include "../game/pathfinding.h"
 #include "../systemmonitor.h"
 #include "../util/logging.h"
 #include "../handlers/inputhandler.h"
@@ -67,22 +68,35 @@ PlayState::PlayState():
                                {"turret01_top", "turret01_base"},                               
                                m_camera,
                                Entity::ENTITY_PROPERTY_SELECTABLE, 
-                               {real32((std::rand() % 40) - 20), 0.0f, real32((std::rand() % 40) - 20)});    
+                               m_levelGrid->getTilePos3f(3, 5));    
 
         else if (i < NENTITIES * 2/3) m_entities[i] = new Entity("second_turret",
                                {"turret02_top", "turret02_base"},                               
                                m_camera,
                                Entity::ENTITY_PROPERTY_SELECTABLE, 
-                               {real32((std::rand() % 40) - 20), 0.0f, real32((std::rand() % 40) - 20)});
+                               m_levelGrid->getTilePos3f(4, 5));
 
         else  m_entities[i] = new Entity("third_turret",
                                {"sample_sphere"},                               
                                m_camera,
                                Entity::ENTITY_PROPERTY_SELECTABLE, 
-                               {real32((std::rand() % 40) - 20), 0.0f, real32((std::rand() % 40) - 20)},
+                               m_levelGrid->getTilePos3f(5, 5),
                                "debug");
     }
     
+    m_levelGrid->getTile(0, 4)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(1, 4)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(2, 4)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(3, 4)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(4, 4)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(5, 4)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(1, 0)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(1, 1)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(1, 2)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(3, 1)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(3, 2)->t_flags |= TILE_FLAG_SOLID;
+    m_levelGrid->getTile(3, 3)->t_flags |= TILE_FLAG_SOLID;
+
     for (size_t i = 0;
                 i < NENTITIES;
               ++i)
@@ -118,7 +132,11 @@ PlayState::~PlayState()
 
 void
 PlayState::update()
-{      
+{
+    if (InputHandler::get()->isTapped(InputHandler::KEY_Q)) 
+    {        
+        m_entities[0]->findPathTo(m_levelGrid->getTilePos3f(0, 0), m_levelGrid, true);
+    }
     m_camera->update();    
     m_sysmonitor->update();   
     m_scene->update();   
@@ -129,7 +147,7 @@ PlayState::render()
 {
     Renderer::get()->beginFrame();
     Renderer::get()->renderMesh(m_sky);
-    //m_levelGrid->renderDebug();
+    m_levelGrid->renderDebug();
     Renderer::get()->renderScene(m_scene);
 
     // Profiling

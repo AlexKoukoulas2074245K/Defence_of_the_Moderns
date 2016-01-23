@@ -90,7 +90,7 @@ Scene::getLights() logical_const
 const std::vector<Entity*>&
 Scene::getEntities() logical_const
 {
-    m_entityGraph->renderDebug();
+ 
     return m_cachedEntities;    
 }
 

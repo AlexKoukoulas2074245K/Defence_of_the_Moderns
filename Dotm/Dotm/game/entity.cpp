@@ -11,8 +11,10 @@
 #include "scene.h"
 #include "camera.h"
 #include "tilemap.h"
+#include "pathfinding.h"
+#include "command.h"
 #include "../util/physics.h"
-#include <thread>
+#include "../util/logging.h"
 
 /* --------------
    Public Methods
@@ -26,7 +28,9 @@ Entity::Entity(const cstring               name,
 
                m_name(internString(name)),
                m_properties(entityProperties),               
-               m_cameraRef(camera)
+               m_cameraRef(camera),
+               m_targetPos(vec3f()),
+               m_hasTarget(false)
 {
 
     std::vector<std::thread> initThreads;
@@ -72,15 +76,56 @@ Entity::~Entity()
     {
         delete *iter;
     }
+
+    for (auto iter = m_path.begin();
+              iter != m_path.end();
+            ++iter)
+    {
+        delete *iter;
+    }
 }
 
 void
 Entity::update()
-{    
+{
     // if not static entity
     if ((m_properties & ENTITY_PROPERTY_STATIC) == 0) 
     {
         m_bodies[0]->rotation.y += 0.01f;
+
+        if (m_hasTarget)
+        {            
+            uint32 goalAccum  = 0U;
+            uint32 nBodies    = m_bodies.size();
+
+            for (auto iter = m_bodies.begin();
+                      iter != m_bodies.end();
+                    ++iter)
+            {
+                goalAccum += math::lerpf((*iter)->position.x, m_targetPos.x, 0.1f);
+                goalAccum += math::lerpf((*iter)->position.y, m_targetPos.y, 0.1f);
+                goalAccum += math::lerpf((*iter)->position.z, m_targetPos.z, 0.1f);
+            }
+            
+            // Lerp on goal returns 1, so the entity has reached 
+            // the target when all of its bodies' positional coordinates
+            // have reached the goal and have returned 1 on lerp. And hence nBodies * 3 (x, y, z)
+            if(goalAccum == nBodies * 3) 
+            {
+                // Atomic path update
+                m_entityMutex.lock();
+                if (m_path.size() > 0)
+                {                    
+                    m_path.front()->execute();
+                    m_path.pop_front();
+                }
+                else
+                {
+                    m_hasTarget = false;
+                }
+                m_entityMutex.unlock();
+            }
+        }        
     }
 
     // if selectable
@@ -88,6 +133,52 @@ Entity::update()
     {        
         setHighlighted(physics::isPicked(m_bodies[0], m_cameraRef));
     }
+}
+
+void
+Entity::findPathTo(const vec3f&   target, 
+                   const Tilemap* grid,
+                   const bool     erasePrevious)
+{      
+    m_aiThread = std::thread([=]()
+    {
+        std::list<Command*> newInstructions;
+        pathfinding::findPath(grid, 
+                              grid->getTile(m_bodies[0]->position),
+                              grid->getTile(target), 
+                              this,
+                              &newInstructions);
+
+        // Atomic path update
+        m_entityMutex.lock();
+        m_hasTarget = true;
+
+        // Erase previous path with new contents
+        if (erasePrevious)
+        {
+            for (auto iter = m_path.begin();
+                      iter != m_path.end();
+                    ++iter)
+            {
+                delete *iter;
+            }
+            
+            m_path.assign(newInstructions.begin(),
+                          newInstructions.end());
+        }
+        // Keep previous content and add new at the end
+        else
+        {
+            m_path.insert(m_path.end(),
+                          newInstructions.begin(),
+                          newInstructions.end());
+        }
+
+        m_path.front()->execute();
+        m_path.pop_front();
+        m_entityMutex.unlock();        
+    });
+    m_aiThread.detach();
 }
 
 Mesh*
@@ -115,6 +206,12 @@ Entity::getTileRef() logical_const
     return m_tileRef;
 }
 
+const vec3f&
+Entity::getTargetPos() logical_const
+{
+    return m_targetPos;
+}
+
 void
 Entity::setTileRef(Tile* tileRef)
 {
@@ -130,4 +227,11 @@ Entity::setHighlighted(const bool highlighted)
     {
         (*iter)->setHighlighted(highlighted);
     }
+}
+
+void
+Entity::setTargetPos(const vec3f& targetPos)
+{
+    m_targetPos = targetPos;
+    m_hasTarget = true;
 }

@@ -10,6 +10,7 @@
 #include "../rendering/renderer.h"
 #include "tilemap.h"
 #include "camera.h"
+#include "../util/logging.h"
 
 /* --------------
    Public Methods
@@ -38,6 +39,11 @@ Tilemap::Tilemap(const size_t nRows,
                   ++x)
         {
             m_tiles[y][x] = new Tile;
+
+            m_tiles[y][x]->t_flags = 0U;
+            m_tiles[y][x]->t_col   = x;
+            m_tiles[y][x]->t_row   = y;
+
             m_tiles[y][x]->t_position.x = m_origin.x -
                 ((real32(x) - real32(m_nCols) / 2) * m_tileSize) - m_tileSize / 2;
 
@@ -82,6 +88,18 @@ Tilemap::getRow(const real32 z) logical_const
     return size_t(math::absf(addedZOffset) / m_tileSize);
 }
 
+size_t
+Tilemap::getCols() logical_const
+{
+    return m_nCols;
+}
+
+size_t
+Tilemap::getRows() logical_const
+{
+    return m_nRows;
+}
+
 vec2f
 Tilemap::getTilePos2f(const size_t col, const size_t row) logical_const
 {
@@ -97,7 +115,19 @@ Tilemap::getTilePos3f(const size_t col, const size_t row) logical_const
 Tile*
 Tilemap::getTile(const size_t col, const size_t row) bitwise_const
 {
+    if ((col < 0 || col > m_nCols - 1) ||
+        (row < 0 || row > m_nRows - 1))
+    {
+        return nullptr;
+    }
     return m_tiles[row][col];
+}
+
+Tile*
+Tilemap::getTile(const vec3f& position) bitwise_const
+{
+    return getTile(getCol(position.x),
+                   getRow(position.z));
 }
 
 void
@@ -105,7 +135,8 @@ Tilemap::renderDebug()
 {
 #ifdef _DEBUG
     math::GeoPlane debugPlane({}, {});
-
+    math::Cube     debugCube({}, {});
+    
     for (size_t y = 0;
                 y < m_nRows; 
               ++y)
@@ -113,10 +144,20 @@ Tilemap::renderDebug()
         for (size_t x = 0;
                     x < m_nCols;
                   ++x)
-        {
+        {      
             debugPlane.setPosition(math::getVec3f(m_tiles[y][x]->t_position));
             debugPlane.setDimensions({m_tileSize, m_tileSize});
-            Renderer::get()->renderPrimitive(Renderer::PLANE, &debugPlane, true);                            
+            debugCube.setPosition(math::getVec3f(m_tiles[y][x]->t_position));
+            debugCube.setDimensions({m_tileSize, m_tileSize, m_tileSize});
+
+            if (m_tiles[y][x]->isSolid())
+            {
+                Renderer::get()->renderPrimitive(Renderer::CUBE, &debugCube, false);
+            }
+            else
+            {
+                Renderer::get()->renderPrimitive(Renderer::PLANE, &debugPlane, true);                            
+            }
         }
     }
 
