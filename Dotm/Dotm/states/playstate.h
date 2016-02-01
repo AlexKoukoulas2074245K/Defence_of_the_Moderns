@@ -16,6 +16,8 @@
 
 class Mesh;
 class Entity;
+class AIEntity;
+class ETurret;
 class Camera;
 class SystemMonitor;
 class Light;
@@ -35,10 +37,10 @@ public:
     operator = (const PlayState& rhs) = delete;
 
     void
-    update();
+    update() override;
 
     void
-    render();
+    render() override;
 
 private:
 
@@ -48,11 +50,14 @@ private:
 private:    
     
     Scene*          m_scene;
-    Entity**        m_entities;
-    Entity*         m_field;
+    AIEntity*       m_enemy;
+    ETurret*        m_testTurret;
+    ETurret*        m_testTurret2;
+    Entity*         m_field;        
     Mesh*           m_sky;
     Camera*         m_camera;
     SystemMonitor*  m_sysmonitor;
-    Light*          m_sun;    
+    Light*          m_sun;        
     Tilemap*        m_levelGrid;
+
 };

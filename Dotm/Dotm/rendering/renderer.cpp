@@ -165,14 +165,23 @@ Renderer::renderScene(const Scene* scene)
 }
 
 void
-Renderer::renderPrimitive(const Primitive       primitive, 
+Renderer::renderPrimitive(const Primitive       primitive,
                           const math::Geometry* geometry,
+                          const DebugColor      debugColor,
                           const bool            wireframe)
 {
     if (wireframe) m_d3dState->m_devcon->RSSetState(m_d3dState->m_wireFrameRastState.Get());
     
     Mesh* mesh = m_primitiveModels[primitive];
     if (!mesh) return;
+
+    cstring texName = nullptr;
+    switch (debugColor)
+    {
+    case DebugColor::CYAN: texName   = "debug_cyan"; break;
+    case DebugColor::RED: texName    = "debug_red"; break;
+    case DebugColor::YELLOW: texName = "debug_yellow"; break;
+    }
 
     switch (primitive)
     {
@@ -223,7 +232,8 @@ Renderer::renderPrimitive(const Primitive       primitive,
 
         }break;
     }
-        
+    
+    mesh->loadNewTexture(texName);
     renderMesh(mesh);
     
     if (wireframe) m_d3dState->m_devcon->RSSetState(m_d3dState->m_solidRastState.Get());
@@ -328,13 +338,14 @@ Renderer::Renderer():
     m_font(new Font("font_1", 0.1f)),
     m_currentLightBuffer(new Shader::PSCBuffer)
 {   
+    // Preload debug textures
+    Texture red("debug_red");
+    Texture cyan("debug_cyan");
+    Texture yellow("debug_yellow");
+
     m_primitiveModels[Primitive::CUBE]   = new Mesh("sample_cube",   Mesh::MESH_TYPE_NORMAL);
     m_primitiveModels[Primitive::PLANE]  = new Mesh("sample_plane",  Mesh::MESH_TYPE_NORMAL);
     m_primitiveModels[Primitive::SPHERE] = new Mesh("sample_sphere", Mesh::MESH_TYPE_NORMAL);
-
-    m_primitiveModels[Primitive::CUBE]  ->loadNewTexture("debug");
-    m_primitiveModels[Primitive::PLANE] ->loadNewTexture("debug");
-    m_primitiveModels[Primitive::SPHERE]->loadNewTexture("debug");    
 }
 
 bool

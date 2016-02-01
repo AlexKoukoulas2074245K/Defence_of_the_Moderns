@@ -11,6 +11,12 @@
 #include "stringutils.h"
 #include <sstream>
 
+std::string
+string_utils::strcat(cstring a, cstring b)
+{
+    return std::string(a) + b;
+}
+
 std::wstring
 string_utils::getwstring(const std::string& str)
 {

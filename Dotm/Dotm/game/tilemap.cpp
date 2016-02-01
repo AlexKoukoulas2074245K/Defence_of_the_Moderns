@@ -7,10 +7,13 @@
    Tilemap class declared in tilemap.h
    -------------------------------------------- */
 
+#ifdef _DEBUG
 #include "../rendering/renderer.h"
+#endif
 #include "tilemap.h"
 #include "camera.h"
 #include "../util/logging.h"
+
 
 /* --------------
    Public Methods
@@ -131,11 +134,11 @@ Tilemap::getTile(const vec3f& position) bitwise_const
 }
 
 void
-Tilemap::renderDebug()
+Tilemap::renderDebug(const uint32 color,
+                     const bool wireframe)
 {
 #ifdef _DEBUG
     math::GeoPlane debugPlane({}, {});
-    math::Cube     debugCube({}, {});
     
     for (size_t y = 0;
                 y < m_nRows; 
@@ -147,16 +150,14 @@ Tilemap::renderDebug()
         {      
             debugPlane.setPosition(math::getVec3f(m_tiles[y][x]->t_position));
             debugPlane.setDimensions({m_tileSize, m_tileSize});
-            debugCube.setPosition(math::getVec3f(m_tiles[y][x]->t_position));
-            debugCube.setDimensions({m_tileSize, m_tileSize, m_tileSize});
-
+            
             if (m_tiles[y][x]->isSolid())
             {
-                Renderer::get()->renderPrimitive(Renderer::CUBE, &debugCube, false);
+                Renderer::get()->renderPrimitive(Renderer::PLANE, &debugPlane, Renderer::RED, wireframe);
             }
             else
             {
-                Renderer::get()->renderPrimitive(Renderer::PLANE, &debugPlane, true);                            
+                Renderer::get()->renderPrimitive(Renderer::PLANE, &debugPlane, color == 0 ? Renderer::CYAN : Renderer::YELLOW, wireframe);                            
             }
         }
     }

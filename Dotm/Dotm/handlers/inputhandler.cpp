@@ -9,6 +9,7 @@
 
 #include "inputhandler.h"
 #include "../window.h"
+#include "../util/logging.h"
 
 /* -------------
    External Vars
@@ -62,14 +63,18 @@ InputHandler::handleInput(const uint32 msg,
             GetCursorPos(&mousePos);
             ScreenToClient(g_window->getHandle(), &mousePos);
             
-            m_mousePos.x = (float) mousePos.x;
-            m_mousePos.y = (float) mousePos.y;
+            m_mousePos.x = (real32) mousePos.x;
+            m_mousePos.y = (real32) mousePos.y;
         } break;
 
         // Mouse wheel rotatation event
         case WM_MOUSEWHEEL:
         {
-            m_wheelDelta =  (((wparam >> 16) & 0xFFFF) > MOUSE_WHEEL_MID_POINT) ? -1 : 1;            
+            // Extract the High Word from wparam
+            int16 wheelResult = (wparam >> 16) & 0xFFFF;
+
+            // Suppress added wheel movements
+            m_wheelDelta = wheelResult < 0 ? -1 : 1;            
         } break;
 
         // Mouse Button down events
@@ -78,10 +83,9 @@ InputHandler::handleInput(const uint32 msg,
         case WM_MBUTTONDOWN: m_currState |= BUTTON_MIDDLE; break;
 
         // Mouse Button up events
-        case WM_LBUTTONUP:   m_currState ^= BUTTON_LEFT; break;
-        case WM_RBUTTONUP:   m_currState ^= BUTTON_RIGHT; break;
-        case WM_MBUTTONUP:   m_currState ^= BUTTON_MIDDLE; break;
-          
+        case WM_LBUTTONUP: m_currState ^= BUTTON_LEFT; break;
+        case WM_RBUTTONUP: m_currState ^= BUTTON_RIGHT; break;
+        case WM_MBUTTONUP: m_currState ^= BUTTON_MIDDLE; break;          
     }
 }
 

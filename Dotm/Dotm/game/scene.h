@@ -10,6 +10,7 @@
 #pragma once
 
 #include <vector>
+#include <queue>
 #include "../util/strings.h"
 #include "../dotmdef.h"
 
@@ -20,8 +21,9 @@ class Scene
 {
 public:
 
-    static const uint32 SCENE_NUM_CELLS;
     static const real32 SCENE_CELL_SIZE;
+    static const uint32 SCENE_HOR_NUM_CELLS;
+    static const uint32 SCENE_VER_NUM_CELLS;
 
 public:
     
@@ -38,7 +40,7 @@ public:
     update();
 
     void
-    clear();
+    clearScene();
     
     const std::vector<const Light*>&
     getLights() logical_const;
@@ -53,6 +55,12 @@ public:
     addEntity(Entity* entity);
 
     void
+    queueAddEntity(Entity* entity);
+
+    void
+    queueKillEntity(Entity* entity);
+
+    void
     addLight(const Light* light);
 
     void
@@ -65,5 +73,7 @@ private:
     
     std::vector<const Light*> m_lights;
     std::vector<Entity*>      m_cachedEntities;
+    std::queue<Entity*>       m_waitToAddEntities;
+    std::queue<Entity*>       m_waitToKillEntities;
     Tilemap*                  m_entityGraph;    
 };

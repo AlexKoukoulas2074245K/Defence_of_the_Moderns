@@ -1,0 +1,56 @@
+/* ----------------------------------------------
+   Author:           Alex Koukoulas
+   Date:             30/1/2016
+   File name:        eturret.h
+
+   File description: A base class for the 
+   defensive turrets controlled by the player
+   ---------------------------------------------- */
+
+#pragma once
+
+#include "entity.h"
+
+class EProjectile;
+class ETurret: public Entity
+{
+public:
+
+    ETurret(const cstring name,            
+            const Camera* camera,
+            Scene*        scene,
+            const vec3f&  position,
+            const real32  rotvel,
+            const real32  range,
+            const uint32  reloadFrames);
+
+    ~ETurret();
+
+    void
+    update() override;
+
+    const Entity*
+    getTargetEnemy() logical_const;
+
+    void
+    setTargetEnemy(const Entity* enemy);
+
+    void
+    renderDebug();
+
+private:
+
+    bool
+    isEnemyInSight() logical_const;
+
+private:
+
+    const Entity*             m_targetEnemy;
+    Scene*                    m_sceneRef;
+    std::vector<EProjectile*> m_projectiles;
+    math::Sphere*             m_rangeSphere;
+    real32                    m_range;
+    real32                    m_rotVel;
+    uint32                    m_reloadFrames;
+    uint32                    m_reloadCounter;
+};

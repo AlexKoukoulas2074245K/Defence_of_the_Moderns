@@ -12,13 +12,11 @@
 
 #pragma once
 
-// Necessary link to d3dx10
 #pragma comment(lib, "d3dx10.lib")
 
-// d3dx10 header inclusion
-#include <d3dx10.h>
-
 #include "../dotmdef.h"
+#include <d3dx10.h>
+#include <cmath>
 
 #define PI_FL ((float) D3DX_PI)
 
@@ -32,6 +30,9 @@ namespace math
 {
     inline real32
     absf(const real32 in) { return in > 0 ? in : -in; }
+
+    inline real32
+    atan2f(const real32 x, const real32 y) { return std::atan2f(x, y); }
 
     inline vec4f
     getVec4f(const vec3f& in) { return vec4f(in.x, in.y, in.z, 0.0f); }

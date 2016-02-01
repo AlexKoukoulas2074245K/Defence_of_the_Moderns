@@ -39,7 +39,6 @@ MoveCommand::MoveCommand(const vec3f& to,
 
 MoveCommand::~MoveCommand()
 {
-
 }
 
 void

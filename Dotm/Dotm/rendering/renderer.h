@@ -33,6 +33,11 @@ public:
         CUBE, PLANE, SPHERE
     };
 
+    enum DebugColor
+    {
+        YELLOW, CYAN, RED
+    };
+
 public:
 
     static Renderer*
@@ -52,7 +57,8 @@ public:
     void
     renderPrimitive(const Primitive       primitive, 
                     const math::Geometry* geometry,
-                    bool                  wireframe);
+                    const DebugColor      debugColor,
+                    const bool            wireframe);
 
     void
     renderString(const cstring str,

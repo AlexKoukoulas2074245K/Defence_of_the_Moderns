@@ -93,6 +93,12 @@
     <ClCompile Include="game\pathfinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\eturret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\eprojectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h">
@@ -180,6 +186,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\pathfinding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\eturret.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\eprojectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

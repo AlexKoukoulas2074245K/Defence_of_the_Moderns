@@ -51,7 +51,7 @@ public:
     ~MoveCommand();
 
     void
-    execute();
+    execute() override;
 
 private:
 

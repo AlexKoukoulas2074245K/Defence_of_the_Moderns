@@ -47,6 +47,8 @@ pathfinding::findPath(const Tilemap*         grid,
                       Entity*                entity,
                       std::list<Command*>*   outCommandChain)
 {        
+    if (start == end) return;
+
     std::unordered_set<const Tile*> closedSet;
     std::unordered_set<const Tile*> openSet;
     openSet.insert(start);
@@ -114,6 +116,9 @@ pathfinding::findPath(const Tilemap*         grid,
             fScores[*citer] = tentGScore + calculateHeuristic(*citer, end);
         }
     }
+    
+    // Algorithm Failed
+    
 }
 
 /* ------------------

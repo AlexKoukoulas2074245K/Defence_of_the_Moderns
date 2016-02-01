@@ -9,11 +9,15 @@
 
 #pragma once
 
+#include "strings.h"
 #include <string>
 #include <vector>
 
 namespace string_utils
 {
+    std::string
+    strcat(cstring a, cstring b);
+
     std::wstring
     getwstring(const std::string& str);
 
