@@ -11,33 +11,43 @@
 #include "eturret.h"
 #include "eprojectile.h"
 #include "scene.h"
+#include "tilemap.h"
 #include "../util/physics.h"
 #include "../util/stringutils.h"
+#include "../util/logging.h"
 
 #ifdef _DEBUG
 #include "../rendering/renderer.h"
 #endif
 
+/* ---------------
+   Class Constants
+   --------------- */
+const real32 ETurret::ETURRET_INIT_ROT = 0.0f;
+
 /* --------------
    Public Methods
    -------------- */
-ETurret::ETurret(const cstring name,                 
-                 const Camera* camera,
-                 Scene*        scene,
-                 const vec3f&  position,
-                 const real32  rotVel,
-                 const real32  range,
-                 const uint32  reloadFrames):
+ETurret::ETurret(const cstring  name,                 
+                 const Camera*  camera,
+                 const Tilemap* levelTilemap,
+                 Scene*         scene,
+                 const vec3f&   position,
+                 const real32   rotVel,
+                 const real32   range,
+                 const uint32   reloadFrames):
 
                  Entity(name,
                         { string_utils::strcat(name, "_top").c_str(),
                           string_utils::strcat(name, "_base").c_str() },
                         camera, 
+                        levelTilemap,
                         scene,
                         ENTITY_PROPERTY_SELECTABLE, 
                         position, 
                         nullptr),
-                 
+                              
+                 m_state(TurretState::SEEKING),
                  m_targetEnemy(nullptr),
                  m_rotVel(rotVel),
                  m_range(range),
@@ -45,12 +55,15 @@ ETurret::ETurret(const cstring name,
                  m_reloadCounter(reloadFrames)
                      
 {
+    m_levelTMref->getTile(position)->t_flags |= TILE_FLAG_SOLID;
+    m_turret = true;
     m_rangeSphere = new math::Sphere(position, m_range);    
 }
 
 ETurret::~ETurret()
 {
     if (m_rangeSphere) delete m_rangeSphere;
+    m_levelTMref->getTile(m_bodies[0]->position)->t_flags ^= TILE_FLAG_SOLID;
 }
 
 void
@@ -58,50 +71,67 @@ ETurret::update()
 {
     Entity::update();
     
-    if (!m_targetEnemy)
+    switch (m_state)
     {
-        auto globEntities = m_sceneRef->getEntities();
-
-        for (auto citer = globEntities.cbegin();
-                  citer != globEntities.cend();
-                ++citer)
+        case SEEKING:
         {
-            if (*citer == this ||
-                !(*citer)->isEnemy() ||
-                !(*citer)->isAlive() ||
-                !isEnemyInSight(*citer))
+            auto enemies = m_sceneRef->getEnemies();
+
+            // Try to find enemy in range
+            for (auto citer = enemies.cbegin();
+                      citer != enemies.cend();
+                    ++citer)
             {
-                continue;
+                if ((*citer)->isAlive() && isEnemyInSight(*citer))
+                {                
+                    m_targetEnemy = *citer;
+                    m_state       = ATTACKING;
+                    break;
+                }
             }
 
-            m_targetEnemy = *citer;
-            break;
-        }
-    }
-    else
-    {
-        if (!m_targetEnemy->isAlive() || !isEnemyInSight(m_targetEnemy)) 
+            // If no enemy was found interpolate to the intial rotation
+            if (!m_targetEnemy)
+            {                
+                if(math::lerprotf(m_bodies[0]->rotation.y, ETURRET_INIT_ROT, m_rotVel)) 
+                {
+                    m_bodies[0]->rotation.y = 0.0f;
+                }
+            }
+        }break;
+
+        case ATTACKING:
         {
-            m_targetEnemy = nullptr;
-            return;
-        }
+            if (!m_targetEnemy->isAlive() || !isEnemyInSight(m_targetEnemy))
+            {
+                m_targetEnemy = nullptr;
+                m_state       = SEEKING;
+                return;
+            }
 
-        real32 xarg = m_targetEnemy->getBody()->position.x - m_bodies[0]->position.x;
-        real32 zarg = m_targetEnemy->getBody()->position.z - m_bodies[0]->position.z;
-        INT rotReached = math::lerpf(m_bodies[0]->rotation.y, math::atan2f(xarg, zarg), m_rotVel);
+            real32 xarg = m_targetEnemy->getBody()->position.x - m_bodies[0]->position.x;
+            real32 zarg = m_targetEnemy->getBody()->position.z - m_bodies[0]->position.z;            
+            real32 goal = math::atan2f(xarg, zarg);            
+            
+            // Handle negative atan2
+            if (goal < 0) goal = 2 * PI_FL + goal;
 
-        if (rotReached && !m_reloadCounter--)
-        {
-            m_reloadCounter = m_reloadFrames;
+            INT rotReached = math::lerprotf(m_bodies[0]->rotation.y, goal, m_rotVel);
 
-            EProjectile* projectile = new EProjectile("bullet01",
-                                                      m_cameraRef,
-                                                      m_sceneRef,
-                                                      m_bodies[0]->position,                                                      
-                                                      m_targetEnemy->getBody()->position,
-                                                      m_bodies[0]->rotation.y);            
-        }
-    }    
+            if (rotReached && !m_reloadCounter--)
+            {
+                m_reloadCounter = m_reloadFrames;
+
+                EProjectile* projectile = new EProjectile("bullet01",
+                                                           m_cameraRef,
+                                                           m_levelTMref,
+                                                           m_sceneRef,
+                                                           m_bodies[0]->position,
+                                                           m_targetEnemy->getBody()->position,
+                                                           m_bodies[0]->rotation.y);
+            }
+        }break;
+    }   
 }
 
 const Entity*

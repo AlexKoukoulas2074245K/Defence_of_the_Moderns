@@ -1,12 +1,11 @@
 /* ----------------------------------------------
    Author:           Alex Koukoulas
    Date:             5/1/2016
-   File name:        mesh.h
+   File name:        entity.h
 
    File description: An abstract representation
    of a concrete game object both playable and
-   non playable along with the class declarations
-   that inherit from the base class.
+   non playable 
    ---------------------------------------------- */
 
 #pragma once
@@ -25,10 +24,6 @@ class  Scene;
 class  Camera;
 class  Tilemap;
 class  Command;
-
-/* =============
-   Class: Entity
-   ============= */
 class  Entity
 {
 public:
@@ -45,6 +40,7 @@ public:
     Entity(const cstring               name,
            const std::vector<cstring>& meshNames,           
            const Camera*               camera,
+           const Tilemap*              levelTilemap,
            Scene*                      scene,
            const uint32                entityProperties,
            const vec3f&                optPosition = vec3f(),
@@ -77,6 +73,9 @@ public:
     bool
     isEnemy() logical_const;
 
+    bool
+    isTurret() logical_const;
+
     void
     setAlive(const bool alive);
 
@@ -94,6 +93,7 @@ protected:
 
     const stringID     m_name;
     const Camera*      m_cameraRef;
+    const Tilemap*     m_levelTMref;
     Scene*             m_sceneRef;    
     uint32             m_properties;
     std::vector<Mesh*> m_bodies;            
@@ -101,6 +101,7 @@ protected:
     bool               m_hasTarget;
     bool               m_alive;
     bool               m_enemy;
+    bool               m_turret;
     int32              m_stamina;
 
     // M-N relationship here. A tile can have many entities resident, 
@@ -110,43 +111,3 @@ protected:
 
 };
 
-
-/* ====================
-   Class: AIEntity
-   ==================== */
-class AIEntity: public Entity
-{
-
-public:
-
-    AIEntity(const cstring               name,
-             const std::vector<cstring>& meshNames,           
-             const Camera*               camera,
-             Scene*                      scene,
-             const bool                  optSelectable = true,
-             const vec3f&                optPosition = vec3f(),
-             const vec3f&                optVelocity = vec3f(),
-             const cstring               optExternTexName = nullptr);
-
-    virtual
-    ~AIEntity();
-    
-    virtual void
-    update() override;
-
-    virtual void
-    damage(const int32 damage) override;
-
-    void
-    findPathTo(const vec3f&   target, 
-               const Tilemap* grid,
-               const bool     erasePrevious);    
-
-private:
-
-    std::list<Command*> m_path;
-    std::thread         m_pathThread;  
-    std::mutex          m_pathMutex;
-    vec3f               m_velocity;
-    
-};

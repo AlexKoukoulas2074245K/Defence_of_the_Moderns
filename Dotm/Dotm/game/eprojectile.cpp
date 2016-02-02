@@ -22,16 +22,18 @@ extern vec2f g_zLevelBounds;
 /* --------------
    Public Methods
    -------------- */
-EProjectile::EProjectile(const cstring name,            
-                         const Camera* camera,
-                         Scene*        scene,
-                         const vec3f&  position,                         
-                         const vec3f&  targPos,
-                         const real32  initRot):
+EProjectile::EProjectile(const cstring  name,            
+                         const Camera*  camera,
+                         const Tilemap* levelTilemap,
+                         Scene*         scene,
+                         const vec3f&   position,                         
+                         const vec3f&   targPos,
+                         const real32   initRot):
 
                          Entity(name,
                                 {name},
                                 camera,
+                                levelTilemap,
                                 scene,
                                 false,
                                 position)                                

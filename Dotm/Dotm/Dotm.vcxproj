@@ -75,6 +75,7 @@
     <ClCompile Include="dotmmain.cpp" />
     <ClCompile Include="game\camera.cpp" />
     <ClCompile Include="game\command.cpp" />
+    <ClCompile Include="game\eaiminion.cpp" />
     <ClCompile Include="game\entity.cpp" />
     <ClCompile Include="game\eprojectile.cpp" />
     <ClCompile Include="game\eturret.cpp" />
@@ -105,6 +106,7 @@
     <ClInclude Include="dotmdef.h" />
     <ClInclude Include="game\camera.h" />
     <ClInclude Include="game\command.h" />
+    <ClInclude Include="game\eaiminion.h" />
     <ClInclude Include="game\entity.h" />
     <ClInclude Include="game\eprojectile.h" />
     <ClInclude Include="game\tilemap.h" />

@@ -75,7 +75,7 @@ namespace math
 
     inline FLOAT
     avg3f(const FLOAT a, const FLOAT b, const FLOAT c) { return (a + b + c) / 3.0f; }
-
+    
     inline INT
     lerpf(FLOAT& curr, const FLOAT goal, const FLOAT dt) 
     {
@@ -96,6 +96,16 @@ namespace math
         return 1;
     }
     
+    inline INT
+    lerprotf(FLOAT& curr, const FLOAT goal, const FLOAT dt)
+    {
+        if (absf(curr - goal) > absf(curr - 2 * PI_FL + goal))
+        {
+            return lerpf(curr, 2 * PI_FL + goal, dt);
+        }
+        return lerpf(curr, goal, dt);
+    }
+
     /* ===============
        Class: Geometry
        =============== */

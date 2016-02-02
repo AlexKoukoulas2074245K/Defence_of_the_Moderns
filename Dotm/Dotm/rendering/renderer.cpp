@@ -151,7 +151,14 @@ Renderer::renderScene(const Scene* scene)
             Mesh* mesh = const_cast<Mesh*>(*bodyBegin);
             mesh->scale = vec3f(1.08f, 1.08f, 1.08f);
             m_d3dState->m_devcon->OMSetDepthStencilState(m_d3dState->m_disabledDepth.Get(), 1);
-            renderMesh(mesh);
+            if(highlightedEntity->isEnemy()) 
+            {
+                renderMesh(mesh, 2);
+            }
+            else
+            {
+                renderMesh(mesh, 1);
+            }
             m_d3dState->m_devcon->OMSetDepthStencilState(m_d3dState->m_enabledDepth.Get(), 1);
             m_d3dState->m_devcon->ClearDepthStencilView(m_d3dState->m_depthStencilView.Get(),
                                                         D3D11_CLEAR_DEPTH,
@@ -261,7 +268,8 @@ Renderer::renderString(const cstring str,
 }
 
 void
-Renderer::renderMesh(const Mesh* mesh)
+Renderer::renderMesh(const Mesh* mesh,
+                     const int highlightOption /* 0 */)
 {
     if (!mesh) return;
     if (!mesh->isHUDElement() && !testVisible(mesh)) return;    
@@ -286,7 +294,7 @@ Renderer::renderMesh(const Mesh* mesh)
     vcbuffer.vcb_rotationMatrix    = rotMat;
     vcbuffer.vcb_worldMatrix       = worldMat;
     vcbuffer.vcb_eyePosition       = math::getVec4f(m_currentCam->getPosition());
-    vcbuffer.vcb_highlight         = mesh->isHighlighted() ? 1 : -1;
+    vcbuffer.vcb_highlight         = highlightOption;
     
     Shader* currentShader = mesh->isHUDElement() ? m_hudShader : m_stdShader;
     m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, &vcbuffer, NULL, NULL);

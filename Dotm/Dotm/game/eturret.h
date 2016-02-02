@@ -16,13 +16,14 @@ class ETurret: public Entity
 {
 public:
 
-    ETurret(const cstring name,            
-            const Camera* camera,
-            Scene*        scene,
-            const vec3f&  position,
-            const real32  rotvel,
-            const real32  range,
-            const uint32  reloadFrames);
+    ETurret(const cstring  name,            
+            const Camera*  camera,
+            const Tilemap* levelTilemap,
+            Scene*         scene,
+            const vec3f&   position,
+            const real32   rotvel,
+            const real32   range,
+            const uint32   reloadFrames);
 
     ~ETurret();
 
@@ -45,10 +46,22 @@ private:
 
 private:
 
-    const Entity*             m_targetEnemy;        
-    math::Sphere*             m_rangeSphere;
-    real32                    m_range;
-    real32                    m_rotVel;
-    uint32                    m_reloadFrames;
-    uint32                    m_reloadCounter;
+    enum TurretState
+    {
+        SEEKING, ATTACKING
+    };
+
+private:
+
+    static const real32 ETURRET_INIT_ROT;
+
+private:
+
+    const Entity*  m_targetEnemy;     
+    math::Sphere*  m_rangeSphere;
+    TurretState    m_state;
+    real32         m_range;
+    real32         m_rotVel;
+    uint32         m_reloadFrames;
+    uint32         m_reloadCounter;
 };

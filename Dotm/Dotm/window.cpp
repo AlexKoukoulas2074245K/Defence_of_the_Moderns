@@ -13,7 +13,7 @@
 /* -----------------
    Const Definitions
    ----------------- */
-const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1000U;
+const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1400U;
 
 /* --------------
    Public Methods

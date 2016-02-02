@@ -10,6 +10,7 @@
 
 #include "scene.h"
 #include "entity.h"
+#include "eaiminion.h"
 #include "tilemap.h"
 #include <algorithm>
 #include "../util/logging.h"
@@ -25,9 +26,9 @@ vec2f g_zLevelBounds;
 /* ---------
    Constants
    --------- */
-const real32 Scene::SCENE_CELL_SIZE     = 30.0f;
-const uint32 Scene::SCENE_HOR_NUM_CELLS = 3U;
-const uint32 Scene::SCENE_VER_NUM_CELLS = 3U;
+const real32 Scene::SCENE_CELL_SIZE     = 20.0f;
+const uint32 Scene::SCENE_HOR_NUM_CELLS = 5U;
+const uint32 Scene::SCENE_VER_NUM_CELLS = 5U;
    
 /* --------------
    Public Methods
@@ -53,16 +54,35 @@ Scene::~Scene()
 void
 Scene::update()
 {
+    
+    bool turretMod = false;
+
+    // Kill queued entities
     while (!m_waitToKillEntities.empty())
     {
+        if (m_waitToKillEntities.front()->isTurret()) turretMod = true;
         removeEntity(m_waitToKillEntities.front());        
         m_waitToKillEntities.pop();
     }
-
+    
+    // Add queued entities
     while (!m_waitToAddEntities.empty())
     {
-        addEntity(m_waitToAddEntities.front());
+        if (m_waitToAddEntities.front()->isTurret()) turretMod = true;
+        addEntity(m_waitToAddEntities.front());                
         m_waitToAddEntities.pop();
+    }
+
+    // If a turret has been modified (created or destroyed)
+    // path recalculation for all enemies must take place
+    if (turretMod)
+    {
+        for (auto iter = m_enemies.begin();
+                  iter != m_enemies.end();
+                ++iter)
+        {
+            dynamic_cast<EAIMinion*>(*iter)->recalculatePath();
+        }
     }
 
     for (auto iter = m_cachedEntities.begin();
@@ -116,6 +136,14 @@ Scene::clearScene()
     m_lights.clear();    
 }
 
+void
+Scene::renderDebug()
+{
+#ifdef _DEBUG
+    m_entityGraph->renderDebug(1, true);
+#endif
+}
+
 const std::vector<const Light*>&
 Scene::getLights() logical_const
 {
@@ -124,9 +152,14 @@ Scene::getLights() logical_const
 
 const std::vector<Entity*>&
 Scene::getEntities() logical_const
-{
-    m_entityGraph->renderDebug(1, true);
+{        
     return m_cachedEntities;    
+}
+
+const std::vector<Entity*>&
+Scene::getEnemies() logical_const
+{
+    return m_enemies;
 }
 
 const Tilemap*
@@ -204,6 +237,7 @@ Scene::addEntity(Entity* entity)
     entity->setTileRef(m_entityGraph, targetTile);
 
     m_cachedEntities.push_back(entity);
+    if (entity->isEnemy()) m_enemies.push_back(entity);
 }
 
 void
@@ -232,5 +266,16 @@ Scene::removeEntity(Entity* entity)
             iter = m_cachedEntities.erase(iter);
             break;
         }
-    } 
+    }
+
+    for (auto iter = m_enemies.begin();
+        iter != m_enemies.end();
+        ++iter)
+    {
+        if ((*iter) == entity)
+        {         
+            iter = m_enemies.erase(iter);
+            break;
+        }
+    }
 }

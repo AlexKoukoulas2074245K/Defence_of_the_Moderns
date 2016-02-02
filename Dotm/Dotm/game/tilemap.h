@@ -71,7 +71,7 @@ public:
 
     Tile*
     getTile(const vec3f& position) bitwise_const;
-
+    
     void
     renderDebug(const uint32 color,
                 const bool wireframe);

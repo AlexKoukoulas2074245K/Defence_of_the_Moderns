@@ -66,7 +66,8 @@ public:
                  const real32  y);
     
     void
-    renderMesh(const Mesh* mesh);
+    renderMesh(const Mesh* mesh,
+               const int highlightOption = 0);
 
     void
     setCamera(const Camera* camera);
