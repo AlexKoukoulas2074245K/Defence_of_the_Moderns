@@ -25,9 +25,9 @@ vec2f g_zLevelBounds;
 /* ---------
    Constants
    --------- */
-const real32 Scene::SCENE_CELL_SIZE     = 10.0f;
-const uint32 Scene::SCENE_HOR_NUM_CELLS = 10U;
-const uint32 Scene::SCENE_VER_NUM_CELLS = 10U;
+const real32 Scene::SCENE_CELL_SIZE     = 30.0f;
+const uint32 Scene::SCENE_HOR_NUM_CELLS = 3U;
+const uint32 Scene::SCENE_VER_NUM_CELLS = 3U;
    
 /* --------------
    Public Methods
@@ -77,7 +77,7 @@ Scene::update()
             m_entityGraph->getCol((*iter)->getBody()->position.x),
             m_entityGraph->getRow((*iter)->getBody()->position.z));
 
-        // Tile or Death check
+        // Out of boudns or Death check
         if (!targetTile || !(*iter)->isAlive())
         {
             // Force alive false if out of bounds
@@ -108,7 +108,11 @@ Scene::update()
 void
 Scene::clearScene()
 {
-    m_cachedEntities.clear();    
+    while (!m_cachedEntities.empty())
+    {        
+        delete m_cachedEntities.front();
+        m_cachedEntities.erase(m_cachedEntities.begin());
+    }    
     m_lights.clear();    
 }
 
@@ -123,6 +127,12 @@ Scene::getEntities() logical_const
 {
     m_entityGraph->renderDebug(1, true);
     return m_cachedEntities;    
+}
+
+const Tilemap*
+Scene::getInternalTilemap() logical_const
+{
+    return m_entityGraph;
 }
 
 Entity*
@@ -147,18 +157,6 @@ Scene::getHighlightedEntity() bitwise_const
     return highlighted;
 }
 
-void
-Scene::addEntity(Entity* entity)
-{
-    Tile* targetTile = m_entityGraph->getTile(
-        m_entityGraph->getCol(entity->getBody()->position.x),
-        m_entityGraph->getRow(entity->getBody()->position.z));
-
-    targetTile->t_entities.push_back(entity);
-    entity->setTileRef(m_entityGraph, targetTile);
-
-    m_cachedEntities.push_back(entity);
-}
 
 void
 Scene::queueAddEntity(Entity* entity)
@@ -178,33 +176,6 @@ Scene::addLight(const Light* light)
     m_lights.push_back(light);
 }
 
-void
-Scene::removeEntity(Entity* entity)
-{
-    Tile* targetTile = entity->getTileRef(m_entityGraph);
-
-    for (size_t i = 0;
-                i < targetTile->t_entities.size();
-              ++i)
-    {
-        if (targetTile->t_entities[i] == entity) 
-        {
-            targetTile->t_entities.erase(targetTile->t_entities.begin() + i);
-            break;
-        }
-    } 
-
-    for (size_t i = 0;
-                i < m_cachedEntities.size();
-              ++i)
-    {
-        if (m_cachedEntities[i] == entity)
-        {
-            m_cachedEntities.erase(m_cachedEntities.begin() + i);
-            break;
-        }
-    }
-}
 
 void
 Scene::removeLight(const Light* light)
@@ -216,4 +187,50 @@ Scene::removeLight(const Light* light)
         if (m_lights[i] == light) m_lights.erase(m_lights.begin() + i);
         break;
     }
+}
+
+/* ---------------
+   Private Methods
+   --------------- */
+
+void
+Scene::addEntity(Entity* entity)
+{
+    Tile* targetTile = m_entityGraph->getTile(
+        m_entityGraph->getCol(entity->getBody()->position.x),
+        m_entityGraph->getRow(entity->getBody()->position.z));
+
+    targetTile->t_entities.push_back(entity);
+    entity->setTileRef(m_entityGraph, targetTile);
+
+    m_cachedEntities.push_back(entity);
+}
+
+void
+Scene::removeEntity(Entity* entity)
+{
+    Tile* targetTile = entity->getTileRef(m_entityGraph);
+
+    for (auto iter = targetTile->t_entities.begin();
+              iter != targetTile->t_entities.end();
+            ++iter)
+    {
+        if ((*iter) == entity)
+        {            
+            iter = targetTile->t_entities.erase(iter);
+            break;
+        }
+    } 
+
+    for (auto iter = m_cachedEntities.begin();
+              iter != m_cachedEntities.end();
+            ++iter)
+    {
+        if ((*iter) == entity)
+        {
+            delete entity;
+            iter = m_cachedEntities.erase(iter);
+            break;
+        }
+    } 
 }

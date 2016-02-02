@@ -27,6 +27,7 @@
 Entity::Entity(const cstring               name,
                const std::vector<cstring>& meshNames,     
                const Camera*               camera,
+               Scene*                      scene,
                const uint32                entityProperties,
                const vec3f&                optPosition,     /* vec3f() */
                const cstring               optExternTexName /* nullptr*/):
@@ -34,9 +35,12 @@ Entity::Entity(const cstring               name,
                m_name(internString(name)),
                m_properties(entityProperties),               
                m_cameraRef(camera),
+               m_sceneRef(scene),
                m_targetPos(vec3f()),
                m_hasTarget(false),
-               m_alive(true)
+               m_alive(true),
+               m_enemy(false)
+               
 {
 
     std::vector<std::thread> initThreads;
@@ -72,6 +76,9 @@ Entity::Entity(const cstring               name,
     // Assign to final body vector
     m_bodies.assign(tempMeshArray, tempMeshArray + nMeshes);
     delete tempMeshArray;
+
+    // Add self to scene
+    m_sceneRef->queueAddEntity(this);
 }
 
 Entity::~Entity()
@@ -91,6 +98,12 @@ Entity::update()
     {        
         setHighlighted(physics::isPicked(m_bodies[0], m_cameraRef));
     }
+}
+
+void
+Entity::damage(const int32 damage)
+{
+    
 }
 
 Mesh*
@@ -124,6 +137,12 @@ bool
 Entity::isAlive() logical_const
 {
     return m_alive;
+}
+
+bool
+Entity::isEnemy() logical_const
+{
+    return m_enemy;
 }
 
 void
@@ -169,6 +188,7 @@ Entity::setTargetPos(const vec3f& targetPos)
 AIEntity::AIEntity(const cstring               name,
                    const std::vector<cstring>& meshNames,           
                    const Camera*               camera,
+                   Scene*                      scene,
                    const bool                  optSelectable,   /* true    */
                    const vec3f&                optPosition,     /*vec3f()  */
                    const vec3f&                optVelocity,     /* vec3f() */
@@ -177,12 +197,15 @@ AIEntity::AIEntity(const cstring               name,
                    Entity(name,
                           meshNames,
                           camera,
+                          scene,
                           optSelectable ? ENTITY_PROPERTY_SELECTABLE : 0U,
                           optPosition, 
                           optExternTexName),
 
-                   m_velocity(optVelocity)
+                   m_velocity(optVelocity)                   
 {
+    m_stamina = 10;
+    m_enemy = true;
 }
 
 AIEntity::~AIEntity()
@@ -200,6 +223,7 @@ AIEntity::update()
 {
     //m_bodies[0]->rotation.y += 0.01f;
 
+    // Movement
     if (m_hasTarget)
     {
         uint32 goalAccum = 0U;
@@ -235,6 +259,16 @@ AIEntity::update()
     }
 
     Entity::update();
+}
+
+void
+AIEntity::damage(const int32 damage)
+{
+    m_stamina -= damage;
+    if(!m_stamina)
+    {
+        m_alive = false;
+    }
 }
 
 void

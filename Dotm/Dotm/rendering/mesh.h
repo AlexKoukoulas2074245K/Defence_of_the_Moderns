@@ -43,10 +43,14 @@ private:
 
 public:
 
-    // If the optSceneptr parameter is set, the mesh
+    // <summary>
+    // <para> 
+    //  If the optSceneptr parameter is set, the mesh
     // will attempt to remove itself from that scene during destruction
     // If the MESH_EXTERNAL_TEXCOORDS flag is set,
     // the method expects a valid array of vec2f and its size.    
+    // </para>
+    // </summary>
     Mesh(cstring meshName,
          uint32  meshCreationFlags,
          vec2f*  optExternalCoords  = nullptr,

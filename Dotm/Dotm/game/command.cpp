@@ -47,3 +47,26 @@ MoveCommand::execute()
     m_entity->setTargetPos(m_targetPos);    
     delete this;
 }
+
+/* ==================
+   Class: MoveCommand
+   ================== */
+DamageCommand::DamageCommand(const int32 damage,
+                             Entity* entity):
+
+                             Command(entity),
+                             m_damage(damage)
+{
+}
+
+DamageCommand::~DamageCommand()
+{
+
+}
+
+void
+DamageCommand::execute()
+{
+    m_entity->damage(m_damage);
+    delete this;
+}

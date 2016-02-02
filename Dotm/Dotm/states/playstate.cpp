@@ -40,6 +40,7 @@ PlayState::PlayState():
     m_field(new Entity("field",
                        {"sample_plane"},
                        m_camera,
+                       m_scene,
                        Entity::ENTITY_PROPERTY_STATIC,
                        {0.0f, -0.6f, 0.0f},
                        "debug_cyan"))
@@ -57,13 +58,10 @@ PlayState::PlayState():
                                m_camera,
                                m_scene,
                                m_levelGrid->getTilePos3f(5, 6),
-                               0.003f,
+                               0.01f,
                                40.0f,
                                60);
-
-    
-    m_scene->addEntity(m_testTurret);
-    m_scene->addEntity(m_testTurret2);
+       
     m_scene->addLight(m_sun);
     
     m_sky->loadNewTexture("sky");        
@@ -73,20 +71,16 @@ PlayState::PlayState():
 
     m_field->getBody()->scale.x = 50.0f;
     m_field->getBody()->scale.z = 50.0f;
-    m_scene->addEntity(m_field);
         
     m_enemy = new AIEntity("first_turret",
-                           {"sample_plane"},
+                           {"sample_cube"},
                            m_camera,
+                           m_scene,
                            true,
                            m_levelGrid->getTilePos3f(2, 0),
                            {0.1f, 0.1f, 0.1f},
                            "grass");
-
-    m_scene->addEntity(m_enemy);
-
-    m_testTurret->setTargetEnemy(m_enemy);
-    m_testTurret2->setTargetEnemy(m_enemy);
+        
 
     Renderer::get()->setCamera(m_camera);
 
@@ -127,14 +121,10 @@ PlayState::~PlayState()
 { 
     if (m_camera)      delete m_camera;
     if (m_sysmonitor)  delete m_sysmonitor;
-    if (m_sun)         delete m_sun;    
-    if (m_field)       delete m_field;
+    if (m_sun)         delete m_sun;      
     if (m_sky)         delete m_sky;
     if (m_scene)       delete m_scene;
-    if (m_levelGrid)   delete m_levelGrid;
-    if (m_testTurret)  delete m_testTurret;
-    if (m_testTurret2) delete m_testTurret2;
-    if (m_enemy)       delete m_enemy;
+    if (m_levelGrid)   delete m_levelGrid;    
 }
 
 void
@@ -144,11 +134,18 @@ PlayState::update()
     {        
         m_enemy->findPathTo(m_levelGrid->getTilePos3f(2, 6), m_levelGrid, true);        
     }
-
     if (InputHandler::get()->isTapped(InputHandler::KEY_E))
     {
-        delete m_testTurret2;
+        AIEntity* newEnemy = new AIEntity("first_turret",
+                                          {"sample_cube"},
+                                          m_camera,
+                                          m_scene,
+                                          true,
+                                          m_levelGrid->getTilePos3f(7, 0),
+                                          {0.1f, 0.1f, 0.1f},
+                                          "grass");
 
+        newEnemy->findPathTo(m_levelGrid->getTilePos3f(2, 6), m_levelGrid, true);
     }
     m_camera->update();    
     m_sysmonitor->update();   

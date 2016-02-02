@@ -41,13 +41,11 @@ public:
 private:
 
     bool
-    isEnemyInSight() logical_const;
+    isEnemyInSight(const Entity* enemy) logical_const;
 
 private:
 
-    const Entity*             m_targetEnemy;
-    Scene*                    m_sceneRef;
-    std::vector<EProjectile*> m_projectiles;
+    const Entity*             m_targetEnemy;        
     math::Sphere*             m_rangeSphere;
     real32                    m_range;
     real32                    m_rotVel;

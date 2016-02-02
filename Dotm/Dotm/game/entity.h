@@ -45,6 +45,7 @@ public:
     Entity(const cstring               name,
            const std::vector<cstring>& meshNames,           
            const Camera*               camera,
+           Scene*                      scene,
            const uint32                entityProperties,
            const vec3f&                optPosition = vec3f(),
            const cstring               optExternTexName = nullptr);
@@ -54,6 +55,9 @@ public:
 
     virtual void
     update();
+
+    virtual void
+    damage(const int32 damage);
 
     Mesh*
     getBody(size_t i = 0U) bitwise_const;
@@ -70,13 +74,16 @@ public:
     bool
     isAlive() logical_const;
 
+    bool
+    isEnemy() logical_const;
+
     void
     setAlive(const bool alive);
 
     void
     setTileRef(const Tilemap* tilemap,
                Tile* tile); 
-    
+       
     void
     setHighlighted(const bool highlighted);
 
@@ -87,11 +94,14 @@ protected:
 
     const stringID     m_name;
     const Camera*      m_cameraRef;
+    Scene*             m_sceneRef;    
     uint32             m_properties;
     std::vector<Mesh*> m_bodies;            
     vec3f              m_targetPos;
     bool               m_hasTarget;
     bool               m_alive;
+    bool               m_enemy;
+    int32              m_stamina;
 
     // M-N relationship here. A tile can have many entities resident, 
     // and an entity be resident in many different tilemaps. Thats why
@@ -112,6 +122,7 @@ public:
     AIEntity(const cstring               name,
              const std::vector<cstring>& meshNames,           
              const Camera*               camera,
+             Scene*                      scene,
              const bool                  optSelectable = true,
              const vec3f&                optPosition = vec3f(),
              const vec3f&                optVelocity = vec3f(),
@@ -123,11 +134,13 @@ public:
     virtual void
     update() override;
 
+    virtual void
+    damage(const int32 damage) override;
+
     void
     findPathTo(const vec3f&   target, 
                const Tilemap* grid,
                const bool     erasePrevious);    
-
 
 private:
 
@@ -135,5 +148,5 @@ private:
     std::thread         m_pathThread;  
     std::mutex          m_pathMutex;
     vec3f               m_velocity;
-
+    
 };

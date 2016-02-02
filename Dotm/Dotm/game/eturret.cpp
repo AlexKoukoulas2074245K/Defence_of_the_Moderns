@@ -33,11 +33,11 @@ ETurret::ETurret(const cstring name,
                         { string_utils::strcat(name, "_top").c_str(),
                           string_utils::strcat(name, "_base").c_str() },
                         camera, 
+                        scene,
                         ENTITY_PROPERTY_SELECTABLE, 
                         position, 
                         nullptr),
-
-                 m_sceneRef(scene),
+                 
                  m_targetEnemy(nullptr),
                  m_rotVel(rotVel),
                  m_range(range),
@@ -45,19 +45,12 @@ ETurret::ETurret(const cstring name,
                  m_reloadCounter(reloadFrames)
                      
 {
-    m_rangeSphere = new math::Sphere(position, m_range);
+    m_rangeSphere = new math::Sphere(position, m_range);    
 }
 
 ETurret::~ETurret()
 {
-    if (m_rangeSphere) delete m_rangeSphere;      
-
-    for (auto iter = m_projectiles.begin();
-              iter != m_projectiles.end();
-            ++iter)
-    {
-        delete *iter;
-    }
+    if (m_rangeSphere) delete m_rangeSphere;
 }
 
 void
@@ -65,36 +58,50 @@ ETurret::update()
 {
     Entity::update();
     
-    if (m_targetEnemy && isEnemyInSight())
+    if (!m_targetEnemy)
     {
+        auto globEntities = m_sceneRef->getEntities();
+
+        for (auto citer = globEntities.cbegin();
+                  citer != globEntities.cend();
+                ++citer)
+        {
+            if (*citer == this ||
+                !(*citer)->isEnemy() ||
+                !(*citer)->isAlive() ||
+                !isEnemyInSight(*citer))
+            {
+                continue;
+            }
+
+            m_targetEnemy = *citer;
+            break;
+        }
+    }
+    else
+    {
+        if (!m_targetEnemy->isAlive() || !isEnemyInSight(m_targetEnemy)) 
+        {
+            m_targetEnemy = nullptr;
+            return;
+        }
+
         real32 xarg = m_targetEnemy->getBody()->position.x - m_bodies[0]->position.x;
         real32 zarg = m_targetEnemy->getBody()->position.z - m_bodies[0]->position.z;
-        INT goalReached = math::lerpf(m_bodies[0]->rotation.y, math::atan2f(xarg, zarg), m_rotVel);
+        INT rotReached = math::lerpf(m_bodies[0]->rotation.y, math::atan2f(xarg, zarg), m_rotVel);
 
-        if (goalReached && !m_reloadCounter--)
+        if (rotReached && !m_reloadCounter--)
         {
             m_reloadCounter = m_reloadFrames;
 
             EProjectile* projectile = new EProjectile("bullet01",
                                                       m_cameraRef,
+                                                      m_sceneRef,
                                                       m_bodies[0]->position,                                                      
                                                       m_targetEnemy->getBody()->position,
-                                                      m_bodies[0]->rotation.y);
-            m_projectiles.push_back(projectile);
-            m_sceneRef->queueAddEntity(projectile);
+                                                      m_bodies[0]->rotation.y);            
         }
-    }
-
-    for (auto iter = m_projectiles.begin();
-              iter != m_projectiles.end();
-            ++iter)
-    {
-        if (!(*iter)->isAlive())
-        {
-            delete *iter;
-            iter = m_projectiles.erase(iter);
-        }
-    }
+    }    
 }
 
 const Entity*
@@ -124,9 +131,7 @@ ETurret::renderDebug()
    Private Methods
    --------------- */
 bool
-ETurret::isEnemyInSight() logical_const
+ETurret::isEnemyInSight(const Entity* enemy) logical_const
 {
-    return physics::intersectionTest(physics::PHYSICS_INTERSECTION_TYPE_SPHERESPHERE,
-                                     m_rangeSphere, 
-                                     &m_targetEnemy->getBody()->getCollidableGeometry());
+    return D3DXVec3Length(&(enemy->getBody()->position - m_bodies[0]->position)) < m_range;
 }

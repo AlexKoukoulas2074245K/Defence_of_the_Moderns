@@ -18,6 +18,7 @@ public:
        
     EProjectile(const cstring name,            
                 const Camera* camera,
+                Scene*        scene,
                 const vec3f&  position,                
                 const vec3f&  targPos,
                 const real32  initRot);
@@ -27,8 +28,11 @@ public:
     void
     update() override;
 
+    void
+    damage(const int32 damage) override;
+
 private:
 
     vec3f  m_velocity;
-
+    
 };

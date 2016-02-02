@@ -58,3 +58,24 @@ private:
     vec3f m_targetPos;
 
 };
+
+/* ==================
+   Class: MoveCommand
+   ================== */
+class DamageCommand: public Command
+{
+public:
+
+    DamageCommand(const int32 damage,
+                  Entity* entity);
+
+    ~DamageCommand();
+
+    void
+    execute() override;
+
+private:
+
+    int32 m_damage;
+
+};

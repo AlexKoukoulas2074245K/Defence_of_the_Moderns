@@ -48,26 +48,41 @@ public:
     const std::vector<Entity*>&
     getEntities() logical_const;
 
+    const Tilemap*
+    getInternalTilemap() logical_const;
+
     Entity*
     getHighlightedEntity() bitwise_const;
 
-    void
-    addEntity(Entity* entity);
+    // <summary>
+    // <para>
+    // From the moment an entity is added to the scene
+    // the pointer ownership moves to the scene
+    // </para>
+    // </summary>
+    void queueAddEntity(Entity* entity);
 
-    void
-    queueAddEntity(Entity* entity);
-
-    void
-    queueKillEntity(Entity* entity);
+    // <summary>
+    // <para>
+    // Adds the entity to the kill queue
+    // the scene is responsible for deleting the entity
+    // </para>
+    // </summary>
+    void queueKillEntity(Entity* entity);
 
     void
     addLight(const Light* light);
 
     void
-    removeEntity(Entity* entity);
+    removeLight(const Light* light);
+
+private:
 
     void
-    removeLight(const Light* light);
+    addEntity(Entity* entity);
+
+    void
+    removeEntity(Entity* entity);
 
 private:
     
