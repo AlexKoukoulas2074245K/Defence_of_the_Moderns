@@ -35,6 +35,7 @@ public:
     static const uint32 MESH_TYPE_HUD           = 0x02;
     static const uint32 MESH_LOAD_SAME_TEXTURE  = 0x04;
     static const uint32 MESH_EXTERNAL_TEXCOORDS = 0x08;
+    static const uint32 MESH_TYPE_BILLBOARD     = 0x10;
 
 private:
 
@@ -72,6 +73,9 @@ public:
     bool 
     isHUDElement() logical_const;
     
+    bool
+    isBillboard() logical_const;
+
     mat4x4
     getWorldMatrix() logical_const;
 

@@ -44,6 +44,7 @@ EProjectile::EProjectile(const cstring  name,
     D3DXVec3Normalize(&m_velocity, &m_velocity);
     m_velocity /= 3.0f;
     m_stamina = 1;
+    m_bodies[0]->position.y += 1.0f;
 }
 
 EProjectile::~EProjectile()
@@ -84,6 +85,8 @@ EProjectile::update()
 
             selfDamage->execute();
             enemDamage->execute();
+
+            break;
         }
         
     }

@@ -53,6 +53,9 @@ public:
     update();
 
     virtual void
+    renderInternalComponents();
+
+    virtual void
     damage(const int32 damage);
 
     Mesh*

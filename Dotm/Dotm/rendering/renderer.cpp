@@ -39,6 +39,7 @@ Renderer::~Renderer()
     if (m_d3dState)           delete m_d3dState;
     if (m_stdShader)          delete m_stdShader;
     if (m_hudShader)          delete m_hudShader;
+    if (m_bilShader)          delete m_bilShader;
     if (m_font)               delete m_font;
     if (m_currentLightBuffer) delete m_currentLightBuffer;
     
@@ -147,7 +148,7 @@ Renderer::renderScene(const Scene* scene)
                   bodyBegin != bodyVec.rend();
                 ++bodyBegin)
         {
-            // Insidious hack
+            // Insidious Highlighting hack
             Mesh* mesh = const_cast<Mesh*>(*bodyBegin);
             mesh->scale = vec3f(1.08f, 1.08f, 1.08f);
             m_d3dState->m_devcon->OMSetDepthStencilState(m_d3dState->m_disabledDepth.Get(), 1);
@@ -168,7 +169,15 @@ Renderer::renderScene(const Scene* scene)
             mesh->scale = vec3f(1.0f, 1.0f, 1.0f);
             renderMesh(mesh);
         }
-    }        
+    }
+
+    // Finally render healthbars
+    for (auto iter = scene->getEnemies().begin();
+              iter != scene->getEnemies().end();
+            ++iter)
+    {
+        (*iter)->renderInternalComponents();
+    }
 }
 
 void
@@ -278,25 +287,28 @@ Renderer::renderMesh(const Mesh* mesh,
         logline("Camera has not been set");
         return;
     }
-
+        
     uint32 stride = sizeof(Mesh::Vertex);
     uint32 offset = 0U;
 
     mat4x4 projMatrix = m_currentCam->calculateProjectionMatrix();
     mat4x4 viewMatrix = m_currentCam->calculateViewMatrix();    
-
-    mat4x4 worldMat = mesh->getWorldMatrix();
-    mat4x4 finalMat = worldMat * viewMatrix * projMatrix;
-    mat4x4 rotMat   = mesh->getRotationMatrix();
+    mat4x4 worldMat = mesh->getWorldMatrix();    
+    mat4x4 finalMat = worldMat * viewMatrix * projMatrix;  
+    mat4x4 rotMat = mesh->getRotationMatrix();
 
     Shader::VSCBuffer vcbuffer = {};
     vcbuffer.vcb_mvpMatrix         = finalMat;
     vcbuffer.vcb_rotationMatrix    = rotMat;
     vcbuffer.vcb_worldMatrix       = worldMat;
     vcbuffer.vcb_eyePosition       = math::getVec4f(m_currentCam->getPosition());
-    vcbuffer.vcb_highlight         = highlightOption;
-    
-    Shader* currentShader = mesh->isHUDElement() ? m_hudShader : m_stdShader;
+    vcbuffer.vcb_highlight         = highlightOption;    
+
+    Shader* currentShader = nullptr;
+    if(mesh->isHUDElement()) currentShader      = m_hudShader;
+    else if (mesh->isBillboard()) currentShader = m_bilShader;
+    else currentShader                          = m_stdShader;
+
     m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, &vcbuffer, NULL, NULL);
     m_d3dState->m_devcon->UpdateSubresource(currentShader->getPSCBuffer().Get(), NULL, NULL, m_currentLightBuffer, NULL, NULL);
 
@@ -343,6 +355,7 @@ Renderer::Renderer():
     m_d3dState(new D3D11State()),        
     m_stdShader(new Shader("std")),
     m_hudShader(new Shader("hud")),
+    m_bilShader(new Shader("bil")),
     m_font(new Font("font_1", 0.1f)),
     m_currentLightBuffer(new Shader::PSCBuffer)
 {   

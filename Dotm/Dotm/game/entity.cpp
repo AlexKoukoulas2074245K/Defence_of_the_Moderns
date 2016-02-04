@@ -97,6 +97,11 @@ Entity::update()
 }
 
 void
+Entity::renderInternalComponents()
+{
+}
+
+void
 Entity::damage(const int32 damage)
 {
     

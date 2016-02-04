@@ -79,6 +79,7 @@
     <ClCompile Include="game\entity.cpp" />
     <ClCompile Include="game\eprojectile.cpp" />
     <ClCompile Include="game\eturret.cpp" />
+    <ClCompile Include="game\healthbar.cpp" />
     <ClCompile Include="game\pathfinding.cpp" />
     <ClCompile Include="game\scene.cpp" />
     <ClCompile Include="game\tilemap.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="game\eaiminion.h" />
     <ClInclude Include="game\entity.h" />
     <ClInclude Include="game\eprojectile.h" />
+    <ClInclude Include="game\healthbar.h" />
     <ClInclude Include="game\tilemap.h" />
     <ClInclude Include="game\scene.h" />
     <ClInclude Include="game\eturret.h" />

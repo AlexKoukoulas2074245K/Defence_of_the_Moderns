@@ -52,9 +52,10 @@ public:
     const HWND&
     getHandle() logical_const;
 
-private:
+public:
 
     static const uint32 WINDOW_DEFAULT_WD_WIDTH;
+    static const uint32 WINDOW_DEFAULT_WD_HEIGHT;
 
 private:
 

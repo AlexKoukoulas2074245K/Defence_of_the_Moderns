@@ -30,6 +30,9 @@ namespace math
 {
     inline real32
     absf(const real32 in) { return in > 0 ? in : -in; }
+    
+    inline real32
+    atanf(const real32 x) { return std::atanf(x); }
 
     inline real32
     atan2f(const real32 x, const real32 y) { return std::atan2f(x, y); }

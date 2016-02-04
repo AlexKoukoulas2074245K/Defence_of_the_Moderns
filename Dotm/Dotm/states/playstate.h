@@ -18,6 +18,7 @@ class Mesh;
 class Entity;
 class ETurret;
 class EAIMinion;
+class PointLight;
 class Camera;
 class SystemMonitor;
 class Light;
@@ -55,6 +56,7 @@ private:
     ETurret*        m_testTurret2;
     Entity*         m_field;        
     Mesh*           m_sky;
+    PointLight*     m_pointLights[4];
     Camera*         m_camera;
     SystemMonitor*  m_sysmonitor;
     Light*          m_sun;        

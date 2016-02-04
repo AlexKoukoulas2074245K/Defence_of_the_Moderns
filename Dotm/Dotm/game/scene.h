@@ -98,5 +98,6 @@ private:
     std::vector<Entity*>      m_enemies;
     std::queue<Entity*>       m_waitToAddEntities;
     std::queue<Entity*>       m_waitToKillEntities;
-    Tilemap*                  m_entityGraph;    
+    Tilemap*                  m_entityGraph;  
+
 };

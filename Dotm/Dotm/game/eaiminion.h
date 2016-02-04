@@ -10,6 +10,7 @@
 #pragma once
 #include "entity.h"
 
+class Healthbar;
 class EAIMinion: public Entity
 {
 
@@ -32,6 +33,9 @@ public:
     update() override;
 
     virtual void
+    renderInternalComponents() override;
+
+    virtual void
     damage(const int32 damage) override;
 
     void
@@ -43,8 +47,9 @@ public:
 
 private:
 
+    Healthbar*          m_healthbar;
     std::list<Command*> m_path;
-    std::thread         m_pathThread;  
+    std::thread         m_pathThread;
     std::mutex          m_pathMutex;
     vec3f               m_velocity;
     vec3f               m_goalPosition;

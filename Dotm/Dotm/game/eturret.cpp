@@ -111,10 +111,7 @@ ETurret::update()
 
             real32 xarg = m_targetEnemy->getBody()->position.x - m_bodies[0]->position.x;
             real32 zarg = m_targetEnemy->getBody()->position.z - m_bodies[0]->position.z;            
-            real32 goal = math::atan2f(xarg, zarg);            
-            
-            // Handle negative atan2
-            if (goal < 0) goal = 2 * PI_FL + goal;
+            real32 goal = math::atan2f(xarg, zarg);                      
 
             INT rotReached = math::lerprotf(m_bodies[0]->rotation.y, goal, m_rotVel);
 

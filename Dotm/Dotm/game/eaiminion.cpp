@@ -11,6 +11,7 @@
 #include "pathfinding.h"
 #include "command.h"
 #include "tilemap.h"
+#include "healthbar.h"
 
 /* --------------
    Public Methods
@@ -22,7 +23,7 @@ EAIMinion::EAIMinion(const cstring               name,
                      const Tilemap*              levelTilemap,
                      Scene*                      scene,
                      const bool                  optSelectable,   /* true    */
-                     const vec3f&                optPosition,     /*vec3f()  */
+                     const vec3f&                optPosition,     /* vec3f() */
                      const vec3f&                optVelocity,     /* vec3f() */
                      const cstring               optExternTexName /* nullptr */):
 
@@ -37,8 +38,11 @@ EAIMinion::EAIMinion(const cstring               name,
 
                      m_velocity(optVelocity)                   
 {
-    m_stamina = 10;
-    m_enemy = true;
+    m_stamina   = 4;
+    m_healthbar = new Healthbar("minion_healthbar", 
+                                m_bodies[0]->position, 
+                                m_stamina);
+    m_enemy     = true;
 }
 
 EAIMinion::~EAIMinion()
@@ -49,6 +53,8 @@ EAIMinion::~EAIMinion()
     {
         delete *iter;
     }
+
+    if (m_healthbar) delete m_healthbar;
 }
 
 void
@@ -92,13 +98,22 @@ EAIMinion::update()
         }
     }
 
+    m_healthbar->update(m_bodies[0]->position);
     Entity::update();
+}
+
+void
+EAIMinion::renderInternalComponents()
+{
+    m_healthbar->render();
 }
 
 void
 EAIMinion::damage(const int32 damage)
 {
     m_stamina -= damage;
+    m_healthbar->setHitpoints(m_stamina);
+
     if(!m_stamina)
     {
         m_alive = false;

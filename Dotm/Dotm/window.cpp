@@ -13,7 +13,8 @@
 /* -----------------
    Const Definitions
    ----------------- */
-const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1400U;
+const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1366U;
+const uint32 Window::WINDOW_DEFAULT_WD_HEIGHT = 768U;
 
 /* --------------
    Public Methods
@@ -69,17 +70,19 @@ Window::Window(const char*      configPath,
         dmScreen.dmBitsPerPel = 32;
         dmScreen.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        ChangeDisplaySettings(&dmScreen, CDS_FULLSCREEN);
+        ChangeDisplaySettings(&dmScreen, CDS_FULLSCREEN);        
     }
     else
     {
         m_windowWidth  = WINDOW_DEFAULT_WD_WIDTH;
-        m_windowHeight = (uint32) (WINDOW_DEFAULT_WD_WIDTH / m_aspectRatio);
+        m_windowHeight = WINDOW_DEFAULT_WD_HEIGHT;
 
         // Center window
         windowPosX = (GetSystemMetrics(SM_CXSCREEN) - m_windowWidth) / 2;
         windowPosY = (GetSystemMetrics(SM_CYSCREEN) - m_windowHeight) / 2;
     }
+
+    m_aspectRatio = (real32) m_windowWidth / (real32) m_windowHeight;
 
     // Window Creation
     m_handle = CreateWindowEx(NULL,

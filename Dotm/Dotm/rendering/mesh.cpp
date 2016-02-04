@@ -153,9 +153,15 @@ Mesh::isHUDElement() logical_const
     return (m_meshFlags & MESH_TYPE_HUD) != 0;
 }
 
+bool
+Mesh::isBillboard() logical_const
+{
+    return (m_meshFlags & MESH_TYPE_BILLBOARD) != 0;
+}
+
 mat4x4 
 Mesh::getWorldMatrix() logical_const
-{
+{    
     return getScaleMatrix() *
            getRotationMatrix() *
            getTranslationMatrix();
@@ -280,7 +286,7 @@ Mesh::createMesh(vec2f*  optTexCoords,
     std::vector<Vertex> finalVertices;
     std::vector<uint32> finalIndices;
     
-    if (isHUDElement())
+    if (isHUDElement() || isBillboard())
     {
         finalVertices.assign(MESH_HUD_VERTICES, MESH_HUD_VERTICES + 4);
         finalIndices.assign(MESH_HUD_INDICES, MESH_HUD_INDICES + 6);

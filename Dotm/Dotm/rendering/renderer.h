@@ -95,6 +95,7 @@ private:
     D3D11State*   m_d3dState;
     Shader*       m_stdShader;
     Shader*       m_hudShader;
+    Shader*       m_bilShader;
     const Camera* m_currentCam;    
     Font*         m_font;
     

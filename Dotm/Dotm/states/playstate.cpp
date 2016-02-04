@@ -22,6 +22,8 @@
 #include "../util/logging.h"
 #include "../util/physics.h"
 #include "../handlers/inputhandler.h"
+#include <ctime>
+#include <random>
 
 #define NPOINTLIGHTS 4
 
@@ -66,51 +68,41 @@ PlayState::PlayState():
                                40.0f,
                                60);
        
-    m_scene->addLight(m_sun);
+    //m_scene->addLight(m_sun);
     
     m_sky->loadNewTexture("sky");        
     m_sky->scale.x = 4.0f;
     m_sky->scale.y = 2.0f;        
     m_sky->position.z = 0.1f;    
-
-    m_field->getBody()->scale.x = 50.0f;
-    m_field->getBody()->scale.z = 50.0f;
         
-    m_enemy = new EAIMinion("first_turret",
-                            {"sample_cube"},
-                            m_camera,
-                            m_levelGrid,
-                            m_scene,
-                            true,
-                            m_levelGrid->getTilePos3f(2, 0),
-                            {0.1f, 0.1f, 0.1f},
-                            "grass");
+    m_field->getBody()->scale.x = 50.0f;
+    m_field->getBody()->scale.z = 50.0f;      
         
 
     Renderer::get()->setCamera(m_camera);
 
-    m_levelGrid->getTile(1, 1)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(1, 2)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(1, 3)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(1, 4)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(1, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(2, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(3, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(4, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(5, 5)->t_flags |= TILE_FLAG_SOLID;    
-    m_levelGrid->getTile(6, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(7, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(8, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(9, 5)->t_flags |= TILE_FLAG_SOLID;
-    m_levelGrid->getTile(10, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(1, 1)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(1, 2)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(1, 3)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(1, 4)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(1, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(2, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(3, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(4, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(5, 5)->t_flags |= TILE_FLAG_SOLID;    
+    //m_levelGrid->getTile(6, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(7, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(8, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(9, 5)->t_flags |= TILE_FLAG_SOLID;
+    //m_levelGrid->getTile(10, 5)->t_flags |= TILE_FLAG_SOLID;
         
 
-#if 0
-    m_pointLights = new Light*[NPOINTLIGHTS];
-    m_pointLights[0] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(0, 0), 10.0f);
-    m_pointLights[1] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(3, 5), 10.0f);
-    m_pointLights[2] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 0), 10.0f);
-    m_pointLights[3] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(4, 4), 10.0f);
+
+
+    m_pointLights[0] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(2, 3), 10.0f);
+    m_pointLights[1] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(2, 7), 10.0f);
+    m_pointLights[2] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 3), 10.0f);
+    m_pointLights[3] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 7), 10.0f);
 
     for (size_t i = 0;
               i < NPOINTLIGHTS;
@@ -118,40 +110,77 @@ PlayState::PlayState():
     {
         m_scene->addLight(m_pointLights[i]);
     }
-#endif
 
 }
 
 PlayState::~PlayState()
 { 
-    if (m_camera)      delete m_camera;
-    if (m_sysmonitor)  delete m_sysmonitor;
-    if (m_sun)         delete m_sun;      
-    if (m_sky)         delete m_sky;
-    if (m_scene)       delete m_scene;
-    if (m_levelGrid)   delete m_levelGrid;    
+    if (m_camera)        delete m_camera;
+    if (m_sysmonitor)    delete m_sysmonitor;
+    if (m_sun)           delete m_sun;      
+    if (m_sky)           delete m_sky;    
+    if (m_scene)         delete m_scene;
+    if (m_levelGrid)     delete m_levelGrid;    
+
+    delete m_pointLights[0];
+    delete m_pointLights[1];
+    delete m_pointLights[2];
+    delete m_pointLights[3];
 }
 
 void
 PlayState::update()
-{
+{    
     if (InputHandler::get()->isTapped(InputHandler::KEY_Q)) 
     {        
         m_testTurret->setAlive(false);
     }
     if (InputHandler::get()->isTapped(InputHandler::KEY_E))
     {
-        EAIMinion* newEnemy = new EAIMinion("first_turret",
-                                            {"turret02_top", "turret02_base"},
-                                            m_camera,
-                                            m_levelGrid,
-                                            m_scene,
-                                            true,
-                                            m_levelGrid->getTilePos3f(7, 0),
-                                            {0.1f, 0.1f, 0.1f},
-                                            "grass");
+        
+        std::srand(std::time(NULL));
+        int minionType = std::rand() % 3;
+        EAIMinion* newEnemy = nullptr;
 
-        newEnemy->findPathTo(m_levelGrid->getTilePos3f(2, 6), true);
+        if(minionType == 0)
+        {
+            newEnemy = new EAIMinion("first_turret",
+                                     {"turret01_top", "turret01_base"},
+                                     m_camera,
+                                     m_levelGrid,
+                                     m_scene,
+                                     true,
+                                     m_levelGrid->getTilePos3f(std::rand() % 11, 0),
+                                     {0.1f, 0.1f, 0.1f},
+                                     "grass");
+        }
+        else if(minionType == 1)
+        {
+            newEnemy = new EAIMinion("first_turret",
+                                     {"turret02_top", "turret02_base"},
+                                     m_camera,
+                                     m_levelGrid,
+                                     m_scene,
+                                     true,
+                                     m_levelGrid->getTilePos3f(std::rand() % 11, 0),
+                                     {0.1f, 0.1f, 0.1f},
+                                     "grass");
+        }
+        else
+        {
+            newEnemy = new EAIMinion("first_turret",
+                                     {"turret03_top", "turret03_base"},
+                                     m_camera,
+                                     m_levelGrid,
+                                     m_scene,
+                                     true,
+                                     m_levelGrid->getTilePos3f(std::rand() % 11, 0),
+                                     {0.1f, 0.1f, 0.1f},
+                                     "grass");
+        }
+
+        newEnemy->getBody()->rotation.y = PI_FL;
+        newEnemy->findPathTo(m_levelGrid->getTilePos3f(3 + std::rand() % 3, 10), true);
     }
     if (InputHandler::get()->isTapped(InputHandler::KEY_SPACE))
     {
@@ -159,15 +188,24 @@ PlayState::update()
                     m_camera,
                     m_levelGrid,
                     m_scene,
-                    m_levelGrid->getTilePos3f(1, 6),
-                    0.01f,
+                    m_levelGrid->getTilePos3f(2, 7),
+                    0.03f,
                     40.0f,
                     60);
 
+        new ETurret("turret02",                               
+                    m_camera,
+                    m_levelGrid,
+                    m_scene,
+                    m_levelGrid->getTilePos3f(4, 7),
+                    0.03f,
+                    40.0f,
+                    60);
     }
-    m_camera->update();    
+
+    m_camera->update();        
     m_sysmonitor->update(); 
-    m_scene->update();       
+    m_scene->update();           
 }
 
 void
@@ -175,11 +213,12 @@ PlayState::render()
 {
     Renderer::get()->beginFrame();
     Renderer::get()->renderMesh(m_sky);
+
     //m_levelGrid->renderDebug(1, true);
     //m_scene->renderDebug();
     //m_testTurret->renderDebug();
     //m_testTurret2->renderDebug();
-    Renderer::get()->renderScene(m_scene);
+    Renderer::get()->renderScene(m_scene);    
     
     // Profiling
     Renderer::get()->renderString("Fps: ", -0.95f, 0.95f); 
