@@ -12,7 +12,9 @@
 #include "camera.h"
 #include "tilemap.h"
 #include "../util/physics.h"
+#include <thread>
 
+#define SYNC_INIT
 
 /* --------------
    Public Methods
@@ -37,41 +39,19 @@ Entity::Entity(const cstring               name,
                m_enemy(false),
                m_turret(false)
                
-{
-
-    std::vector<std::thread> initThreads;
+{    
     size_t nMeshes = meshNames.size();
-    Mesh** tempMeshArray = new Mesh*[nMeshes];
 
-    // Asynchronous component initialization
-    for (size_t i = 0;
-                i < nMeshes;
-              ++i)         
+    if(nMeshes < 2)
     {
-        initThreads.push_back(std::thread([=]()
-        {
-            uint32 meshFlags = Mesh::MESH_TYPE_NORMAL;
-            if (!optExternTexName) meshFlags |= Mesh::MESH_LOAD_SAME_TEXTURE;
-
-            Mesh* body = new Mesh(meshNames[i], meshFlags);
-
-            if (optExternTexName)  body->loadNewTexture(optExternTexName);
-            body->position = optPosition;
-
-            tempMeshArray[i] = body;
-        }));
-    }   
-
-    for (auto iter = initThreads.begin();
-              iter != initThreads.end();
-            ++iter)
-    {
-        iter->join();
+        // Synchronous body initialization
+        singleBodyInit(meshNames[0], optPosition, optExternTexName);
     }
-
-    // Assign to final body vector
-    m_bodies.assign(tempMeshArray, tempMeshArray + nMeshes);
-    delete tempMeshArray;
+    else
+    {
+        // Asynchronous body initialization
+        multiBodyInit(meshNames, nMeshes, optPosition, optExternTexName);
+    }
 
     // Add self to scene
     m_sceneRef->queueAddEntity(this);
@@ -181,4 +161,73 @@ Entity::setTargetPos(const vec3f& targetPos)
 {
     m_targetPos = targetPos;
     m_hasTarget = true;
+}
+
+/* ---------------
+   Private Methods
+   --------------- */
+void
+Entity::singleBodyInit(const cstring meshName,
+                       const vec3f&  optPosition,
+                       const cstring optExternTexName)
+{
+    uint32 meshFlags = Mesh::MESH_TYPE_NORMAL;
+    if (!optExternTexName) meshFlags |= Mesh::MESH_LOAD_SAME_TEXTURE;
+
+    Mesh* body = new Mesh(meshName, meshFlags);
+
+    if (optExternTexName)  body->loadNewTexture(optExternTexName);
+    body->position = optPosition;
+    m_bodies.push_back(body);
+}
+
+void
+Entity::multiBodyInit(const std::vector<cstring>& meshNames, 
+                      const size_t nMeshes,
+                      const vec3f& optPosition,
+                      const cstring optExternTexName)
+{   
+
+#ifndef SYNC_INIT
+    std::vector<std::thread> initThreads;
+#endif
+
+    Mesh** tempMeshArray = new Mesh*[nMeshes];
+
+    // Asynchronous component initialization
+    for (size_t i = 0;
+                i < nMeshes;
+              ++i)         
+    {
+
+#ifndef SYNC_INIT
+        initThreads.push_back(std::thread([=]()
+        {
+#endif
+            uint32 meshFlags = Mesh::MESH_TYPE_NORMAL;
+            if (!optExternTexName) meshFlags |= Mesh::MESH_LOAD_SAME_TEXTURE;
+
+            Mesh* body = new Mesh(meshNames[i], meshFlags);
+
+            if (optExternTexName)  body->loadNewTexture(optExternTexName);
+            body->position = optPosition;
+
+            tempMeshArray[i] = body;
+
+#ifndef SYNC_INIT
+        }));
+#endif
+    }   
+
+#ifndef SYNC_INIT
+    for (auto iter = initThreads.begin();
+              iter != initThreads.end();
+            ++iter)
+    {
+        iter->join();
+    }
+#endif
+    // Assign to final body vector
+    m_bodies.assign(tempMeshArray, tempMeshArray + nMeshes);
+    delete tempMeshArray;
 }

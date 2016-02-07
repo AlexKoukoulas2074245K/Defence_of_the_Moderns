@@ -24,6 +24,7 @@
 #include "../handlers/inputhandler.h"
 #include <ctime>
 #include <random>
+#include <string>
 
 #define NPOINTLIGHTS 4
 
@@ -50,6 +51,17 @@ PlayState::PlayState():
                        "debug_cyan"))
 
 { 
+    Renderer::get()->setCamera(m_camera);
+    m_scene->addLight(m_sun);
+
+    m_sky->loadNewTexture("sky");        
+    m_sky->scale.x = 4.0f;
+    m_sky->scale.y = 2.0f;        
+    m_sky->position.z = 0.1f;    
+        
+    m_field->getBody()->scale.x = 50.0f;
+    m_field->getBody()->scale.z = 50.0f;      
+
     m_testTurret = new ETurret("turret02",                               
                                m_camera,
                                m_levelGrid,
@@ -68,45 +80,16 @@ PlayState::PlayState():
                                40.0f,
                                60);
        
-    //m_scene->addLight(m_sun);
     
-    m_sky->loadNewTexture("sky");        
-    m_sky->scale.x = 4.0f;
-    m_sky->scale.y = 2.0f;        
-    m_sky->position.z = 0.1f;    
         
-    m_field->getBody()->scale.x = 50.0f;
-    m_field->getBody()->scale.z = 50.0f;      
-        
-
-    Renderer::get()->setCamera(m_camera);
-
-    //m_levelGrid->getTile(1, 1)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(1, 2)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(1, 3)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(1, 4)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(1, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(2, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(3, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(4, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(5, 5)->t_flags |= TILE_FLAG_SOLID;    
-    //m_levelGrid->getTile(6, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(7, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(8, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(9, 5)->t_flags |= TILE_FLAG_SOLID;
-    //m_levelGrid->getTile(10, 5)->t_flags |= TILE_FLAG_SOLID;
-        
-
-
-
-    m_pointLights[0] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(2, 3), 10.0f);
-    m_pointLights[1] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(2, 7), 10.0f);
-    m_pointLights[2] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 3), 10.0f);
+    m_pointLights[0] = new PointLight({0.2f, 0.1f, 0.1f, 1.0f}, {0.6f, 0.3f, 0.3f, 1.0f}, m_levelGrid->getTilePos3f(2, 3), 10.0f);
+    m_pointLights[1] = new PointLight({0.1f, 0.2f, 0.1f, 1.0f}, {0.3f, 0.6f, 0.3f, 1.0f}, m_levelGrid->getTilePos3f(2, 7), 10.0f);
+    m_pointLights[2] = new PointLight({0.1f, 0.1f, 0.2f, 1.0f}, {0.3f, 0.3f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 3), 10.0f);
     m_pointLights[3] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 7), 10.0f);
 
     for (size_t i = 0;
-              i < NPOINTLIGHTS;
-            ++i)
+                i < NPOINTLIGHTS;
+              ++i)
     {
         m_scene->addLight(m_pointLights[i]);
     }
@@ -138,7 +121,7 @@ PlayState::update()
     if (InputHandler::get()->isTapped(InputHandler::KEY_E))
     {
         
-        std::srand(std::time(NULL));
+        std::srand((uint32)std::time(NULL));
         int minionType = std::rand() % 3;
         EAIMinion* newEnemy = nullptr;
 
@@ -205,7 +188,7 @@ PlayState::update()
 
     m_camera->update();        
     m_sysmonitor->update(); 
-    m_scene->update();           
+    m_scene->update();             
 }
 
 void

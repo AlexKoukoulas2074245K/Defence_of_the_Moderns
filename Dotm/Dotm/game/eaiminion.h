@@ -9,6 +9,8 @@
 
 #pragma once
 #include "entity.h"
+#include <thread>
+#include <mutex>
 
 class Healthbar;
 class EAIMinion: public Entity

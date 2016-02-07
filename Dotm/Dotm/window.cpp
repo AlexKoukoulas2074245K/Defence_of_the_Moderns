@@ -13,8 +13,8 @@
 /* -----------------
    Const Definitions
    ----------------- */
-const uint32 Window::WINDOW_DEFAULT_WD_WIDTH = 1366U;
-const uint32 Window::WINDOW_DEFAULT_WD_HEIGHT = 768U;
+const uint32 Window::WINDOW_DEFAULT_WD_WIDTH  = (GetSystemMetrics(SM_CXSCREEN) * 3) / 4;
+const uint32 Window::WINDOW_DEFAULT_WD_HEIGHT = (GetSystemMetrics(SM_CYSCREEN) * 3) / 4;
 
 /* --------------
    Public Methods

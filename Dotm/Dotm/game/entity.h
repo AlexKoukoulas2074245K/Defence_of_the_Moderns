@@ -16,8 +16,7 @@
 #include <vector>
 #include <list>
 #include <unordered_map>
-#include <mutex>
-#include <thread>
+
 
 struct Tile;
 class  Scene;
@@ -91,6 +90,19 @@ public:
 
     void
     setTargetPos(const vec3f& targetPos);
+
+private:
+
+    void
+    singleBodyInit(const cstring meshName,
+                   const vec3f&  optPosition,
+                   const cstring optExternTexName);
+
+    void
+    multiBodyInit(const std::vector<cstring>& meshNames,
+                  const size_t nMeshes,
+                  const vec3f& optPosition,
+                  const cstring optExternTexName);
 
 protected:
 

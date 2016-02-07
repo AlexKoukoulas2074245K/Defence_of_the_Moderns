@@ -43,6 +43,7 @@ Scene::Scene():
                         ( SCENE_HOR_NUM_CELLS / 2.0f) * SCENE_CELL_SIZE };
     g_zLevelBounds = { -real32(SCENE_VER_NUM_CELLS / 2.0f) * SCENE_CELL_SIZE,    
                         ( SCENE_VER_NUM_CELLS / 2.0f) * SCENE_CELL_SIZE };
+
 }
 
 Scene::~Scene()
@@ -97,12 +98,12 @@ Scene::update()
             m_entityGraph->getCol((*iter)->getBody()->position.x),
             m_entityGraph->getRow((*iter)->getBody()->position.z));
 
-        // Out of boudns or Death check
+        // Out of bounds or Death check
         if (!targetTile || !(*iter)->isAlive())
         {
             // Force alive false if out of bounds
             (*iter)->setAlive(false);
-            queueKillEntity(*iter);
+            queueKillEntity(*iter);            
             continue;
         }
 
@@ -132,7 +133,20 @@ Scene::clearScene()
     {        
         delete m_cachedEntities.front();
         m_cachedEntities.erase(m_cachedEntities.begin());
-    }    
+    }  
+
+    while (!m_waitToAddEntities.empty())
+    {
+        delete m_waitToAddEntities.front();
+        m_waitToAddEntities.pop();
+    }
+
+    while (!m_waitToKillEntities.empty())
+    {
+        delete m_waitToKillEntities.front();
+        m_waitToKillEntities.pop();
+    }
+
     m_lights.clear();    
 }
 

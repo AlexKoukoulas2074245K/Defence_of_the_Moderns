@@ -20,7 +20,7 @@ class Tilemap;
 class Scene
 {
 public:
-
+    
     static const real32 SCENE_CELL_SIZE;
     static const uint32 SCENE_HOR_NUM_CELLS;
     static const uint32 SCENE_VER_NUM_CELLS;
