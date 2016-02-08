@@ -93,15 +93,20 @@ Scene::update()
         // Update entity
         (*iter)->update();                
 
+        if (!(*iter)->isAlive())
+        {            
+            queueKillEntity(*iter);
+            continue;
+        }
+
         Tile* oldTile    = (*iter)->getTileRef(m_entityGraph);
         Tile* targetTile = m_entityGraph->getTile(
             m_entityGraph->getCol((*iter)->getBody()->position.x),
             m_entityGraph->getRow((*iter)->getBody()->position.z));
 
         // Out of bounds or Death check
-        if (!targetTile || !(*iter)->isAlive())
-        {
-            // Force alive false if out of bounds
+        if (!targetTile)
+        {            
             (*iter)->setAlive(false);
             queueKillEntity(*iter);            
             continue;

@@ -16,6 +16,20 @@
 
 #define SYNC_INIT
 
+/* -------------
+   Class Methods
+   ------------- */
+void
+Entity::bufferModel(const std::vector<cstring>& meshNames)
+{
+    for (auto citer = meshNames.cbegin();
+              citer != meshNames.cend();
+            ++citer)
+    {
+        Mesh m(*citer, Mesh::MESH_TYPE_NORMAL);
+    }
+}
+
 /* --------------
    Public Methods
    -------------- */
@@ -90,7 +104,11 @@ Entity::damage(const int32 damage)
 Mesh*
 Entity::getBody(size_t i /* 0U */) bitwise_const
 {
-    if (i && i < m_bodies.size()) return m_bodies[i];
+    if (!m_alive || 
+        m_bodies.size() < 1 || 
+        m_bodies.size() > 5) return nullptr;
+
+    else if (i && i < m_bodies.size()) return m_bodies[i];
     return m_bodies[0];
 }
 

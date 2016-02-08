@@ -112,7 +112,7 @@ ETurret::update()
             real32 xarg = m_targetEnemy->getBody()->position.x - m_bodies[0]->position.x;
             real32 zarg = m_targetEnemy->getBody()->position.z - m_bodies[0]->position.z;            
             real32 goal = math::atan2f(xarg, zarg);                      
-
+            
             INT rotReached = math::lerprotf(m_bodies[0]->rotation.y, goal, m_rotVel);
 
             if (rotReached && !m_reloadCounter--)
@@ -160,5 +160,6 @@ ETurret::renderDebug()
 bool
 ETurret::isEnemyInSight(const Entity* enemy) logical_const
 {
+    if (!enemy->getBody()) return false;
     return D3DXVec3Length(&(enemy->getBody()->position - m_bodies[0]->position)) < m_range;
 }

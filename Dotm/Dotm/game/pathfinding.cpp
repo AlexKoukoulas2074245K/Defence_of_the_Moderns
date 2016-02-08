@@ -40,14 +40,14 @@ findNeighbours(const Tile*             node,
 /* ----------------
    Public Functions
    ---------------- */
-void
+bool
 pathfinding::findPath(const Tilemap*         grid, 
                       const Tile*            start,
                       const Tile*            end, 
                       Entity*                entity,
                       std::list<Command*>*   outCommandChain)
 {        
-    if (start == end) return;
+    if (start == end) return true;
 
     std::unordered_set<const Tile*> closedSet;
     std::unordered_set<const Tile*> openSet;
@@ -77,15 +77,18 @@ pathfinding::findPath(const Tilemap*         grid,
         
         if (current == end)
         {
-            for (const Tile* current = end;     // start from the goal
-                 finPath.count(current);        // stop when current is not in the path
-                 current = finPath.at(current)) // backtrack in the path
+            if (outCommandChain)
             {
-                vec3f actualPos = math::getVec3f(current->t_position);
-                outCommandChain->push_front(new MoveCommand(actualPos, entity));
+                for (const Tile* current = end;     // start from the goal
+                     finPath.count(current);        // stop when current is not in the path
+                     current = finPath.at(current)) // backtrack in the path
+                {
+                    vec3f actualPos = math::getVec3f(current->t_position);
+                    outCommandChain->push_front(new MoveCommand(actualPos, entity));
+                }
             }
 
-            return;
+            return true;
         }
 
         openSet.erase(current);
@@ -118,7 +121,7 @@ pathfinding::findPath(const Tilemap*         grid,
     }
     
     // Algorithm Failed
-    
+    return false;
 }
 
 /* ------------------

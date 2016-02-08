@@ -74,7 +74,9 @@ EProjectile::update()
               iter != nearbyEntities.end();
             ++iter)
     {
-        if (*iter == this || !(*iter)->isEnemy()) continue;
+        if (*iter == this || 
+            !(*iter)->isEnemy() ||
+            !(*iter)->isAlive()) continue;
 
         if (physics::intersectionTest(physics::PHYSICS_INTERSECTION_TYPE_SPHERESPHERE,
                                       &m_bodies[0]->getCollidableGeometry(),

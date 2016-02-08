@@ -17,6 +17,7 @@
 #include "../dotmdef.h"
 #include <d3dx10.h>
 #include <cmath>
+#include "logging.h"
 
 #define PI_FL ((float) D3DX_PI)
 
@@ -77,10 +78,10 @@ namespace math
     avg2f(const FLOAT a, const FLOAT b) { return (a + b) / 2.0f; }
 
     inline FLOAT
-    avg3f(const FLOAT a, const FLOAT b, const FLOAT c) { return (a + b + c) / 3.0f; }
+    avg3f(const FLOAT a, const FLOAT b, const FLOAT c) { return (a + b + c) / 3.0f; }    
     
     inline INT
-    lerpf(FLOAT& curr, const FLOAT goal, const FLOAT dt) 
+    lerpf(FLOAT& curr, const FLOAT goal, const FLOAT dt)
     {
         FLOAT diff = goal - curr;
 
@@ -102,12 +103,14 @@ namespace math
     inline INT
     lerprotf(FLOAT& curr, const FLOAT goal, const FLOAT dt)
     {
-        if (absf(curr - goal) > absf(curr - 2 * PI_FL + goal))
+        if (curr * goal < 0)
         {
-            return lerpf(curr, 2 * PI_FL + goal, dt);
+            if (curr > 0) return math::lerpf(curr, goal + 2 * PI_FL, dt);
+            if (curr < 0) return math::lerpf(curr, goal - 2 * PI_FL, dt);
         }
-        return lerpf(curr, goal, dt);
-    }
+
+        return math::lerpf(curr, goal, dt);
+    } 
 
     /* ===============
        Class: Geometry
@@ -164,6 +167,8 @@ namespace math
     class Ray: public Geometry
     {
     public:
+
+        Ray();
 
         Ray(const vec3f& position,
             const vec3f& direction);

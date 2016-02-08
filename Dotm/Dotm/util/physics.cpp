@@ -9,20 +9,75 @@
 
 #include "physics.h"
 #include "../game/camera.h"
+#include "../game/tilemap.h"
 #include "../handlers/inputhandler.h"
 #include "../window.h"
+#include "../util/logging.h"
 
 /* -------------
    External Vars
    ------------- */
 extern Window* g_window;
 
-/* ---------------
-   Public Function
-   --------------- */
+/* ----------------
+   Public Functions
+   ---------------- */
+void
+physics::mouseToRay(const Camera* camera, math::Ray& outRay)
+{
+    // Move mouse coords in normalized screen coords (-1, 1)
+    real32 pointX, pointY;
+    pointX = ((2.0f * InputHandler::get()->getMousePos().x) / (real32) g_window->getWidth()) - 1.0f;
+    pointY = -(((2.0f * InputHandler::get()->getMousePos().y) / (real32) g_window->getHeight()) - 1.0f);
+
+    // Unproject mouse coords from projection
+    pointX /= camera->calculateProjectionMatrix()._11;
+    pointY /= camera->calculateProjectionMatrix()._22;
+
+    // Get the inverse view matrix
+    mat4x4 viewmat = camera->calculateViewMatrix();
+    D3DXMatrixInverse(&viewmat, NULL, &viewmat);
+
+    // Calculate ray direction in view
+    vec3f direction, origin;
+    direction.x = (pointX * viewmat._11) + (pointY * viewmat._21) + viewmat._31;
+    direction.y = (pointX * viewmat._12) + (pointY * viewmat._22) + viewmat._32;
+    direction.z = (pointX * viewmat._13) + (pointY * viewmat._23) + viewmat._33;
+
+    // Get origin of picking ray from the cam pos
+    origin = camera->getPosition();
+
+    outRay.setPosition(origin);
+    outRay.setDirection(direction);
+}
+
+Tile*
+physics::getHighlightedTile(const Camera* camera, const Tilemap* tilemap)
+{
+    math::Ray mouseRay;
+    physics::mouseToRay(camera, mouseRay);
+
+    vec3f planeNormal(0.0f, 1.0f, 0.0f);
+    vec3f planeCenter(tilemap->getOrigin());
+    
+    // Parallel ray and plane
+    if (math::absf(D3DXVec3Dot(&mouseRay.getDirection(), &planeNormal)) < 0.001f)
+    {
+        logline("Parallel");       
+    }
+    else
+    {
+        vec3f planeToRay = planeCenter - mouseRay.getPosition();
+        real32 scalar = D3DXVec3Dot(&planeToRay, &planeNormal) / D3DXVec3Dot(&mouseRay.getDirection(), &planeNormal);
+        vec3f point = scalar * mouseRay.getDirection() + mouseRay.getPosition();
+        return tilemap->getTile(point);
+    }
+
+    return nullptr;
+}
+
 bool
-physics::isPicked(const Mesh*   mesh,
-                  const Camera* camera)
+physics::isPicked(const Mesh* mesh, const Camera* camera)
 {    
     // Move mouse coords in normalized screen coords (-1, 1)
     real32 pointX, pointY;
@@ -44,7 +99,7 @@ physics::isPicked(const Mesh*   mesh,
     direction.z = (pointX * viewmat._13) + (pointY * viewmat._23) + viewmat._33;
 
     // Get origin of picking ray from the cam pos
-    origin = camera->getPosition();
+    origin = camera->getPosition(); 
 
     // Get each object's world matrix
     mat4x4 trans = mesh->getTranslationMatrix();

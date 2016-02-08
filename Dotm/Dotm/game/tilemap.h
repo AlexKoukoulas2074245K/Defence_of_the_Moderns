@@ -48,6 +48,9 @@ public:
     Tilemap&
     operator = (const Tilemap& rhs) = delete;
 
+    const vec3f&
+    getOrigin() logical_const;
+
     size_t
     getCol(const real32 x) logical_const;
 
@@ -82,4 +85,7 @@ protected:
     real32  m_tileSize;
     Tile*** m_tiles; // 2D grid of Tile ptrs
     vec3f   m_origin;
+    vec2f   m_horBounds;
+    vec2f   m_verBounds;
+
 };

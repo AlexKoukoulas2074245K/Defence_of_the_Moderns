@@ -77,6 +77,13 @@ math::Frustum::setPlane(const size_t index,
 /* --------------
    Public Methods
    -------------- */
+math::Ray::Ray():
+
+    Geometry(vec3f()),
+    m_direction()
+{
+}
+
 math::Ray::Ray(const vec3f& position,
                const vec3f& direction):
     

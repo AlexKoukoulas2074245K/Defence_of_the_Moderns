@@ -16,8 +16,8 @@
 
 class Mesh;
 class Entity;
-class ETurret;
 class EAIMinion;
+class BaseManager;
 class PointLight;
 class Camera;
 class SystemMonitor;
@@ -51,9 +51,8 @@ private:
 private:    
     
     Scene*          m_scene;
-    EAIMinion*      m_enemy;
-    ETurret*        m_testTurret;
-    ETurret*        m_testTurret2;
+    EAIMinion*      m_enemy;    
+    BaseManager*    m_baseManager;
     Entity*         m_field;        
     Mesh*           m_sky;
     PointLight*     m_pointLights[4];

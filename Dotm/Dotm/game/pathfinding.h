@@ -17,7 +17,7 @@ class  Command;
 class  Entity;
 namespace pathfinding
 {
-    void
+    bool
     findPath(const Tilemap*         grid, 
              const Tile*            start,
              const Tile*            end, 

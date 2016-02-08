@@ -239,7 +239,7 @@ D3D11State::initD3D()
 
     // Create the sampler description
     D3D11_SAMPLER_DESC samplerDesc = {};
-    samplerDesc.Filter         = D3D11_FILTER_ANISOTROPIC;
+    samplerDesc.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     samplerDesc.MaxAnisotropy  = m_anisotropic;
     samplerDesc.AddressU       = D3D11_TEXTURE_ADDRESS_CLAMP;
     samplerDesc.AddressV       = D3D11_TEXTURE_ADDRESS_CLAMP;

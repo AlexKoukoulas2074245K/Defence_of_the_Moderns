@@ -170,7 +170,7 @@ Renderer::renderScene(const Scene* scene)
             renderMesh(mesh);
         }
     }
-
+    
     // Finally render healthbars
     for (auto iter = scene->getEnemies().begin();
               iter != scene->getEnemies().end();

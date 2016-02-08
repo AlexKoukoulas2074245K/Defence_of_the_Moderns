@@ -24,6 +24,7 @@ static HANDLE thisProcess;
 /* --------------
    Static Methods
    -------------- */
+
 uint64
 SystemMonitor::getTimeMS()
 {

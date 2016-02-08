@@ -54,6 +54,12 @@ Tilemap::Tilemap(const size_t nRows,
                 ((real32(y) - real32(m_nRows) / 2) * m_tileSize) - m_tileSize / 2;
         }
     }
+
+    m_horBounds[0] = m_tiles[0][0]->t_position.x + m_tileSize / 2.0f;
+    m_verBounds[0] = m_tiles[0][0]->t_position.y + m_tileSize / 2.0f;
+
+    m_horBounds[1] = m_tiles[m_nRows - 1][m_nCols - 1]->t_position.x - m_tileSize / 2.0f;
+    m_verBounds[1] = m_tiles[m_nRows - 1][m_nCols - 1]->t_position.y - m_tileSize / 2.0f;
 }
 
 Tilemap::~Tilemap()
@@ -74,11 +80,17 @@ Tilemap::~Tilemap()
     delete m_tiles;
 }
 
+const vec3f&
+Tilemap::getOrigin() logical_const
+{
+    return m_origin;
+}
+
 size_t
 Tilemap::getCol(const real32 x) logical_const
 {
-    // In both getCol to calculate the respective tilemap coordinate
-    // for the input, we need to add the offset of the tilemap itself
+    // In both getCol and getRow, in order to calculate the respective tilemap 
+    // coordinate for the input, we need to add the offset of the tilemap itself
     // (the tilemap's origin is at its center not at the cell 0,0)
     real32 addedXOffset = x - (m_nCols / 2.0f) * m_tileSize;
     return size_t(math::absf(addedXOffset) / m_tileSize);
@@ -87,7 +99,7 @@ Tilemap::getCol(const real32 x) logical_const
 size_t
 Tilemap::getRow(const real32 z) logical_const
 {
-    real32 addedZOffset = z - 2.0f - (m_nRows / 2.0f) * m_tileSize;
+    real32 addedZOffset = z - (m_nRows / 2.0f) * m_tileSize;
     return size_t(math::absf(addedZOffset) / m_tileSize);
 }
 
@@ -129,6 +141,11 @@ Tilemap::getTile(const size_t col, const size_t row) bitwise_const
 Tile*
 Tilemap::getTile(const vec3f& position) bitwise_const
 {
+    if (position.x > m_horBounds[0] ||
+        position.x < m_horBounds[1] ||
+        position.z > m_verBounds[0] ||
+        position.z < m_verBounds[1]) return nullptr;
+
     return getTile(getCol(position.x),
                    getRow(position.z));
 }

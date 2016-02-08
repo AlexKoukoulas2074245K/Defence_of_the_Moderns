@@ -33,7 +33,12 @@ public:
 
     static const uint32 ENTITY_PROPERTY_SELECTABLE = 0x01;
     static const uint32 ENTITY_PROPERTY_STATIC     = 0x02;
-    
+   
+public:
+
+    static void
+    bufferModel(const std::vector<cstring>& meshNames);
+
 public:
 
     Entity(const cstring               name,
