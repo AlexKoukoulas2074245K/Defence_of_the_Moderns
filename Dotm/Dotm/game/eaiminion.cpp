@@ -39,10 +39,11 @@ EAIMinion::EAIMinion(const cstring               name,
                      m_velocity(optVelocity)                   
 {
     m_stamina   = 4;
-    m_healthbar = new Healthbar("minion_healthbar", 
+    m_healthbar = new Healthbar("minion_healthbar",                                 
                                 m_bodies[0]->position, 
-                                m_stamina);
-    m_enemy     = true;
+                                m_stamina);    
+
+    m_enemy = true;
 }
 
 EAIMinion::~EAIMinion()
@@ -55,6 +56,8 @@ EAIMinion::~EAIMinion()
     }
 
     if (m_healthbar) delete m_healthbar;
+
+    Tile* currTile = m_levelTMref->getTile(m_bodies[0]->position);      
 }
 
 void

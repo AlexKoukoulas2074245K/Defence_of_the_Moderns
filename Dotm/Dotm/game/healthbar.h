@@ -21,7 +21,7 @@ class Healthbar
 {
 public:
 
-    Healthbar(const cstring healthbarType,
+    Healthbar(const cstring healthbarType,              
               const vec3f&  minionPos,
               const int32   maxHitpoints);
 
@@ -45,15 +45,17 @@ public:
 private:
 
     void
-    positionComponents();
+    positionComponents(const vec3f& minionPos);
 
 private:
 
     static const real32 HEALTHBAR_INIT_SCALE_X;
+    static const real32 HEALTHBAR_VER_PADDING;
+    static const real32 HEALTHBAR_LERP_SPEED;
 
 private:
 
-    std::vector<Mesh*> m_components;
+    std::vector<Mesh*> m_components;    
     int32              m_maxHitpoints;
     int32              m_curHitpoints;
     real32             m_targetScale;    

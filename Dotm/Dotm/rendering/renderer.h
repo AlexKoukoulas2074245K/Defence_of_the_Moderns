@@ -67,7 +67,9 @@ public:
     
     void
     renderMesh(const Mesh* mesh,
-               const int highlightOption = 0);
+               const int   highlightOption = 0,
+               Shader::VSCBuffer* externVertexBuffer = nullptr,
+               Shader::PSCBuffer* externPixelBuffer = nullptr);
 
     void
     setCamera(const Camera* camera);

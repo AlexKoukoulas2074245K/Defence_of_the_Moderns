@@ -101,13 +101,19 @@ InputHandler::endFrame()
 bool
 InputHandler::isPressed(const uint32 code) logical_const
 {
-    return (m_currState & code) != 0;
+    return (m_currState & code) != 0;    
 }
 
 bool
 InputHandler::isTapped(const uint32 code) logical_const
 {
     return isPressed(code) && (m_prevState & code) == 0;
+}
+
+void
+InputHandler::resetKey(const uint32 code)
+{
+    m_currState ^= code;
 }
 
 int32
@@ -132,15 +138,16 @@ InputHandler::InputHandler():
     m_wheelDelta(0U),
     m_mousePos()    
 {
-    m_recognizedInput[VK_SPACE] = KEY_SPACE;
-    m_recognizedInput[VK_LEFT]  = KEY_LEFT;
-    m_recognizedInput[VK_UP]    = KEY_UP;
-    m_recognizedInput[VK_RIGHT] = KEY_RIGHT;
-    m_recognizedInput[VK_DOWN]  = KEY_DOWN;
-    m_recognizedInput[0x41]     = KEY_A;
-    m_recognizedInput[0x57]     = KEY_W;
-    m_recognizedInput[0x44]     = KEY_D;
-    m_recognizedInput[0x53]     = KEY_S;
-    m_recognizedInput[0x45]     = KEY_E;
-    m_recognizedInput[0x51]     = KEY_Q;
+    m_recognizedInput[VK_SPACE]  = KEY_SPACE;
+    m_recognizedInput[VK_LEFT]   = KEY_LEFT;
+    m_recognizedInput[VK_UP]     = KEY_UP;
+    m_recognizedInput[VK_RIGHT]  = KEY_RIGHT;
+    m_recognizedInput[VK_DOWN]   = KEY_DOWN;
+    m_recognizedInput[0x41]      = KEY_A;
+    m_recognizedInput[0x57]      = KEY_W;
+    m_recognizedInput[0x44]      = KEY_D;
+    m_recognizedInput[0x53]      = KEY_S;
+    m_recognizedInput[0x45]      = KEY_E;
+    m_recognizedInput[0x51]      = KEY_Q;
+    m_recognizedInput[VK_ESCAPE] = KEY_ESCAPE;
 }

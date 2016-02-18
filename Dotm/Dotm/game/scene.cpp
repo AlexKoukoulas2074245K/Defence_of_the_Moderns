@@ -55,37 +55,6 @@ Scene::~Scene()
 void
 Scene::update()
 {
-    
-    bool turretMod = false;
-
-    // Kill queued entities
-    while (!m_waitToKillEntities.empty())
-    {
-        if (m_waitToKillEntities.front()->isTurret()) turretMod = true;
-        removeEntity(m_waitToKillEntities.front());        
-        m_waitToKillEntities.pop();
-    }
-    
-    // Add queued entities
-    while (!m_waitToAddEntities.empty())
-    {
-        if (m_waitToAddEntities.front()->isTurret()) turretMod = true;
-        addEntity(m_waitToAddEntities.front());                
-        m_waitToAddEntities.pop();
-    }
-
-    // If a turret has been modified (created or destroyed)
-    // path recalculation for all enemies must take place
-    if (turretMod)
-    {
-        for (auto iter = m_enemies.begin();
-                  iter != m_enemies.end();
-                ++iter)
-        {
-            dynamic_cast<EAIMinion*>(*iter)->recalculatePath();
-        }
-    }
-
     for (auto iter = m_cachedEntities.begin();
               iter != m_cachedEntities.end();
             ++iter)
@@ -127,6 +96,36 @@ Scene::update()
             }
             targetTile->t_entities.push_back(*iter);            
             (*iter)->setTileRef(m_entityGraph, targetTile);
+        }
+    }
+
+    bool turretMod = false;
+
+    // Kill queued entities
+    while (!m_waitToKillEntities.empty())
+    {
+        if (m_waitToKillEntities.front()->isTurret()) turretMod = true;
+        removeEntity(m_waitToKillEntities.front());
+        m_waitToKillEntities.pop();
+    }
+
+    // Add queued entities
+    while (!m_waitToAddEntities.empty())
+    {
+        if (m_waitToAddEntities.front()->isTurret()) turretMod = true;
+        addEntity(m_waitToAddEntities.front());
+        m_waitToAddEntities.pop();
+    }
+
+    // If a turret has been modified (created or destroyed)
+    // path recalculation for all enemies must take place
+    if (turretMod)
+    {
+        for (auto iter = m_enemies.begin();
+            iter != m_enemies.end();
+            ++iter)
+        {
+            dynamic_cast<EAIMinion*>(*iter)->recalculatePath();
         }
     }
 }

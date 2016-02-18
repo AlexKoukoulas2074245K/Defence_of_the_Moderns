@@ -9,10 +9,13 @@
    ---------------------------------------------------- */
 
 #pragma once
+#include "../rendering/shader.h"
+#include "../game/tilemap.h"
 
-class Tilemap;
-class Scene;
-class Camera;
+class  Scene;
+class  Camera;
+class  Entity;
+struct Shader::PSCBuffer;
 class BaseManager
 {
 public:
@@ -33,7 +36,32 @@ public:
 
 private:
 
-    Scene*         m_sceneRef;
-    const Tilemap* m_tilemapRef;
-    const Camera*  m_cameraRef;
+    bool
+    isEnemyResidentInTile(const Tile* tile);
+
+private:
+
+    enum BMState
+    {
+        HIGHLIGHTING, SELECTED
+    };
+
+private:
+
+    static const real32 BM_HI_HIGHLIGHT_VAL;
+    static const real32 BM_LO_HIGHLIGHT_VAL;
+    static const real32 BM_HIGHLIGHT_INC_VAL;
+
+private:
+
+    BMState           m_state;
+    real32            m_selLerpVal;
+    int32             m_selValFlow;
+    Scene*            m_sceneRef;
+    Entity*           m_tileEntity;
+    Tile*             m_targetTile;
+    const Tilemap*    m_tilemapRef;
+    const Camera*     m_cameraRef;
+    Shader::PSCBuffer m_customPCBuffer;
+
 };

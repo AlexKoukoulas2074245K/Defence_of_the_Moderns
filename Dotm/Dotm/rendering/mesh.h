@@ -13,6 +13,7 @@
 #include "../util/math.h"
 #include "../dotmdef.h"
 #include "../util/strings.h"
+#include "shader.h"
 #include <memory>
 
 class Entity;
@@ -76,6 +77,9 @@ public:
     bool
     isBillboard() logical_const;
 
+    bool
+    noLighting() logical_const;
+
     mat4x4
     getWorldMatrix() logical_const;
 
@@ -96,6 +100,12 @@ public:
 
     comptr<ID3D11Buffer>
     getIndexBuffer() bitwise_const;
+
+    Shader::VSCBuffer*
+    getSpecialVCBuffer() bitwise_const;
+
+    Shader::PSCBuffer*
+    getSpecialPCBuffer() bitwise_const;
 
     vec3f
     calculateDimensions() logical_const;
@@ -118,6 +128,15 @@ public:
     void
     setTexture(std::shared_ptr<Texture> texture);
 
+    void
+    setNoLighting(const bool noLighting);
+
+    void
+    setSpecialVCBuffer(Shader::VSCBuffer* vscbuffer);
+
+    void
+    setSpecialPCBuffer(Shader::PSCBuffer* pscbuffer);
+
 private:
 
     bool
@@ -135,8 +154,11 @@ private:
     uint32   m_meshFlags;
     uint32   m_indexCount;    
     vec3f    m_dimensions;
-    bool     m_highlighted;
-    
+    bool     m_highlighted;    
+    bool     m_noLighting;
+
+    Shader::VSCBuffer*       m_specialVCBuffer;
+    Shader::PSCBuffer*       m_specialPCBuffer;
     comptr<ID3D11Buffer>     m_vertexBuffer;
     comptr<ID3D11Buffer>     m_indexBuffer;
     std::shared_ptr<Texture> m_texture;

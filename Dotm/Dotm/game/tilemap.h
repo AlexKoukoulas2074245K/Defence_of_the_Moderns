@@ -51,6 +51,9 @@ public:
     const vec3f&
     getOrigin() logical_const;
 
+    real32
+    getTileSize() logical_const;
+
     size_t
     getCol(const real32 x) logical_const;
 

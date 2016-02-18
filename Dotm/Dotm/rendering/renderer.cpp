@@ -116,17 +116,21 @@ Renderer::renderScene(const Scene* scene)
     auto entityVec = scene->getEntities();
     Entity* highlightedEntity = scene->getHighlightedEntity();
     
+    std::vector<Entity*> lightingUnnaffected;
+
     for (auto entityBegin = entityVec.begin();
               entityBegin != entityVec.end();
             ++entityBegin)
     {
-        if ((*entityBegin) != highlightedEntity)        
-        {            
+        if ((*entityBegin) != highlightedEntity && 
+           !(*entityBegin)->isInvisible())        
+        {    
+
             auto bodyVec = (*entityBegin)->getBodies();
             for (auto bodyBegin = bodyVec.begin();
                       bodyBegin != bodyVec.end(); 
                     ++bodyBegin)
-            {            
+            {
                 meshList.push_back(*bodyBegin);            
             }
         }
@@ -137,7 +141,10 @@ Renderer::renderScene(const Scene* scene)
               citer != meshList.cend();
             ++citer)
     {       
-        renderMesh(*citer);
+        renderMesh(*citer,
+                   0,
+                   (*citer)->getSpecialVCBuffer(),
+                   (*citer)->getSpecialPCBuffer());
     }
 
     // Highlighted mesh rendering 
@@ -190,6 +197,8 @@ Renderer::renderPrimitive(const Primitive       primitive,
     
     Mesh* mesh = m_primitiveModels[primitive];
     if (!mesh) return;
+
+    mesh->setNoLighting(true);
 
     cstring texName = nullptr;
     switch (debugColor)
@@ -278,7 +287,9 @@ Renderer::renderString(const cstring str,
 
 void
 Renderer::renderMesh(const Mesh* mesh,
-                     const int highlightOption /* 0 */)
+                     const int highlightOption /* 0 */,
+                     Shader::VSCBuffer* externVertexBuffer /* nullptr */,
+                     Shader::PSCBuffer* externPixelBuffer /* nullptr */)
 {
     if (!mesh) return;
     if (!mesh->isHUDElement() && !testVisible(mesh)) return;    
@@ -305,12 +316,16 @@ Renderer::renderMesh(const Mesh* mesh,
     vcbuffer.vcb_highlight         = highlightOption;    
 
     Shader* currentShader = nullptr;
-    if(mesh->isHUDElement()) currentShader      = m_hudShader;
-    else if (mesh->isBillboard()) currentShader = m_bilShader;
+    if (mesh->isHUDElement())   currentShader   = m_hudShader;
+    else if (mesh->isBillboard() ||
+             mesh->noLighting()) currentShader  = m_bilShader;
     else currentShader                          = m_stdShader;
+        
+    Shader::VSCBuffer* finalVCBuffer = externVertexBuffer ? externVertexBuffer : &vcbuffer;
+    Shader::PSCBuffer* finalPCBuffer = externPixelBuffer  ? externPixelBuffer  : m_currentLightBuffer;
 
-    m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, &vcbuffer, NULL, NULL);
-    m_d3dState->m_devcon->UpdateSubresource(currentShader->getPSCBuffer().Get(), NULL, NULL, m_currentLightBuffer, NULL, NULL);
+    m_d3dState->m_devcon->UpdateSubresource(currentShader->getVSCBuffer().Get(), NULL, NULL, finalVCBuffer, NULL, NULL);
+    m_d3dState->m_devcon->UpdateSubresource(currentShader->getPSCBuffer().Get(), NULL, NULL, finalPCBuffer, NULL, NULL);
 
     m_d3dState->m_devcon->IASetVertexBuffers(0, 1, mesh->getVertexBuffer().GetAddressOf(), &stride, &offset);
     m_d3dState->m_devcon->IASetIndexBuffer(mesh->getIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0U);

@@ -49,7 +49,7 @@ PlayState::PlayState():
                        m_scene,
                        Entity::ENTITY_PROPERTY_STATIC,
                        {0.0f, -0.6f, 0.0f},
-                       "debug_cyan"))
+                       "dessert"))
 
 { 
     m_baseManager = new BaseManager(m_scene, m_levelGrid, m_camera);
@@ -65,10 +65,10 @@ PlayState::PlayState():
     m_field->getBody()->scale.z = 50.0f;             
     
         
-    m_pointLights[0] = new PointLight({0.2f, 0.1f, 0.1f, 1.0f}, {0.6f, 0.3f, 0.3f, 1.0f}, m_levelGrid->getTilePos3f(2, 3), 10.0f);
-    m_pointLights[1] = new PointLight({0.1f, 0.2f, 0.1f, 1.0f}, {0.3f, 0.6f, 0.3f, 1.0f}, m_levelGrid->getTilePos3f(2, 7), 10.0f);
-    m_pointLights[2] = new PointLight({0.1f, 0.1f, 0.2f, 1.0f}, {0.3f, 0.3f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 3), 10.0f);
-    m_pointLights[3] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(5, 7), 10.0f);
+    m_pointLights[0] = new PointLight({0.2f, 0.1f, 0.1f, 1.0f}, {0.6f, 0.3f, 0.3f, 1.0f}, m_levelGrid->getTilePos3f(3, 3), 10.0f);
+    m_pointLights[1] = new PointLight({0.1f, 0.2f, 0.1f, 1.0f}, {0.3f, 0.6f, 0.3f, 1.0f}, m_levelGrid->getTilePos3f(3, 7), 10.0f);
+    m_pointLights[2] = new PointLight({0.1f, 0.1f, 0.2f, 1.0f}, {0.3f, 0.3f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(6, 3), 10.0f);
+    m_pointLights[3] = new PointLight({0.2f, 0.2f, 0.2f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, m_levelGrid->getTilePos3f(6, 7), 10.0f);
 
     for (size_t i = 0;
                 i < 4;
@@ -148,11 +148,12 @@ PlayState::update()
         newEnemy->findPathTo(m_levelGrid->getTilePos3f(5, 10), true);
     }
     
+    m_scene->update();    
     m_camera->update();        
     m_baseManager->update();
-    m_scene->update();    
     m_sysmonitor->update(); 
 
+    /* Profiling */
     frameCounter++;
     updateTicks = false;
 

@@ -78,6 +78,9 @@ public:
     isAlive() logical_const;
 
     bool
+    isInvisible() logical_const;
+
+    bool
     isEnemy() logical_const;
 
     bool
@@ -92,6 +95,9 @@ public:
        
     void
     setHighlighted(const bool highlighted);
+
+    void
+    setInvisible(const bool invisible);
 
     void
     setTargetPos(const vec3f& targetPos);
@@ -121,6 +127,7 @@ protected:
     bool               m_hasTarget;
     bool               m_alive;
     bool               m_enemy;
+    bool               m_invisible;    
     bool               m_turret;
     int32              m_stamina;
 

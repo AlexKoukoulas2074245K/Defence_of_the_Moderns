@@ -55,7 +55,9 @@ ETurret::ETurret(const cstring  name,
                  m_reloadCounter(reloadFrames)
                      
 {
-    m_levelTMref->getTile(position)->t_flags |= TILE_FLAG_SOLID;
+    Tile* currTile = m_levelTMref->getTile(position);
+    currTile->t_flags |= TILE_FLAG_SOLID;    
+
     m_turret = true;
     m_rangeSphere = new math::Sphere(position, m_range);    
 }
@@ -63,7 +65,9 @@ ETurret::ETurret(const cstring  name,
 ETurret::~ETurret()
 {
     if (m_rangeSphere) delete m_rangeSphere;
-    m_levelTMref->getTile(m_bodies[0]->position)->t_flags ^= TILE_FLAG_SOLID;
+
+    Tile* currTile = m_levelTMref->getTile(m_bodies[0]->position);
+    currTile->t_flags ^= TILE_FLAG_SOLID;        
 }
 
 void

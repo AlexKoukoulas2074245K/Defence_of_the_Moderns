@@ -86,6 +86,12 @@ Tilemap::getOrigin() logical_const
     return m_origin;
 }
 
+real32
+Tilemap::getTileSize() logical_const
+{
+    return m_tileSize;
+}
+
 size_t
 Tilemap::getCol(const real32 x) logical_const
 {

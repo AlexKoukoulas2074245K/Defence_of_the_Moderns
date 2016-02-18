@@ -94,7 +94,8 @@ Mesh::Mesh(cstring      meshName,
            m_dimensions(),
            m_collSPhere(vec3f(), real32()),
            m_visiSphere(vec3f(), real32()),
-           m_highlighted(false)           
+           m_highlighted(false),
+           m_noLighting(false)
 {
     // If there is a mesh registered with this name initialize
     // this mesh from the registered mesh
@@ -159,6 +160,12 @@ Mesh::isBillboard() logical_const
     return (m_meshFlags & MESH_TYPE_BILLBOARD) != 0;
 }
 
+bool
+Mesh::noLighting() logical_const
+{
+    return m_noLighting;
+}
+
 mat4x4 
 Mesh::getWorldMatrix() logical_const
 {    
@@ -215,6 +222,18 @@ Mesh::getIndexBuffer() bitwise_const
     return m_indexBuffer;
 }
 
+Shader::VSCBuffer*
+Mesh::getSpecialVCBuffer() bitwise_const
+{
+    return m_specialVCBuffer;
+}
+
+Shader::PSCBuffer*
+Mesh::getSpecialPCBuffer() logical_const
+{
+    return m_specialPCBuffer;
+}
+
 vec3f
 Mesh::calculateDimensions() logical_const
 {
@@ -267,6 +286,24 @@ void
 Mesh::setTexture(std::shared_ptr<Texture> texture)
 {
     m_texture = texture;
+}
+
+void
+Mesh::setNoLighting(const bool noLighting)
+{
+    m_noLighting = noLighting;
+}
+
+void
+Mesh::setSpecialVCBuffer(Shader::VSCBuffer* vscbuffer)
+{
+    m_specialVCBuffer = vscbuffer;
+}
+
+void
+Mesh::setSpecialPCBuffer(Shader::PSCBuffer* pscbuffer)
+{
+    m_specialPCBuffer = pscbuffer;
 }
 
 /* ---------------

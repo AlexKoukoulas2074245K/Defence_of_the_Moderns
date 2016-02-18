@@ -51,7 +51,8 @@ Entity::Entity(const cstring               name,
                m_hasTarget(false),
                m_alive(true),
                m_enemy(false),
-               m_turret(false)
+               m_turret(false),
+               m_invisible(false)         
                
 {    
     size_t nMeshes = meshNames.size();
@@ -139,6 +140,12 @@ Entity::isAlive() logical_const
 }
 
 bool
+Entity::isInvisible() logical_const
+{
+    return m_invisible;
+}
+
+bool
 Entity::isEnemy() logical_const
 {
     return m_enemy;
@@ -172,6 +179,12 @@ Entity::setHighlighted(const bool highlighted)
     {
         (*iter)->setHighlighted(highlighted);
     }
+}
+
+void
+Entity::setInvisible(const bool invisible)
+{
+    m_invisible = invisible;
 }
 
 void
